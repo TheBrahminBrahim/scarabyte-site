@@ -169,6 +169,7 @@ a { color: inherit; }
    HERO
    ================================================ */
 .hero {
+  min-height: 100vh;
   min-height: 100svh;
   display: flex;
   flex-direction: column;
@@ -640,10 +641,6 @@ footer {
   .card-wing-hint { display: none; }
   footer { flex-direction: column; text-align: center; }
   .footer-right { text-align: center; }
-  /* flying scarab — smaller on mobile */
-  .scarab-flight { width: 210px; height: 180px; }
-  .scarab-landed-static { width: 116px; }
-  .product-stack { gap: 6rem; }
 }
 
 /* ================================================
@@ -668,8 +665,7 @@ footer {
   user-select: none; -webkit-user-drag: none;
   filter: drop-shadow(0 10px 22px oklch(0.192 0.090 232 / 0.14));
 }
-.fly-frame.main  { opacity: 0; transition: opacity 0.18s linear; }
-.fly-frame.main.is-active { opacity: 1; }
+.fly-frame.main  { opacity: 1; }
 .fly-frame.ghost { opacity: 0; }
 .scarab-flight.is-buzzing .fly-frame.ghost { opacity: 0.14; }
 
@@ -685,6 +681,11 @@ footer {
   width: 150px; height: auto;
   margin: 0.25rem auto;
   opacity: 0.9;
+}
+@media (max-width: 680px) {
+  .scarab-flight { width: 210px; height: 180px; }
+  .scarab-landed-static { width: 116px; }
+  .product-stack { gap: 6rem; }
 }
 @media (prefers-reduced-motion: reduce) {
   .scarab-flight { display: none !important; }
