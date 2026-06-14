@@ -276,6 +276,7 @@ a { color: inherit; }
 .head-zone  { top: 22%; width: 112px; height: 96px; }
 .belly-zone { top: 64%; width: 124px; height: 116px; }
 
+
 /* Scroll indicator */
 .scroll-indicator {
   position: absolute;
@@ -644,53 +645,18 @@ footer {
 }
 
 /* ================================================
-   FLYING SCARAB
+   SCARAB INTERACTIONS — EYE GAZE
    ================================================ */
-.scarab-flight {
+
+/* Container that holds both eye-state layers so the gaze translate
+   applies to both without touching the blink animation on the img itself */
+.scarab-eye-container {
   position: absolute;
-  top: 0; left: 0;
-  width: 280px; height: 240px;
-  z-index: 4;
+  inset: 0;
   pointer-events: none;
-  will-change: transform;
-  transform: translate3d(-9999px, 0, 0);
-  -webkit-backface-visibility: hidden;
-  backface-visibility: hidden;
+  will-change: translate;
 }
-.flight-buzz { position: relative; width: 100%; height: 100%; }
-.fly-frame {
-  position: absolute; inset: 0;
-  width: 100%; height: 100%;
-  object-fit: contain;
-  user-select: none; -webkit-user-drag: none;
-  filter: drop-shadow(0 10px 22px oklch(0.192 0.090 232 / 0.14));
-}
-.fly-frame.main  { opacity: 1; }
-.fly-frame.ghost { opacity: 0; }
-.scarab-flight.is-buzzing .fly-frame.ghost { opacity: 0.14; }
 
-/* Widen the gap between cards so the scarab has room to land */
-.product-stack { gap: 9rem; }
-
-/* Landing marker: invisible measure point centered in the gap */
-.scarab-landing-marker { height: 0; margin: 0; }
-
-/* Static landed pose for reduced-motion and no-JS */
-.scarab-landed-static {
-  display: none;
-  width: 150px; height: auto;
-  margin: 0.25rem auto;
-  opacity: 0.9;
-}
-@media (max-width: 680px) {
-  .scarab-flight { width: 210px; height: 180px; }
-  .scarab-landed-static { width: 116px; }
-  .product-stack { gap: 6rem; }
-}
-@media (prefers-reduced-motion: reduce) {
-  .scarab-flight { display: none !important; }
-  .scarab-landed-static { display: block; }
-}
 </style>
 </head>
 <body>
@@ -705,14 +671,6 @@ footer {
   </a>
 </nav>
 
-<!-- Flying scarab: document-space layer (body child, NOT inside .products). Decorative. -->
-<div class="scarab-flight" id="scarabFlight" aria-hidden="true">
-  <div class="flight-buzz" id="flightBuzz">
-    <img class="fly-frame ghost ghost-prev" id="flyGhostPrev" src="assets/fly-5.png" alt="">
-    <img class="fly-frame ghost ghost-next" id="flyGhostNext" src="assets/fly-2.png" alt="">
-    <img class="fly-frame main is-active"   id="flyMain"      src="assets/fly-1.png" alt="">
-  </div>
-</div>
 
 <!-- ============================
      HERO
@@ -723,7 +681,7 @@ footer {
   <div class="hero-inner">
     <h1 class="hero-h1">
       <span class="line-1">We build software</span>
-      <span class="line-2">for <span class="accent">real</span> life.</span>
+      <span class="line-2">for <span class="accent">real</span> life<span id="fullStop">.</span></span>
     </h1>
 
     <!-- Scarab mascot (decorative; interactions are a hidden gem) -->
@@ -734,8 +692,10 @@ footer {
              eye layer on top of it, so the body never moves between idle and the
              head-rub (no cross-fade, no flicker). Tickle is a separate full pose. -->
         <img class="scarab-img is-active"                  id="scarabBase"      src="assets/scarab-blink.png"      alt="">
-        <img class="scarab-img scarab-eyes is-active"      id="scarabEyes"      src="assets/scarab-eyes.png"       alt="">
-        <img class="scarab-img scarab-eyes-happy"          id="scarabEyesHappy" src="assets/scarab-eyes-happy.png" alt="">
+        <div class="scarab-eye-container" id="eyeContainer">
+          <img class="scarab-img scarab-eyes is-active"      id="scarabEyes"      src="assets/scarab-eyes.png"       alt="">
+          <img class="scarab-img scarab-eyes-happy"          id="scarabEyesHappy" src="assets/scarab-eyes-happy.png" alt="">
+        </div>
         <img class="scarab-img"                            id="scarabLaugh"     src="assets/scarab-laughing.png"   alt="">
       </div>
 
@@ -809,11 +769,6 @@ footer {
             </div>
           </div>
         </article>
-      </div>
-
-      <!-- Landing point for the flying scarab -->
-      <div class="scarab-landing-marker" id="scarabLanding" aria-hidden="true">
-        <img class="scarab-landed-static" id="scarabLandedStatic" src="assets/fly-5.png" alt="">
       </div>
 
       <!-- PetFuel card -->
@@ -1111,147 +1066,114 @@ bellyZone.addEventListener('mouseleave', () => {
 
 // The scarab blinks on its own — unless the visitor prefers reduced motion.
 if (!matchMedia('(prefers-reduced-motion: reduce)').matches) scheduleBlink();
-</script>
 
-<script>
-/* ── FLYING SCARAB ENGINE ───────────────────────────
-   Two-clock architecture:
-   • position+tilt from scroll progress p
-   • wing-frame + body-buzz from wall clock (wings beat even when scrolling stops)
-   Constant size throughout — no distance-shrink. Fully reversible on scroll-up. */
+/* ── FULL STOP SUN EASTER EGG ───────────────────────
+   Click the period at the end of the headline.
+   It detaches, flies down to Baraka's head, and
+   becomes the Egyptian sun disc (Khepri).
+   The sun lives on document.body (position:fixed) so
+   nothing inside scarab-stage can affect it.          */
+const fullStop = document.getElementById('fullStop');
+const SUN_SIZE = 54;
+let sunActive  = false;
+let sunTO      = null;
+
+fullStop.addEventListener('click', () => {
+  if (sunActive) return;
+  sunActive = true;
+
+  const sr     = fullStop.getBoundingClientRect();
+  const stageR = stage.getBoundingClientRect();
+
+  // Period glyph sits at the baseline — use width as dot diameter, anchor to bottom
+  const dotSize = Math.max(sr.width, 10);
+  const startCX = sr.left + sr.width / 2;
+  const startCY = sr.bottom - dotSize / 2;
+  const endCX   = stageR.left + stageR.width / 2;
+  const endCY   = stageR.top  - 9;
+
+  const tx    = endCX - startCX;
+  const ty    = endCY - startCY;
+  const scale = SUN_SIZE / dotSize;
+
+  fullStop.style.opacity = '0';
+
+  const dot = document.createElement('div');
+  dot.style.cssText = `
+    position:fixed;
+    left:${startCX - dotSize/2}px;
+    top:${startCY  - dotSize/2}px;
+    width:${dotSize}px;height:${dotSize}px;
+    border-radius:50%;
+    pointer-events:none;
+    z-index:999;
+  `;
+  document.body.appendChild(dot);
+
+  dot.animate([
+    { transform: 'translate(0,0) scale(1)',
+      background: 'oklch(0.192 0.090 232)' },
+    { transform: `translate(${tx * 0.35}px,${ty * 0.15}px) scale(${scale * 0.65})`,
+      background: 'oklch(0.87 0.18 84)', offset: 0.38 },
+    { transform: `translate(${tx}px,${ty}px) scale(${scale})`,
+      background: 'oklch(0.87 0.18 84)' }
+  ], { duration: 700, easing: 'cubic-bezier(0.22, 1.25, 0.64, 1)', fill: 'forwards' })
+  .onfinish = () => {
+    // dot stays in place as the sun (fill:forwards); fade it out after 5s
+    clearTimeout(sunTO);
+    sunTO = setTimeout(() => {
+      dot.animate([{ opacity: 1 }, { opacity: 0 }],
+        { duration: 400, fill: 'forwards' })
+      .onfinish = () => {
+        dot.remove();
+        fullStop.style.opacity = '';
+        sunActive = false;
+      };
+    }, 5000);
+  };
+});
+
+/* ── EYE GAZE ───────────────────────────────────────────────
+   The eye container shifts max 2.5px toward the cursor,
+   making the pupils appear to follow the visitor's mouse.
+   Uses the individual CSS `translate` property so it composes
+   cleanly with the blink's `transform: scaleY()`.            */
 (function () {
-  const prefersReduce = window.matchMedia('(prefers-reduced-motion: reduce)');
+  const eyeContainer = document.getElementById('eyeContainer');
+  if (!eyeContainer || !stage) return;
 
-  const flight  = document.getElementById('scarabFlight');
-  const buzz    = document.getElementById('flightBuzz');
-  const main    = document.getElementById('flyMain');
-  const gPrev   = document.getElementById('flyGhostPrev');
-  const gNext   = document.getElementById('flyGhostNext');
-  const stage   = document.getElementById('scarabStage');
-  const landing = document.getElementById('scarabLanding');
-  if (!flight || !landing) return;
+  const EYE_MAX = 2.5; // px — max eye-layer displacement
 
-  const FRAMES = [
-    'assets/fly-1.png', 'assets/fly-2.png', 'assets/fly-3.png',
-    'assets/fly-4.png', 'assets/fly-5.png'
-  ];
-  const imgs = FRAMES.map(src => { const i = new Image(); i.src = src; return i; });
-  const FRAME_MS = 55;
-  const N = FRAMES.length;
+  let mx = 0, my = 0, raf = null;
 
-  let START = 0, END = 1, startDocX = 0, startDocY = 0, endDocX = 0, endDocY = 0;
-  let fW = 280, fH = 240, vw = 0, vh = 0;
-  let running = false;
-
-  function measure() {
-    vw = window.innerWidth;
-    vh = window.innerHeight;
-    fW = flight.offsetWidth;
-    fH = flight.offsetHeight;
-    const sy = window.scrollY;
-    const sRect = stage
-      ? stage.getBoundingClientRect()
-      : { left: vw / 2 - 90, top: 140, width: 180, height: 220 };
-    const lRect = landing.getBoundingClientRect();
-    startDocX = sRect.left + sRect.width / 2;
-    startDocY = sRect.top + sy + sRect.height / 2;
-    endDocX   = lRect.left + lRect.width / 2;
-    endDocY   = lRect.top + sy;
-    START = Math.max(0, startDocY - vh * 0.20);
-    END   = Math.max(START + 1, endDocY - vh * 0.50);
-  }
-
-  const easeInOutCubic = t => t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
-  const clamp = (v, a, b) => v < a ? a : v > b ? b : v;
-
-  let cachedScrollY = window.scrollY;
-  let renderX = 0, renderY = 0, inited = false;
-
-  function frame(now) {
-    if (!running) return;
-
-    const sy = cachedScrollY;
-    const p  = clamp((sy - START) / (END - START), 0, 1);
-    const e  = easeInOutCubic(p);
-
-    const bow = Math.sin(e * Math.PI) * (vw < 680 ? 26 : 64);
-    const targetDocX = startDocX + e * (endDocX - startDocX) + bow;
-    const targetDocY = startDocY + e * (endDocY - startDocY);
-
-    let crouch = 0;
-    if (p > 0.02 && p < 0.12) {
-      const k = (p - 0.02) / 0.10;
-      crouch = Math.sin(k * Math.PI) * 5;
+  function tick() {
+    raf = null;
+    if (!isTickling) {
+      const rect = stage.getBoundingClientRect();
+      const ex = rect.left + rect.width  * 0.50;
+      const ey = rect.top  + rect.height * 0.348;
+      const dx = mx - ex;
+      const dy = my - ey;
+      const d  = Math.hypot(dx, dy);
+      if (d > 0) {
+        const s  = Math.min(d / 180, 1);
+        const ox = (dx / d) * EYE_MAX * s;
+        const oy = (dy / d) * EYE_MAX * s;
+        eyeContainer.style.translate = `${ox.toFixed(2)}px ${oy.toFixed(2)}px`;
+      }
+    } else {
+      eyeContainer.style.translate = '0px 0px';
     }
-    const tilt = (p > 0.02 ? 1 : 0) * Math.sin(e * Math.PI) * 12;
-
-    const tx = targetDocX - fW / 2;
-    const ty = targetDocY - fH / 2 + crouch;
-    if (!inited) { renderX = tx; renderY = ty; inited = true; }
-    renderX += (tx - renderX) * 0.18;
-    renderY += (ty - renderY) * 0.18;
-
-    flight.style.transform =
-      `translate3d(${renderX.toFixed(1)}px, ${renderY.toFixed(1)}px, 0) rotate(${tilt.toFixed(2)}deg)`;
-
-    updatePresence(p);
-
-    // ---- WING CLOCK (wall time, independent of scroll) ----
-    const flying = p > 0.04 && p < 0.985;
-    if (flying) {
-      const fi   = Math.floor(now / FRAME_MS) % N;
-      const prev = (fi - 1 + N) % N;
-      const next = (fi + 1) % N;
-      if (main.src.indexOf(FRAMES[fi]) === -1)   main.src  = FRAMES[fi];
-      if (gPrev.src.indexOf(FRAMES[prev]) === -1) gPrev.src = FRAMES[prev];
-      if (gNext.src.indexOf(FRAMES[next]) === -1) gNext.src = FRAMES[next];
-
-      const tremor = Math.sin(now / 100 * Math.PI * 2) * (vw < 680 ? 1.0 : 1.5);
-      const bob    = Math.sin(now / 1330 * Math.PI * 2) * 3;
-      buzz.style.transform = `translate3d(0, ${(tremor + bob).toFixed(2)}px, 0)`;
-    } else if (p >= 0.985) {
-      if (main.src.indexOf(FRAMES[N - 1]) === -1) main.src = FRAMES[N - 1];
-      buzz.style.transform = 'translate3d(0,0,0)';
-    }
-    flight.classList.toggle('is-buzzing', flying);
-
-    requestAnimationFrame(frame);
   }
 
-  function updatePresence(p) {
-    if (stage) {
-      stage.style.opacity = p < 0.06 ? '' : String(clamp(1 - (p - 0.06) / 0.06, 0, 1));
-    }
-    flight.style.opacity = p <= 0.04 ? String(clamp(p / 0.04, 0, 1)) : '1';
-  }
-
-  function onScroll() { cachedScrollY = window.scrollY; }
-  let resizeT = null;
-  function onResize() { clearTimeout(resizeT); resizeT = setTimeout(measure, 120); }
-
-  function start() {
-    if (running || prefersReduce.matches) return;
-    measure();
-    cachedScrollY = window.scrollY;
-    running = true;
-    window.addEventListener('scroll', onScroll, { passive: true });
-    window.addEventListener('resize', onResize);
-    window.addEventListener('orientationchange', onResize);
-    requestAnimationFrame(frame);
-  }
-
-  function stop() {
-    running = false;
-    window.removeEventListener('scroll', onScroll);
-    window.removeEventListener('resize', onResize);
-    window.removeEventListener('orientationchange', onResize);
-    flight.style.transform = 'translate3d(-9999px,0,0)';
-  }
-
-  if (!prefersReduce.matches) start();
-  prefersReduce.addEventListener('change', e => e.matches ? stop() : start());
-})();
+  document.addEventListener('mousemove', e => {
+    mx = e.clientX;
+    my = e.clientY;
+    if (!raf) raf = requestAnimationFrame(tick);
+  }, { passive: true });
+}());
 </script>
+
 
 </body>
 </html>
