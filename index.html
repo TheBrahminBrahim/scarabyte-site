@@ -308,16 +308,6 @@ a { color: inherit; }
   overflow: hidden;
 }
 
-/* Ghost scarab background watermark */
-.products-watermark {
-  position: absolute;
-  right: -60px; top: 50%;
-  transform: translateY(-50%);
-  width: 320px; height: 396px;
-  color: var(--primary);
-  opacity: 0.035;
-  pointer-events: none;
-}
 
 .products-inner { max-width: 920px; margin: 0 auto; }
 
@@ -621,6 +611,12 @@ footer {
   opacity: 0.9;
 }
 .footer-right { text-align: right; }
+.footer-contact-label {
+  display: block;
+  font-size: 0.72rem;
+  color: oklch(0.555 0.035 232);
+  margin-bottom: 0.15rem;
+}
 .footer-email {
   display: block; text-decoration: none;
   color: oklch(0.760 0.095 155);
@@ -644,6 +640,55 @@ footer {
   .card-wing-hint { display: none; }
   footer { flex-direction: column; text-align: center; }
   .footer-right { text-align: center; }
+  /* flying scarab — smaller on mobile */
+  .scarab-flight { width: 210px; height: 180px; }
+  .scarab-landed-static { width: 116px; }
+  .product-stack { gap: 6rem; }
+}
+
+/* ================================================
+   FLYING SCARAB
+   ================================================ */
+.scarab-flight {
+  position: absolute;
+  top: 0; left: 0;
+  width: 280px; height: 240px;
+  z-index: 4;
+  pointer-events: none;
+  will-change: transform;
+  transform: translate3d(-9999px, 0, 0);
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+}
+.flight-buzz { position: relative; width: 100%; height: 100%; }
+.fly-frame {
+  position: absolute; inset: 0;
+  width: 100%; height: 100%;
+  object-fit: contain;
+  user-select: none; -webkit-user-drag: none;
+  filter: drop-shadow(0 10px 22px oklch(0.192 0.090 232 / 0.14));
+}
+.fly-frame.main  { opacity: 0; transition: opacity 0.18s linear; }
+.fly-frame.main.is-active { opacity: 1; }
+.fly-frame.ghost { opacity: 0; }
+.scarab-flight.is-buzzing .fly-frame.ghost { opacity: 0.14; }
+
+/* Widen the gap between cards so the scarab has room to land */
+.product-stack { gap: 9rem; }
+
+/* Landing marker: invisible measure point centered in the gap */
+.scarab-landing-marker { height: 0; margin: 0; }
+
+/* Static landed pose for reduced-motion and no-JS */
+.scarab-landed-static {
+  display: none;
+  width: 150px; height: auto;
+  margin: 0.25rem auto;
+  opacity: 0.9;
+}
+@media (prefers-reduced-motion: reduce) {
+  .scarab-flight { display: none !important; }
+  .scarab-landed-static { display: block; }
 }
 </style>
 </head>
@@ -657,11 +702,16 @@ footer {
     <img class="nav-logo-img" src="assets/scarab-normal.png" alt="" aria-hidden="true">
     <img class="nav-wordmark-img" src="assets/wordmark-navy-thin.png" alt="ScaraByte">
   </a>
-  <div class="nav-links">
-    <a class="nav-link" href="#products">Products</a>
-    <a class="nav-link" href="mailto:hello@scarabyte.app">Contact</a>
-  </div>
 </nav>
+
+<!-- Flying scarab: document-space layer (body child, NOT inside .products). Decorative. -->
+<div class="scarab-flight" id="scarabFlight" aria-hidden="true">
+  <div class="flight-buzz" id="flightBuzz">
+    <img class="fly-frame ghost ghost-prev" id="flyGhostPrev" src="assets/fly-5.png" alt="">
+    <img class="fly-frame ghost ghost-next" id="flyGhostNext" src="assets/fly-2.png" alt="">
+    <img class="fly-frame main is-active"   id="flyMain"      src="assets/fly-1.png" alt="">
+  </div>
+</div>
 
 <!-- ============================
      HERO
@@ -704,15 +754,6 @@ footer {
      ============================ -->
 <section class="products" id="products" aria-label="Products">
 
-  <svg class="products-watermark" viewBox="0 0 160 216" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-    <path d="M64 36C53 23 42 12 30 3"/><path d="M96 36C107 23 118 12 130 3"/>
-    <ellipse cx="80" cy="60" rx="26" ry="26"/>
-    <ellipse cx="80" cy="152" rx="46" ry="58"/>
-    <line x1="80" y1="86" x2="80" y2="207"/>
-    <path d="M40 118Q60 116 75 116"/><path d="M37 138Q58 136 75 136"/><path d="M38 158Q59 156 75 156"/>
-    <path d="M85 116Q100 116 120 118"/><path d="M85 136Q102 136 123 138"/><path d="M85 156Q101 156 122 158"/>
-    <path d="M40 188Q27 204 14 216"/><path d="M120 188Q133 204 146 216"/>
-  </svg>
 
   <div class="products-inner">
     <div class="products-head">
@@ -769,6 +810,11 @@ footer {
         </article>
       </div>
 
+      <!-- Landing point for the flying scarab -->
+      <div class="scarab-landing-marker" id="scarabLanding" aria-hidden="true">
+        <img class="scarab-landed-static" id="scarabLandedStatic" src="assets/fly-5.png" alt="">
+      </div>
+
       <!-- PetFuel card -->
       <div class="product-card-wrap pf" id="pfCard" tabindex="0" role="button" aria-expanded="false" aria-label="PetFuel — expand preview">
         <article class="product-card">
@@ -821,6 +867,7 @@ footer {
     <img class="footer-name-img" src="assets/wordmark-white-thin.png" alt="ScaraByte">
   </a>
   <div class="footer-right">
+    <span class="footer-contact-label">Contact:</span>
     <a href="mailto:hello@scarabyte.app" class="footer-email">hello@scarabyte.app</a>
     <span class="footer-copy">© 2026 Scarabyte</span>
   </div>
@@ -1063,6 +1110,146 @@ bellyZone.addEventListener('mouseleave', () => {
 
 // The scarab blinks on its own — unless the visitor prefers reduced motion.
 if (!matchMedia('(prefers-reduced-motion: reduce)').matches) scheduleBlink();
+</script>
+
+<script>
+/* ── FLYING SCARAB ENGINE ───────────────────────────
+   Two-clock architecture:
+   • position+tilt from scroll progress p
+   • wing-frame + body-buzz from wall clock (wings beat even when scrolling stops)
+   Constant size throughout — no distance-shrink. Fully reversible on scroll-up. */
+(function () {
+  const prefersReduce = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+  const flight  = document.getElementById('scarabFlight');
+  const buzz    = document.getElementById('flightBuzz');
+  const main    = document.getElementById('flyMain');
+  const gPrev   = document.getElementById('flyGhostPrev');
+  const gNext   = document.getElementById('flyGhostNext');
+  const stage   = document.getElementById('scarabStage');
+  const landing = document.getElementById('scarabLanding');
+  if (!flight || !landing) return;
+
+  const FRAMES = [
+    'assets/fly-1.png', 'assets/fly-2.png', 'assets/fly-3.png',
+    'assets/fly-4.png', 'assets/fly-5.png'
+  ];
+  const imgs = FRAMES.map(src => { const i = new Image(); i.src = src; return i; });
+  const FRAME_MS = 55;
+  const N = FRAMES.length;
+
+  let START = 0, END = 1, startDocX = 0, startDocY = 0, endDocX = 0, endDocY = 0;
+  let fW = 280, fH = 240, vw = 0, vh = 0;
+  let running = false;
+
+  function measure() {
+    vw = window.innerWidth;
+    vh = window.innerHeight;
+    fW = flight.offsetWidth;
+    fH = flight.offsetHeight;
+    const sy = window.scrollY;
+    const sRect = stage
+      ? stage.getBoundingClientRect()
+      : { left: vw / 2 - 90, top: 140, width: 180, height: 220 };
+    const lRect = landing.getBoundingClientRect();
+    startDocX = sRect.left + sRect.width / 2;
+    startDocY = sRect.top + sy + sRect.height / 2;
+    endDocX   = lRect.left + lRect.width / 2;
+    endDocY   = lRect.top + sy;
+    START = Math.max(0, startDocY - vh * 0.20);
+    END   = Math.max(START + 1, endDocY - vh * 0.50);
+  }
+
+  const easeInOutCubic = t => t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+  const clamp = (v, a, b) => v < a ? a : v > b ? b : v;
+
+  let cachedScrollY = window.scrollY;
+  let renderX = 0, renderY = 0, inited = false;
+
+  function frame(now) {
+    if (!running) return;
+
+    const sy = cachedScrollY;
+    const p  = clamp((sy - START) / (END - START), 0, 1);
+    const e  = easeInOutCubic(p);
+
+    const bow = Math.sin(e * Math.PI) * (vw < 680 ? 26 : 64);
+    const targetDocX = startDocX + e * (endDocX - startDocX) + bow;
+    const targetDocY = startDocY + e * (endDocY - startDocY);
+
+    let crouch = 0;
+    if (p > 0.02 && p < 0.12) {
+      const k = (p - 0.02) / 0.10;
+      crouch = Math.sin(k * Math.PI) * 5;
+    }
+    const tilt = (p > 0.02 ? 1 : 0) * Math.sin(e * Math.PI) * 12;
+
+    const tx = targetDocX - fW / 2;
+    const ty = targetDocY - fH / 2 + crouch;
+    if (!inited) { renderX = tx; renderY = ty; inited = true; }
+    renderX += (tx - renderX) * 0.18;
+    renderY += (ty - renderY) * 0.18;
+
+    flight.style.transform =
+      `translate3d(${renderX.toFixed(1)}px, ${renderY.toFixed(1)}px, 0) rotate(${tilt.toFixed(2)}deg)`;
+
+    updatePresence(p);
+
+    // ---- WING CLOCK (wall time, independent of scroll) ----
+    const flying = p > 0.04 && p < 0.985;
+    if (flying) {
+      const fi   = Math.floor(now / FRAME_MS) % N;
+      const prev = (fi - 1 + N) % N;
+      const next = (fi + 1) % N;
+      if (main.src.indexOf(FRAMES[fi]) === -1)   main.src  = FRAMES[fi];
+      if (gPrev.src.indexOf(FRAMES[prev]) === -1) gPrev.src = FRAMES[prev];
+      if (gNext.src.indexOf(FRAMES[next]) === -1) gNext.src = FRAMES[next];
+
+      const tremor = Math.sin(now / 100 * Math.PI * 2) * (vw < 680 ? 1.0 : 1.5);
+      const bob    = Math.sin(now / 1330 * Math.PI * 2) * 3;
+      buzz.style.transform = `translate3d(0, ${(tremor + bob).toFixed(2)}px, 0)`;
+    } else if (p >= 0.985) {
+      if (main.src.indexOf(FRAMES[N - 1]) === -1) main.src = FRAMES[N - 1];
+      buzz.style.transform = 'translate3d(0,0,0)';
+    }
+    flight.classList.toggle('is-buzzing', flying);
+
+    requestAnimationFrame(frame);
+  }
+
+  function updatePresence(p) {
+    if (stage) {
+      stage.style.opacity = p < 0.06 ? '' : String(clamp(1 - (p - 0.06) / 0.06, 0, 1));
+    }
+    flight.style.opacity = p <= 0.04 ? String(clamp(p / 0.04, 0, 1)) : '1';
+  }
+
+  function onScroll() { cachedScrollY = window.scrollY; }
+  let resizeT = null;
+  function onResize() { clearTimeout(resizeT); resizeT = setTimeout(measure, 120); }
+
+  function start() {
+    if (running || prefersReduce.matches) return;
+    measure();
+    cachedScrollY = window.scrollY;
+    running = true;
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onResize);
+    window.addEventListener('orientationchange', onResize);
+    requestAnimationFrame(frame);
+  }
+
+  function stop() {
+    running = false;
+    window.removeEventListener('scroll', onScroll);
+    window.removeEventListener('resize', onResize);
+    window.removeEventListener('orientationchange', onResize);
+    flight.style.transform = 'translate3d(-9999px,0,0)';
+  }
+
+  if (!prefersReduce.matches) start();
+  prefersReduce.addEventListener('change', e => e.matches ? stop() : start());
+})();
 </script>
 
 </body>
