@@ -895,7 +895,7 @@ document.querySelectorAll('.product-card-wrap').forEach(wrapEl => {
 /* ── SCARAB INTERACTIONS (hidden gem) ───────────────
    Rub the head  → happy >< face (no belly clutch)
    Rub the belly → tickled: clutches belly + wriggles
-   Click         → blink (eyes vanish briefly)
+   Idle          → blinks on its own (sometimes a double)
    Plain hover   → nothing                            */
 const stage      = document.getElementById('scarabStage');
 const wrap       = document.getElementById('scarabWrap');
@@ -908,7 +908,8 @@ const bellyZone  = document.getElementById('bellyZone');
 
 let isTickling = false;
 let isBlinking = false;
-let blinkTO    = null;
+let blinkTO    = null; // in-progress blink step
+let blinkLoopTO = null; // recurring auto-blink scheduler
 
 function setFace(which) {
   [imgNormal, imgJoyous, imgLaugh, imgBlink].forEach(img => img.classList.remove('is-active'));
@@ -988,16 +989,35 @@ function endHappy() {
   if (!isTickling) setFace(imgNormal);
 }
 
-/* Click → blink (eyes vanish ~0.7s) */
-function blink() {
-  if (isTickling || isBlinking) return;
+/* Auto-blink → eyes vanish briefly; `times` = 1 (single) or 2 (double). */
+function blink(times = 1) {
+  if (isTickling || isHappy || isBlinking) return;
   isBlinking = true;
-  setFace(imgBlink);
-  blinkTO = setTimeout(() => {
-    isBlinking = false;
-    // back to whatever mood the cursor position warrants
-    if (!isTickling) setFace(isHappy ? imgJoyous : imgNormal);
-  }, 700);
+  const CLOSED = 130; // ms with eyes shut
+  const OPEN   = 140; // ms eyes open between a double-blink
+  let done = 0;
+  const restMood = () => (isHappy ? imgJoyous : imgNormal);
+  const close = () => { setFace(imgBlink); blinkTO = setTimeout(open, CLOSED); };
+  const open  = () => {
+    done++;
+    if (done < times && !isTickling && !isHappy) {
+      setFace(restMood());
+      blinkTO = setTimeout(close, OPEN);
+    } else {
+      isBlinking = false;
+      if (!isTickling) setFace(restMood());
+    }
+  };
+  close();
+}
+
+/* Blink on its own at random intervals — mostly singles, sometimes a double. */
+function scheduleBlink() {
+  const delay = 2200 + Math.random() * 4000; // 2.2–6.2s apart
+  blinkLoopTO = setTimeout(() => {
+    blink(Math.random() < 0.3 ? 2 : 1); // ~30% are double-blinks
+    scheduleBlink();
+  }, delay);
 }
 
 const headRub  = makeRubDetector(showHappy);
@@ -1014,7 +1034,7 @@ bellyZone.addEventListener('mouseleave', () => {
   endTickle(); // leaving the belly is the only thing that stops the tickle
 });
 
-stage.addEventListener('click', blink);
+scheduleBlink(); // the scarab blinks on its own
 </script>
 
 </body>
