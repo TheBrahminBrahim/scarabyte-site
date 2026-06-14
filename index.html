@@ -129,17 +129,17 @@ a { color: inherit; }
 .nav-logo {
   display: flex;
   align-items: center;
-  gap: 0.55rem;
+  gap: 0.825rem;
   text-decoration: none;
   color: var(--primary);
 }
-.nav-logo-img { width: 28px; height: auto; display: block; }
+.nav-logo-img { width: 42px; height: auto; display: block; }
 .nav-wordmark-img {
-  height: 15px;
+  height: 22.5px;
   width: auto;
   display: block;
   /* optically align with the scarab's middle pair of legs (~62% down the icon) */
-  margin-top: 7px;
+  margin-top: 10.5px;
 }
 
 .nav-links {
@@ -242,13 +242,26 @@ a { color: inherit; }
   height: 100%;
   object-fit: contain;
   opacity: 0;
-  transition: opacity 0.16s ease;
+  /* Expressions swap instantly — no opacity cross-fade. Fading between two
+     separately-drawn beetles dips the opacity and reads as a flicker; an
+     instant swap of just the eye layer (shared body) is imperceptible. */
+  transition: none;
   filter: drop-shadow(0 8px 28px oklch(0.192 0.090 232 / 0.16));
   pointer-events: none;
   user-select: none;
   -webkit-user-drag: none;
 }
 .scarab-img.is-active { opacity: 1; }
+
+/* The eye layers ride on top of the eyeless face — no second drop-shadow. */
+.scarab-eyes, .scarab-eyes-happy { filter: none; }
+
+/* The idle eyes collapse toward their own centre-line when blinking.
+   Origin is the eyes' midpoint within the stage. */
+.scarab-eyes {
+  transform-origin: 50% 34.8%;
+  will-change: transform;
+}
 
 /* Invisible rub hit-zones — no cursor change; this is a hidden gem */
 .rub-zone {
@@ -623,7 +636,6 @@ footer {
    ================================================ */
 @media (max-width: 680px) {
   .nav { padding: 0.85rem 1.25rem; }
-  .nav-link:not(.nav-cta) { display: none; }
   .product-card-wrap::before,
   .product-card-wrap::after { display: none; }
   .card-body { padding: 1.6rem 1.4rem 1.5rem; }
@@ -643,12 +655,11 @@ footer {
 <nav class="nav">
   <a href="#" class="nav-logo" aria-label="Scarabyte home">
     <img class="nav-logo-img" src="assets/scarab-normal.png" alt="" aria-hidden="true">
-    <img class="nav-wordmark-img" src="assets/wordmark-navy.png" alt="ScaraByte">
+    <img class="nav-wordmark-img" src="assets/wordmark-navy-thin.png" alt="ScaraByte">
   </a>
   <div class="nav-links">
     <a class="nav-link" href="#products">Products</a>
     <a class="nav-link" href="mailto:hello@scarabyte.app">Contact</a>
-    <a class="nav-link nav-cta" href="#products">Meet the apps</a>
   </div>
 </nav>
 
@@ -668,10 +679,13 @@ footer {
     <div class="scarab-stage" id="scarabStage" aria-hidden="true">
 
       <div class="scarab-wrap" id="scarabWrap">
-        <img class="scarab-img is-active" id="scarabNormal"  src="assets/scarab-normal.png"   alt="">
-        <img class="scarab-img"           id="scarabJoyous"  src="assets/scarab-joyous.png"   alt="">
-        <img class="scarab-img"           id="scarabLaugh"   src="assets/scarab-laughing.png" alt="">
-        <img class="scarab-img"           id="scarabBlink"   src="assets/scarab-blink.png"    alt="">
+        <!-- Eyeless face is the constant body. Each expression is just a swapped
+             eye layer on top of it, so the body never moves between idle and the
+             head-rub (no cross-fade, no flicker). Tickle is a separate full pose. -->
+        <img class="scarab-img is-active"                  id="scarabBase"      src="assets/scarab-blink.png"      alt="">
+        <img class="scarab-img scarab-eyes is-active"      id="scarabEyes"      src="assets/scarab-eyes.png"       alt="">
+        <img class="scarab-img scarab-eyes-happy"          id="scarabEyesHappy" src="assets/scarab-eyes-happy.png" alt="">
+        <img class="scarab-img"                            id="scarabLaugh"     src="assets/scarab-laughing.png"   alt="">
       </div>
 
       <div class="rub-zone head-zone"  id="headZone"></div>
@@ -804,7 +818,7 @@ footer {
 <footer>
   <a href="#" class="footer-logo" aria-label="Scarabyte home">
     <img class="footer-logo-img" src="assets/scarab-white.png" alt="" aria-hidden="true">
-    <img class="footer-name-img" src="assets/wordmark-white.png" alt="ScaraByte">
+    <img class="footer-name-img" src="assets/wordmark-white-thin.png" alt="ScaraByte">
   </a>
   <div class="footer-right">
     <a href="mailto:hello@scarabyte.app" class="footer-email">hello@scarabyte.app</a>
@@ -895,25 +909,33 @@ document.querySelectorAll('.product-card-wrap').forEach(wrapEl => {
 /* ── SCARAB INTERACTIONS (hidden gem) ───────────────
    Rub the head  → happy >< face (no belly clutch)
    Rub the belly → tickled: clutches belly + wriggles
-   Idle          → blinks on its own (sometimes a double)
+   Idle          → eyes squash-blink on their own (sometimes a double)
    Plain hover   → nothing                            */
 const stage      = document.getElementById('scarabStage');
 const wrap       = document.getElementById('scarabWrap');
-const imgNormal  = document.getElementById('scarabNormal');
-const imgJoyous  = document.getElementById('scarabJoyous');
-const imgLaugh   = document.getElementById('scarabLaugh');
-const imgBlink   = document.getElementById('scarabBlink');
+const imgBase      = document.getElementById('scarabBase');
+const imgEyes      = document.getElementById('scarabEyes');
+const imgEyesHappy = document.getElementById('scarabEyesHappy');
+const imgLaugh     = document.getElementById('scarabLaugh');
 const headZone   = document.getElementById('headZone');
 const bellyZone  = document.getElementById('bellyZone');
 
 let isTickling = false;
 let isBlinking = false;
-let blinkTO    = null; // in-progress blink step
 let blinkLoopTO = null; // recurring auto-blink scheduler
+let eyeAnim     = null; // the active eye-squash animation, if any
 
-function setFace(which) {
-  [imgNormal, imgJoyous, imgLaugh, imgBlink].forEach(img => img.classList.remove('is-active'));
-  which.classList.add('is-active');
+/* Expression states share ONE constant body (the eyeless base) and only swap
+   the eye layer on top — so idle ↔ head-rub never moves the body or flickers.
+   'tickle' is the exception: a separate full-beetle pose (clutching its belly).
+     'idle'   → base + square eyes (these are the ones that blink)
+     'happy'  → base + >< eyes
+     'tickle' → the laugh pose (body hidden underneath) */
+function setFace(state) {
+  imgBase.classList.toggle('is-active',      state !== 'tickle');
+  imgEyes.classList.toggle('is-active',      state === 'idle');
+  imgEyesHappy.classList.toggle('is-active', state === 'happy');
+  imgLaugh.classList.toggle('is-active',     state === 'tickle');
 }
 
 /* Rub detection: N quick vertical direction reversals = a rub.
@@ -951,7 +973,7 @@ function makeRubDetector(onRub) {
 function endTickle() {
   if (!isTickling) return;
   isTickling = false;
-  setFace(imgNormal);
+  setFace('idle');
   stage.classList.remove('is-tickling');
   wrap.style.animation = ''; // resume the idle float
 }
@@ -960,10 +982,9 @@ function startTickle() {
   if (isTickling) return; // already wriggling
   isTickling = true;
   isHappy = false;
-  clearTimeout(blinkTO);
-  isBlinking = false;
+  stopBlink();
 
-  setFace(imgLaugh);
+  setFace('tickle');
   stage.classList.add('is-tickling');
 
   wrap.style.animation = 'none';
@@ -978,42 +999,48 @@ let isHappy = false;
 function showHappy() {
   if (isTickling || isHappy) return;
   isHappy = true;
-  clearTimeout(blinkTO);
-  isBlinking = false;
-  setFace(imgJoyous);
+  stopBlink();
+  setFace('happy');
 }
 
 function endHappy() {
   if (!isHappy) return;
   isHappy = false;
-  if (!isTickling) setFace(imgNormal);
+  if (!isTickling) setFace('idle');
 }
 
-/* Auto-blink → eyes vanish briefly; `times` = 1 (single) or 2 (double). */
+/* Auto-blink → the eyes squash vertically to a sliver and spring back open,
+   like a real blink. `times` = 1 (single) or 2 (double). */
 function blink(times = 1) {
   if (isTickling || isHappy || isBlinking) return;
   isBlinking = true;
-  const CLOSED = 130; // ms with eyes shut
-  const OPEN   = 140; // ms eyes open between a double-blink
-  let done = 0;
-  const restMood = () => (isHappy ? imgJoyous : imgNormal);
-  const close = () => { setFace(imgBlink); blinkTO = setTimeout(open, CLOSED); };
-  const open  = () => {
-    done++;
-    if (done < times && !isTickling && !isHappy) {
-      setFace(restMood());
-      blinkTO = setTimeout(close, OPEN);
-    } else {
-      isBlinking = false;
-      if (!isTickling) setFace(restMood());
-    }
-  };
-  close();
+
+  const OPEN = 'scaleY(1)';
+  const SHUT = 'scaleY(0.06)'; // a thin line, not fully gone
+
+  // Each blink is open → (accelerate) shut → (decelerate) open.
+  const frames = [];
+  for (let i = 0; i < times; i++) {
+    frames.push({ transform: OPEN, easing: 'ease-in' });
+    frames.push({ transform: SHUT, easing: 'ease-out' });
+  }
+  frames.push({ transform: OPEN });
+
+  eyeAnim = imgEyes.animate(frames, {
+    duration: 300 * times + (times - 1) * 90, // unhurried, ~0.3s per blink
+  });
+  eyeAnim.onfinish = eyeAnim.oncancel = () => { isBlinking = false; eyeAnim = null; };
+}
+
+/* Stop a blink mid-squash and snap the eyes back open. */
+function stopBlink() {
+  if (eyeAnim) eyeAnim.cancel(); // reverts the eyes to their open resting state
+  isBlinking = false;
 }
 
 /* Blink on its own at random intervals — mostly singles, sometimes a double. */
 function scheduleBlink() {
-  const delay = 2200 + Math.random() * 4000; // 2.2–6.2s apart
+  const delay = 2800 + Math.random() * 4200; // ~2.8–7s apart
   blinkLoopTO = setTimeout(() => {
     blink(Math.random() < 0.3 ? 2 : 1); // ~30% are double-blinks
     scheduleBlink();
@@ -1034,7 +1061,8 @@ bellyZone.addEventListener('mouseleave', () => {
   endTickle(); // leaving the belly is the only thing that stops the tickle
 });
 
-scheduleBlink(); // the scarab blinks on its own
+// The scarab blinks on its own — unless the visitor prefers reduced motion.
+if (!matchMedia('(prefers-reduced-motion: reduce)').matches) scheduleBlink();
 </script>
 
 </body>
