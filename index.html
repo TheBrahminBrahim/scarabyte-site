@@ -6,7 +6,7 @@
 <title>Scarabyte — Software for Real Life</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,700;12..96,800&family=Nunito:wght@300;400;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,700;12..96,800&family=Caveat:wght@600;700&family=Nunito:wght@300;400;600;700&display=swap" rel="stylesheet">
 
 <style>
 /* ================================================
@@ -23,9 +23,9 @@
   --primary-mid:  oklch(0.370 0.090 232);
   --primary-pale: oklch(0.942 0.022 232);
 
-  --accent:       oklch(0.630 0.162 155);
-  --accent-light: oklch(0.922 0.042 155);
-  --accent-dark:  oklch(0.400 0.118 155);
+  --accent:       #E0A82E;
+  --accent-light: oklch(0.945 0.045 85);
+  --accent-dark:  oklch(0.520 0.115 72);
 
   --ink:          oklch(0.118 0.028 232);
   --muted:        oklch(0.462 0.020 232);
@@ -77,7 +77,7 @@ body.theme-petfuel {
 .nav, .nav-cta, .products, footer,
 .products-title, .products-lead, .hero-h1,
 .card-name, .card-tag, .card-desc, .preview-kicker,
-.scroll-indicator {
+.hero-doodle {
   transition: background-color 0.5s ease, color 0.5s ease, border-color 0.5s ease;
 }
 
@@ -253,7 +253,7 @@ a { color: inherit; }
 }
 .hero-h1 .line-1 { display: block; animation: fadeUp 0.65s ease-out 0.30s backwards; }
 .hero-h1 .line-2 { display: block; animation: fadeUp 0.65s ease-out 0.42s backwards; }
-.hero-h1 .accent { color: var(--accent); }
+.hero-h1 .accent { color: #E0A82E; }
 
 /* ================================================
    SCARAB STAGE
@@ -301,28 +301,78 @@ a { color: inherit; }
 .belly-zone { top: 64%; width: 124px; height: 116px; }
 
 
-/* Scroll indicator */
-.scroll-indicator {
+/* ================================================
+   HAND-DRAWN DOODLE CUES
+   Pen-on-paper nav hints. The pen takes the scarab's
+   own ink, so it re-colours with the page theme.
+   ================================================ */
+.doodle { user-select: none; -webkit-user-select: none; }
+.doodle-word {
+  font-family: 'Caveat', var(--font-b);
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  line-height: 0.9;
+  display: block;
+}
+.doodle-arrow path {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* Hero: "Apps ↓" — replaces the old scroll bar */
+.hero-doodle {
   position: absolute;
-  bottom: 2.5rem; left: 50%;
-  transform: translateX(-50%);
+  bottom: 1.6rem; left: 50%;
+  /* nudged well off-centre to the left for a hand-scribbled, informal feel */
+  transform: translateX(calc(-50% - 200px));
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 0.45rem;
-  color: var(--faint);
-  font-size: 0.68rem;
-  font-weight: 700;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
+  gap: 0.15rem;
+  color: var(--primary);
   z-index: 2;
-  animation: fadeIn 0.4s ease-out 1.6s backwards;
+  animation: fadeIn 0.5s ease-out 1.5s backwards;
 }
-.scroll-line {
-  width: 1px; height: 36px;
-  background: linear-gradient(to bottom, var(--border-med), transparent);
-  animation: scrollPulse 2.2s ease-in-out infinite;
+.hero-doodle .doodle-word { font-size: 2rem; transform: rotate(-7deg); }
+.hero-doodle .doodle-arrow {
+  width: 60px; height: auto;
+  margin-left: -10px;
+  animation: doodleBob 2.4s ease-in-out infinite;
 }
+@keyframes doodleBob {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(7px); }
+}
+
+/* Footer: "contact ↓" — points down at the email */
+/* Contact call-out sits on the light page body, above the dark footer,
+   right beside Baraka peeking up from the bottom-right corner. */
+.contact-callout {
+  background: var(--surface);
+  position: relative;
+  display: flex;
+  justify-content: flex-end;
+  align-items: flex-end;
+  padding: 0.5rem 2.5rem 3.5rem;
+}
+.contact-inner {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-right: calc(5vw + 7rem);
+}
+.footer-doodle {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 0.4rem;
+  color: var(--primary);
+}
+.footer-doodle .doodle-word { font-size: 2rem; transform: rotate(-5deg) translateY(-9px); }
+.footer-doodle .doodle-arrow-r { width: 74px; height: auto; }
 
 /* ================================================
    PRODUCTS
@@ -588,9 +638,9 @@ footer {
 .baraka-peek {
   position: absolute;
   right: clamp(1.5rem, 5vw, 5rem);
-  bottom: 100%;
-  width: 132px;
-  height: 74px;          /* clips the lower body at the footer line */
+  bottom: 0;
+  width: 138px;
+  height: 92px;          /* clips the lower body at the footer line */
   overflow: hidden;
   pointer-events: none;
   user-select: none;
@@ -631,13 +681,18 @@ footer {
   margin-bottom: 0.15rem;
 }
 .footer-email {
-  display: block; text-decoration: none;
-  color: oklch(0.760 0.095 155);
-  font-weight: 700; font-size: 0.88rem;
-  margin-bottom: 0.3rem;
-  transition: color 0.2s;
+  display: inline-block; text-decoration: none;
+  background: #fff;
+  border: 1.8px solid oklch(0.855 0.022 232);
+  border-radius: 13px;
+  padding: 0.8rem 1.4rem;
+  color: oklch(0.255 0.060 232);
+  font-weight: 700; font-size: 1.2rem;
+  box-shadow: 0 10px 26px oklch(0.192 0.090 232 / 0.16);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
-.footer-email:hover { color: white; }
+.footer-email .em-user { color: #C8901C; }
+.footer-email:hover { transform: translateY(-1px); box-shadow: 0 5px 16px oklch(0.192 0.090 232 / 0.45); }
 .footer-copy { font-size: 0.72rem; color: oklch(0.555 0.035 232); }
 
 /* ================================================
@@ -649,10 +704,13 @@ footer {
   .card-sep { margin: 0 1.4rem; }
   .card-expand-inner { padding: 1.25rem 1.4rem 1.6rem; }
   .card-wing-hint { display: none; }
-  footer { flex-direction: column; text-align: center; }
+  footer { flex-direction: column; text-align: center; gap: 0.6rem; }
   .footer-right { text-align: center; }
   .shots { justify-content: flex-start; gap: 0.8rem; }
   .phone { width: 138px; }
+  .hero-doodle { transform: translateX(calc(-50% - 64px)); }
+  .contact-callout { justify-content: center; padding-bottom: 4.5rem; }
+  .contact-inner { margin-right: 0; }
 }
 
 </style>
@@ -709,9 +767,15 @@ footer {
     </div>
   </div>
 
-  <div class="scroll-indicator" aria-hidden="true">
-    <div class="scroll-line"></div>
-    <span>Scroll</span>
+  <div class="hero-doodle doodle" aria-hidden="true">
+    <span class="doodle-word">Apps</span>
+    <svg class="doodle-arrow" viewBox="0 0 72 98" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M40 8 C36 26 31 44 41 64 C45 74 49 80 53 90"/>
+      <g transform="rotate(7 53 90)">
+        <path d="M52 74 C53 79 53 85 53 90"/>
+        <path d="M40 82 C45 85 49 88 53 90"/>
+      </g>
+    </svg>
   </div>
 </section>
 
@@ -798,19 +862,32 @@ footer {
 <!-- ============================
      FOOTER
      ============================ -->
-<footer>
+<!-- Contact call-out — on the light page body, beside Baraka peeking up -->
+<section class="contact-callout" aria-label="Contact">
   <div class="baraka-peek" aria-hidden="true">
     <img src="assets/baraka-noarms.svg" alt="">
   </div>
+  <div class="contact-inner">
+    <div class="footer-doodle doodle" aria-hidden="true">
+      <span class="doodle-word">contact</span>
+      <svg class="doodle-arrow doodle-arrow-r" viewBox="0 0 100 44" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M6 20 C28 31 54 32 76 28 C84 26 90 23 96 22"/>
+        <g transform="rotate(-15 96 22)">
+          <path d="M84 16 C88 18 92 20 96 22"/>
+          <path d="M84 28 C88 26 92 24 96 22"/>
+        </g>
+      </svg>
+    </div>
+    <a href="mailto:hello@scarabyte.app" class="footer-email"><span class="em-user">hello</span>@scarabyte.app</a>
+  </div>
+</section>
+
+<footer>
   <a href="#" class="footer-logo" aria-label="Scarabyte home">
     <img class="footer-logo-img" src="assets/scarab-white.png" alt="" aria-hidden="true">
     <img class="footer-name-img" src="assets/wordmark-white-thin.png" alt="ScaraByte">
   </a>
-  <div class="footer-right">
-    <span class="footer-contact-label">Contact:</span>
-    <a href="mailto:hello@scarabyte.app" class="footer-email">hello@scarabyte.app</a>
-    <span class="footer-copy">© 2026 Scarabyte</span>
-  </div>
+  <span class="footer-copy">© 2026 Scarabyte</span>
 </footer>
 
 <script>
