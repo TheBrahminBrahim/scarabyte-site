@@ -356,13 +356,13 @@ a { color: inherit; }
   display: flex;
   justify-content: flex-end;
   align-items: flex-end;
-  padding: 0.5rem 2.5rem 3.5rem;
+  padding: 0.5rem 2.5rem 0;
 }
 .contact-inner {
   display: flex;
-  align-items: center;
-  gap: 0.4rem;
-  margin-right: calc(5vw + 7rem);
+  align-items: flex-start;   /* doodle lines up with the raised sign */
+  gap: 0.6rem;
+  margin-right: clamp(1.5rem, 5vw, 5rem);
 }
 .footer-doodle {
   display: flex;
@@ -633,18 +633,24 @@ footer {
   position: relative;
 }
 
-/* Baraka peeks up from the bottom-right corner, hiding behind the
-   footer's top edge — only head, eyes and antennae show. */
+/* Baraka stands at the footer line and holds the email box up over his
+   head like a sign: the box stacks right on top of him and his antennae
+   poke up over its bottom edge as if he's gripping it. */
+.baraka-sign {
+  display: flex;
+  flex-direction: column;
+  align-items: center;   /* centres Baraka under the sign */
+  gap: 0;
+}
 .baraka-peek {
-  position: absolute;
-  right: clamp(1.5rem, 5vw, 5rem);
-  bottom: 0;
+  position: relative;
   width: 138px;
-  height: 92px;          /* clips the lower body at the footer line */
+  height: 96px;          /* clips the lower body at the footer line */
   overflow: hidden;
+  margin-top: -8px;      /* antennae tuck up over the sign's bottom edge */
   pointer-events: none;
   user-select: none;
-  z-index: 1;
+  z-index: 2;            /* antennae read in front of the sign = "holding" */
 }
 .baraka-peek img {
   width: 100%;
@@ -681,6 +687,7 @@ footer {
   margin-bottom: 0.15rem;
 }
 .footer-email {
+  position: relative; z-index: 1;
   display: inline-block; text-decoration: none;
   background: #fff;
   border: 1.8px solid oklch(0.855 0.022 232);
@@ -709,7 +716,7 @@ footer {
   .shots { justify-content: flex-start; gap: 0.8rem; }
   .phone { width: 138px; }
   .hero-doodle { transform: translateX(calc(-50% - 64px)); }
-  .contact-callout { justify-content: center; padding-bottom: 4.5rem; }
+  .contact-callout { justify-content: center; padding-bottom: 0; }
   .contact-inner { margin-right: 0; }
 }
 
@@ -864,9 +871,6 @@ footer {
      ============================ -->
 <!-- Contact call-out — on the light page body, beside Baraka peeking up -->
 <section class="contact-callout" aria-label="Contact">
-  <div class="baraka-peek" aria-hidden="true">
-    <img src="assets/baraka-noarms.svg" alt="">
-  </div>
   <div class="contact-inner">
     <div class="footer-doodle doodle" aria-hidden="true">
       <span class="doodle-word">contact</span>
@@ -878,7 +882,12 @@ footer {
         </g>
       </svg>
     </div>
-    <a href="mailto:hello@scarabyte.app" class="footer-email"><span class="em-user">hello</span>@scarabyte.app</a>
+    <div class="baraka-sign">
+      <a href="mailto:hello@scarabyte.app" class="footer-email"><span class="em-user">hello</span>@scarabyte.app</a>
+      <div class="baraka-peek" aria-hidden="true">
+        <img src="assets/baraka-noarms.svg" alt="">
+      </div>
+    </div>
   </div>
 </section>
 
