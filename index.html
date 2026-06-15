@@ -39,6 +39,46 @@
   --r-lg:   24px;
   --r-xl:   32px;
   --r-pill: 9999px;
+
+  /* Page-theme tokens — overridden per-app on body.theme-* */
+  --nav-bg:    oklch(1.000 0.000 0 / 0.88);
+  --cta-bg:    var(--primary);
+  --cta-ink:   #ffffff;
+  --footer-bg: var(--primary);
+  --dot:       oklch(0.192 0.090 232 / 0.10);
+}
+
+/* ================================================
+   PER-APP PAGE THEMES
+   Hovering a product card pulls the WHOLE page into
+   that app's world. Reduced-motion makes it instant
+   (handled by the global reduced-motion block).
+   ================================================ */
+body { transition: background-color 0.5s ease, color 0.5s ease; }
+
+body.theme-screenreps {
+  --bg:#16181C; --surface:#1E2126; --surface-2:#22262C; --border:#2C3038; --border-med:#3A3F47;
+  --primary:#F4F4F5; --primary-mid:#C9CCD2; --primary-pale:#22262C;
+  --accent:#FF5C35; --accent-light:#3A2A22; --accent-dark:#FFB59E;
+  --ink:#F4F4F5; --muted:#9CA0A8; --faint:#6B7079;
+  --nav-bg:oklch(0.205 0.010 256 / 0.85); --cta-bg:#FF5C35; --cta-ink:#16181C;
+  --footer-bg:#0D0E11; --dot:oklch(0.985 0 0 / 0.10);
+}
+body.theme-petfuel {
+  --bg:#F4F7F6; --surface:#EAF0EF; --surface-2:#E4ECEA; --border:#D2DAD9; --border-med:#C2CCCA;
+  --primary:#101A19; --primary-mid:#33403E; --primary-pale:#DDEEEC;
+  --accent:#0E7C72; --accent-light:#DDEEEC; --accent-dark:#0A5F58;
+  --ink:#101A19; --muted:#5C6B6A; --faint:#93A09F;
+  --nav-bg:oklch(0.975 0.006 175 / 0.85); --cta-bg:#0E7C72; --cta-ink:#FFFFFF;
+  --footer-bg:#0A5F58; --dot:oklch(0.150 0.020 175 / 0.08);
+}
+
+/* Smooth the re-theme on the big surfaces + text */
+.nav, .nav-cta, .products, footer,
+.products-title, .products-lead, .hero-h1,
+.card-name, .card-tag, .card-desc, .preview-kicker,
+.scroll-indicator {
+  transition: background-color 0.5s ease, color 0.5s ease, border-color 0.5s ease;
 }
 
 /* ================================================
@@ -119,7 +159,7 @@ a { color: inherit; }
   align-items: center;
   justify-content: space-between;
   padding: 1rem 2.5rem;
-  background: oklch(1.000 0.000 0 / 0.88);
+  background: var(--nav-bg);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
   border-bottom: 1px solid var(--border);
@@ -159,11 +199,11 @@ a { color: inherit; }
 }
 .nav-link:hover { color: var(--primary); background: var(--surface); }
 .nav-cta {
-  color: white !important;
-  background: var(--primary) !important;
+  color: var(--cta-ink) !important;
+  background: var(--cta-bg) !important;
   margin-left: 0.4rem;
 }
-.nav-cta:hover { background: oklch(0.290 0.092 232) !important; transform: translateY(-1px); }
+.nav-cta:hover { filter: brightness(1.08); transform: translateY(-1px); }
 
 /* ================================================
    HERO
@@ -184,7 +224,7 @@ a { color: inherit; }
 .hero-dots {
   position: absolute;
   inset: 0;
-  background-image: radial-gradient(oklch(0.192 0.090 232 / 0.10) 1.5px, transparent 1.5px);
+  background-image: radial-gradient(var(--dot) 1.5px, transparent 1.5px);
   background-size: 28px 28px;
   mask-image: radial-gradient(ellipse 72% 62% at 50% 50%, black, transparent);
   -webkit-mask-image: radial-gradient(ellipse 72% 62% at 50% 50%, black, transparent);
@@ -339,37 +379,6 @@ a { color: inherit; }
   transform: translateY(0);
 }
 
-/* Wing arcs spread from BOTH sides of the open card */
-.product-card-wrap::before,
-.product-card-wrap::after {
-  content: '';
-  position: absolute;
-  top: 14%; bottom: 14%;
-  width: 52px;
-  border: 1.5px solid var(--accent);
-  opacity: 0;
-  transform: scaleX(0);
-  transition: opacity 0.42s ease, transform 0.55s cubic-bezier(0.23, 1, 0.32, 1);
-  pointer-events: none;
-}
-.product-card-wrap::before {
-  left: -58px;
-  border-right: none;
-  border-radius: 50% 0 0 50%;
-  transform-origin: right center;
-}
-.product-card-wrap::after {
-  right: -58px;
-  border-left: none;
-  border-radius: 0 50% 50% 0;
-  transform-origin: left center;
-}
-.product-card-wrap.is-open::before,
-.product-card-wrap.is-open::after {
-  opacity: 0.5;
-  transform: scaleX(1);
-}
-
 /* ── Card ── */
 .product-card {
   background: var(--bg);
@@ -379,6 +388,7 @@ a { color: inherit; }
   transition:
     box-shadow 0.42s cubic-bezier(0.23, 1, 0.32, 1),
     border-color 0.3s,
+    background-color 0.5s ease,
     transform 0.42s cubic-bezier(0.23, 1, 0.32, 1);
   position: relative;
 }
@@ -431,7 +441,7 @@ a { color: inherit; }
 
 .card-desc {
   font-size: 1rem;
-  color: oklch(0.400 0.022 232);
+  color: var(--muted);
   line-height: 1.74;
   max-width: 60ch;
   margin-bottom: 1.35rem;
@@ -442,15 +452,24 @@ a { color: inherit; }
   display: inline-flex;
   align-items: center;
   text-decoration: none;
-  font-weight: 700;
+  font-weight: 800;
   font-size: 0.95rem;
-  color: var(--primary);
-  gap: 0.32rem;
-  transition: gap 0.22s;
+  color: var(--accent-dark);
+  gap: 0.4rem;
+  padding: 0.6rem 1.15rem;
+  border: 1.5px solid var(--border-med);
+  border-radius: var(--r-pill);
+  transition: gap 0.22s, background-color 0.42s ease, color 0.42s ease, border-color 0.42s ease;
 }
 .card-link .arr { display: inline-block; transition: transform 0.22s; }
-.card-link:hover { gap: 0.58rem; }
+.card-link:hover { gap: 0.62rem; }
 .card-link:hover .arr { transform: translateX(3px); }
+/* When a card is open, its URL becomes the app's filled CTA */
+.product-card-wrap.is-open .card-link {
+  background: var(--cta-bg);
+  color: var(--cta-ink);
+  border-color: var(--cta-bg);
+}
 
 /* Wing hint chip in card header */
 .card-wing-hint {
@@ -494,90 +513,67 @@ a { color: inherit; }
   margin-bottom: 0.8rem;
 }
 
-/* App preview panel */
-.app-preview {
-  background: var(--surface);
-  border-radius: var(--r-md);
-  padding: 1.35rem 1.5rem;
-  border: 1px solid var(--border);
+/* App Store-style screenshot strip (replaces the old synthetic preview) */
+.shots {
+  display: flex;
+  justify-content: center;
+  gap: 1.1rem;
+  overflow-x: auto;
+  padding: 0.2rem 0.1rem 0.4rem;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
 }
-
-/* ── ScreenReps story preview: blocked → reps → unlocked ── */
-.srp-row {
-  display: flex; align-items: center; gap: 0.85rem;
-  background: var(--bg);
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  padding: 0.75rem 1rem;
+.shots::-webkit-scrollbar { height: 0; }
+.phone {
+  flex: 0 0 auto;
+  width: 168px;
+  aspect-ratio: 9 / 19.5;
+  background: #0a0a0c;
+  border-radius: 26px;
+  padding: 5px;
+  box-shadow: 0 16px 34px oklch(0 0 0 / 0.22);
+  scroll-snap-align: center;
 }
-.srp-icon {
-  width: 38px; height: 38px;
-  border-radius: 10px;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 1.05rem;
-  flex-shrink: 0;
+.phone .screen {
+  position: relative;
+  width: 100%; height: 100%;
+  border-radius: 21px;
+  overflow: hidden;
+  background: var(--surface-2);
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  transition: background-color 0.5s ease;
 }
-.srp-icon.blocked  { background: oklch(0.94 0.025 25); }
-.srp-icon.unlocked { background: var(--accent-light); }
-.srp-title { font-weight: 700; font-size: 0.85rem; color: var(--ink); line-height: 1.3; }
-.srp-sub   { font-size: 0.75rem; color: var(--muted); font-weight: 600; }
-.srp-pill {
-  margin-left: auto;
-  font-size: 0.7rem; font-weight: 800;
-  padding: 0.22rem 0.66rem;
+.phone .screen img {
+  position: absolute; inset: 0;
+  width: 100%; height: 100%;
+  object-fit: cover; display: block;
+  z-index: 1;
+}
+.phone .notch {
+  position: absolute; top: 7px; left: 50%;
+  transform: translateX(-50%);
+  width: 34%; height: 6px;
   border-radius: var(--r-pill);
-  white-space: nowrap;
+  background: oklch(1 0 0 / 0.16);
+  z-index: 2;
 }
-.srp-pill.locked   { background: oklch(0.94 0.025 25); color: oklch(0.46 0.13 25); }
-.srp-pill.earned   { background: var(--accent); color: white; }
-.srp-between {
-  display: flex; align-items: center; justify-content: center;
-  gap: 0.5rem;
-  padding: 0.5rem 0;
-  font-size: 0.7rem; font-weight: 700;
-  letter-spacing: 0.07em; text-transform: uppercase;
-  color: var(--accent-dark);
+.shot-ph {
+  display: flex; flex-direction: column;
+  align-items: center; gap: 0.45rem;
+  color: var(--faint);
 }
-.srp-between .srp-line { flex: 0 0 28px; height: 1px; background: var(--border-med); }
-
-/* ── PetFuel story preview: scanned meal → verdict ── */
-.pfp-head {
-  display: flex; align-items: center; gap: 0.6rem;
-  font-weight: 700; font-size: 0.9rem; color: var(--ink);
-  margin-bottom: 0.9rem;
-}
-.pfp-scan {
-  margin-left: auto;
-  font-size: 0.68rem; font-weight: 800;
-  letter-spacing: 0.06em; text-transform: uppercase;
-  color: var(--accent-dark);
-  background: var(--accent-light);
-  padding: 0.2rem 0.6rem;
-  border-radius: var(--r-pill);
-}
-.pfp-chips { display: flex; flex-wrap: wrap; gap: 0.45rem; margin-bottom: 1rem; }
-.pfp-chip {
-  font-size: 0.76rem; font-weight: 700;
-  color: oklch(0.380 0.025 232);
-  background: var(--bg);
-  border: 1px solid var(--border-med);
-  padding: 0.28rem 0.7rem;
-  border-radius: var(--r-pill);
-}
-.pfp-verdict {
-  display: inline-flex; align-items: center; gap: 0.5rem;
-  background: var(--accent);
-  color: white;
-  font-weight: 800; font-size: 0.84rem;
-  padding: 0.5rem 1rem;
-  border-radius: 12px;
+.shot-emoji { font-size: 1.7rem; opacity: 0.6; }
+.shot-ph span:last-child {
+  font-size: 0.72rem; font-weight: 800;
+  letter-spacing: 0.03em;
 }
 
 /* ================================================
    FOOTER
    ================================================ */
 footer {
-  background: var(--primary);
+  background: var(--footer-bg);
   padding: 3rem 2.5rem;
   display: flex;
   align-items: center;
@@ -649,14 +645,14 @@ footer {
    ================================================ */
 @media (max-width: 680px) {
   .nav { padding: 0.85rem 1.25rem; }
-  .product-card-wrap::before,
-  .product-card-wrap::after { display: none; }
   .card-body { padding: 1.6rem 1.4rem 1.5rem; }
   .card-sep { margin: 0 1.4rem; }
   .card-expand-inner { padding: 1.25rem 1.4rem 1.6rem; }
   .card-wing-hint { display: none; }
   footer { flex-direction: column; text-align: center; }
   .footer-right { text-align: center; }
+  .shots { justify-content: flex-start; gap: 0.8rem; }
+  .phone { width: 138px; }
 }
 
 </style>
@@ -694,49 +690,11 @@ footer {
              idle = square eyes (these blink) · happy = >< eyes (head rub) ·
              tickle = the laugh pose (body hidden underneath). -->
         <svg id="baraka" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 639 661" role="img" aria-label="Baraka the scarab">
-  <!-- Master rig. Only the antenna UPPER HALVES are separate (#b-ant-l/r) so they curl
-       inward for a twitch; the head dome + antenna lower halves stay faithful & smooth.
-       Variation = a class on #baraka (set via classList, not .className):
-       twitch-left | twitch-right | twitch-both. -->
   <style>
     #baraka { --ink:#04295F; color:var(--ink); }
     #baraka path { fill: currentColor; }
     #baraka .hidden { display:none; }
     #b-eyes { transform-box:fill-box; transform-origin:center; }
-    /* Two nested rigs per antenna pivot at the SAME hidden base point:
-       the -rig layer carries a constant gentle idle sway, the inner layer
-       carries the proximity buzz. Both angles stay small, so the join with
-       the head never visibly separates. */
-    #b-ant-l-rig, #b-ant-r-rig, #b-ant-l, #b-ant-r { transform-box:view-box; }
-    #b-ant-l-rig, #b-ant-l { transform-origin: 201px 60px; }
-    #b-ant-r-rig, #b-ant-r { transform-origin: 438px 60px; }
-
-    /* always-on ambient life — barely perceptible, slightly desynced L/R */
-    #b-ant-l-rig { animation: antIdleL 4.8s ease-in-out infinite; }
-    #b-ant-r-rig { animation: antIdleR 5.6s ease-in-out infinite; }
-
-    /* settle smoothly when the cursor leaves */
-    #b-ant-l, #b-ant-r { transition: transform .28s ease-out; }
-
-    /* lively buzz while the cursor is near an antenna */
-    #baraka.twitch-left  #b-ant-l,
-    #baraka.twitch-both  #b-ant-l { animation: antBuzzL .5s ease-in-out infinite; }
-    #baraka.twitch-right #b-ant-r,
-    #baraka.twitch-both  #b-ant-r { animation: antBuzzR .5s ease-in-out infinite; }
-
-    @keyframes antIdleL { 0%,100%{transform:rotate(0deg)} 50%{transform:rotate(2deg)} }
-    @keyframes antIdleR { 0%,100%{transform:rotate(0deg)} 50%{transform:rotate(-2deg)} }
-    @keyframes antBuzzL {
-      0%{transform:rotate(0deg)} 18%{transform:rotate(7deg)} 36%{transform:rotate(-3deg)}
-      54%{transform:rotate(5deg)} 72%{transform:rotate(-2deg)} 88%{transform:rotate(3deg)} 100%{transform:rotate(0deg)}
-    }
-    @keyframes antBuzzR {
-      0%{transform:rotate(0deg)} 18%{transform:rotate(-7deg)} 36%{transform:rotate(3deg)}
-      54%{transform:rotate(-5deg)} 72%{transform:rotate(2deg)} 88%{transform:rotate(-3deg)} 100%{transform:rotate(0deg)}
-    }
-    @media (prefers-reduced-motion: reduce) {
-      #b-ant-l-rig, #b-ant-r-rig, #b-ant-l, #b-ant-r { animation: none !important; }
-    }
   </style>
   <g id="b-body"><path d="M0 0 C1.13 0.01 2.25 0.01 3.41 0.02 C4.63 0.02 5.84 0.02 7.09 0.03 C8.37 0.03 9.65 0.04 10.97 0.05 C12.25 0.06 13.54 0.06 14.86 0.06 C18.04 0.08 21.23 0.09 24.41 0.11 C24.18 1.03 23.95 1.96 23.71 2.9 C21.36 12.51 18.92 24.03 22.72 33.55 C25.86 38.73 31.41 41.92 36.41 45.11 C37.24 45.71 38.08 46.3 38.94 46.91 C41.41 48.11 41.41 48.11 43.79 48.09 C47.32 46.77 50.18 44.72 53.22 42.55 C81.72 22.9 117.15 14.14 151.53 20.24 C173.71 24.67 195.78 34.96 213.41 49.11 C232.2 36.99 232.2 36.99 234.04 31.37 C235.79 20.51 234.01 10.63 231.41 0.11 C240.32 0.11 249.23 0.11 258.41 0.11 C262.66 15.7 264.74 31.4 256.41 46.11 C251.32 52.91 245.23 58.14 238.41 63.11 C236.74 64.44 235.07 65.77 233.41 67.11 C233.98 67.67 234.54 68.23 235.13 68.8 C260.59 93.97 287.18 130.77 287.79 168.17 C287.76 182.19 285.96 192.44 275.82 202.73 C256.7 220.13 226.71 225.81 202.66 233.66 C198.66 234.97 194.66 236.28 190.67 237.6 C188.43 238.34 186.18 239.06 183.94 239.79 C149.41 251.09 149.41 251.09 143.32 262.83 C141.67 266.97 141.28 270.93 141.28 275.35 C141.28 276.39 141.28 277.43 141.28 278.51 C141.28 279.07 141.28 279.07 141.29 281.95 C141.29 283.17 141.29 284.38 141.29 285.63 C141.28 288.99 141.29 292.35 141.29 295.72 C141.3 299.35 141.29 302.98 141.29 306.6 C141.29 312.89 141.3 319.17 141.3 325.46 C141.31 334.55 141.31 343.64 141.31 352.72 C141.32 367.47 141.32 382.21 141.33 396.96 C141.34 411.28 141.35 425.6 141.35 439.92 C141.35 440.81 141.35 441.69 141.35 442.6 C141.36 447.03 141.36 451.46 141.36 455.89 C141.37 492.63 141.39 529.37 141.41 566.11 C143.97 565.33 146.52 564.54 149.08 563.75 C149.8 563.53 150.51 563.31 151.25 563.08 C156.76 561.38 161.98 559.35 167.16 556.8 C167.96 556.41 168.76 556.03 169.58 555.63 C181.53 549.7 191.43 541.84 201.41 533.11 C202.18 532.46 202.96 531.81 203.76 531.14 C208.47 527.16 212.45 522.83 216.41 518.11 C217.15 517.27 217.89 516.44 218.65 515.57 C235.18 496.46 247.11 474.06 257.41 451.11 C257.93 449.97 258.45 448.82 258.99 447.64 C272.39 416.2 279.32 381.01 282.41 347.11 C282.48 346.41 282.55 345.71 282.62 344.99 C286.63 303.69 280.44 261.36 267.41 222.11 C267.93 221.8 268.46 221.48 269 221.15 C271.39 219.7 273.77 218.25 276.16 216.8 C276.98 216.3 277.81 215.8 278.66 215.29 C279.46 214.8 280.26 214.31 281.08 213.81 C281.81 213.37 282.55 212.92 283.3 212.46 C285.41 211.11 285.41 211.11 287.49 209.38 C288.12 208.96 288.76 208.54 289.41 208.11 C290.4 208.44 291.39 208.77 292.41 209.11 C293.68 211.8 294.73 214.38 295.72 217.18 C296.02 218.02 296.33 218.87 296.64 219.75 C325.93 304.12 313.05 401.82 275.41 481.24 C260.09 512.74 238.28 542.6 210.41 564.11 C209.39 564.91 208.38 565.7 207.34 566.51 C182.26 585.56 150.32 598.13 118.53 594.36 C75 588.33 36.78 561.05 10.4 526.51 C9.06 524.72 7.73 522.92 6.41 521.11 C5.93 520.48 5.46 519.85 4.97 519.2 C-3.83 507.5 -10.93 495.13 -17.59 482.11 C-18.03 481.26 -18.47 480.4 -18.93 479.52 C-33.09 451.76 -42.45 422.13 -48.4 391.61 C-48.55 390.86 -48.7 390.11 -48.85 389.33 C-53.33 366.23 -54.83 343.44 -54.84 319.93 C-54.84 318.81 -54.84 317.7 -54.84 316.55 C-54.83 299.88 -54.41 283.58 -51.59 267.11 C-51.42 266.08 -51.25 265.05 -51.07 263.99 C-47.81 244.92 -43.09 225.99 -35.59 208.11 C-31.84 209.56 -28.65 211.23 -25.28 213.43 C-24.33 214.04 -23.38 214.66 -22.4 215.29 C-21.47 215.89 -20.55 216.49 -19.59 217.11 C-16.93 218.79 -14.26 220.45 -11.59 222.11 C-11.99 223.57 -12.38 225.03 -12.78 226.49 C-13.05 227.5 -13.33 228.51 -13.61 229.55 C-14.31 232.09 -15.03 234.62 -15.76 237.15 C-38.4 315.34 -26.98 404.55 11.97 475.74 C22.51 494.58 35.11 511.84 50.41 527.11 C51.19 527.94 51.97 528.77 52.78 529.62 C70.11 547.72 91.43 559.33 115.41 566.11 C115.33 528.96 115.23 491.8 115.13 454.64 C115.12 450.26 115.1 445.87 115.09 441.48 C115.09 440.61 115.09 439.73 115.08 438.83 C115.04 424.69 115.01 410.55 114.98 396.42 C114.95 381.9 114.91 367.39 114.87 352.88 C114.84 343.93 114.82 334.98 114.8 326.03 C114.79 319.88 114.77 313.74 114.75 307.6 C114.74 304.06 114.73 300.52 114.72 296.98 C114.72 293.13 114.7 289.29 114.69 285.44 C114.69 284.88 114.69 284.88 114.69 282.07 C114.63 273.07 114.39 264.16 108.41 256.97 C100.85 249.95 90.59 246.31 81.03 242.93 C79.74 242.46 78.46 241.99 77.17 241.53 C66.59 237.74 55.89 234.38 45.16 231.05 C-15.65 212.16 -15.65 212.16 -26.34 192.76 C-34.74 175.01 -30.38 154.89 -24.16 137.13 C-14.4 111.45 1.26 88.23 21.25 69.38 C22.41 68.11 22.41 68.11 22.41 66.11 C20.79 64.98 19.11 63.94 17.41 62.93 C6.37 56.06 -1.36 48.6 -5 35.86 C-5.99 31.27 -5.99 26.79 -5.9 22.11 C-5.91 21.19 -5.91 20.27 -5.91 19.32 C-5.77 0.25 -5.77 0.25 0 0 Z M38.54 90.61 C18.63 110.99 -3.16 140.5 -4.09 170.05 C-3.88 176.07 -3.63 179.59 0.41 184.11 C13.34 194.72 33.04 198.31 48.76 203.2 C73.8 211 98.32 218.92 121.05 232.23 C127.01 235.57 127.01 235.57 129.41 236.11 C132 234.91 132 234.91 134.91 232.86 C140.55 229.12 146.36 225.98 152.47 223.05 C153.25 222.66 154.04 222.28 154.84 221.88 C173.17 213.17 193.25 207.96 212.59 202.02 C251.41 190.07 251.41 190.07 259.35 180.86 C264.4 167.77 259.12 153.61 253.87 141.39 C245.05 121.86 232.01 104.72 216.91 89.62 C215.28 87.99 213.68 86.33 212.11 84.64 C196.13 67.77 174.82 55.22 152.41 49.11 C151.57 48.88 150.72 48.65 149.86 48.41 C106.66 38.25 67.99 61.11 38.54 90.61 Z "  transform="translate(191.592041015625,58.886474609375)"/><path d="M0 0 C5.95 4.96 7.86 11.8 10.23 18.91 C10.61 20 10.98 21.09 11.36 22.22 C12.17 24.57 12.96 26.92 13.76 29.27 C15.43 34.22 17.13 39.15 18.82 44.09 C19.69 46.62 20.55 49.14 21.41 51.67 C25.29 63 29.19 74.33 33.16 85.63 C33.84 87.58 34.52 89.53 35.19 91.48 C36.13 94.18 37.08 96.88 38.03 99.57 C38.3 100.36 38.57 101.15 38.84 101.97 C40.68 107.1 42.48 110.53 47.59 113.01 C48.45 113.31 49.3 113.61 50.19 113.92 C51.16 114.26 52.12 114.61 53.12 114.97 C54.15 115.33 55.19 115.69 56.25 116.06 C92.61 129.24 92.61 129.24 100.25 136.88 C99.85 144.79 97.96 152.44 95.25 159.88 C94.59 160.21 93.93 160.53 93.25 160.88 C91.02 159.79 88.9 158.64 86.75 157.41 C78.21 152.68 69.35 149.01 60.31 145.38 C51.31 141.74 42.33 138.07 33.56 133.91 C32.92 133.62 32.29 133.34 31.64 133.04 C23.02 128.83 18.53 121.59 15.32 112.84 C14.99 111.98 14.67 111.12 14.33 110.23 C10.35 99.71 6.7 89.08 3.06 78.44 C1.58 74.13 0.1 69.81 -1.38 65.5 C-1.75 64.44 -2.12 63.37 -2.49 62.27 C-4.85 55.42 -7.27 48.59 -9.74 41.78 C-10.35 40.08 -10.97 38.38 -11.58 36.68 C-12.43 34.31 -13.29 31.93 -14.17 29.57 C-19.69 14.63 -19.69 14.63 -18.75 6.88 C-17.14 3.72 -15.78 1.68 -13 -0.5 C-8.41 -1.78 -4.36 -1.78 0 0 Z "  transform="translate(48.75,100.125)"/><path d="M0 0 C3.64 2.73 5.05 3.91 6.23 8.45 C6.76 15.49 3.94 21.92 1.62 28.44 C1.1 29.95 0.58 31.47 0.06 32.99 C-1.15 36.48 -2.36 39.97 -3.58 43.46 C-5.87 50.02 -8.11 56.59 -10.35 63.16 C-12.23 68.65 -14.11 74.14 -15.98 79.63 C-16.45 81 -16.92 82.37 -17.39 83.73 C-18.95 88.3 -20.52 92.87 -22.09 97.44 C-22.49 98.6 -22.88 99.75 -23.29 100.95 C-32.21 126.78 -32.21 126.78 -44.75 133.69 C-49.31 135.77 -53.93 137.65 -58.59 139.5 C-62.38 140.99 -66.15 142.53 -69.92 144.06 C-70.67 144.36 -71.42 144.67 -72.19 144.98 C-83.9 149.76 -95.46 154.99 -106.75 160.69 C-109.66 157.78 -110 154.27 -110.88 150.38 C-111.06 149.62 -111.24 148.86 -111.43 148.07 C-113.25 140.16 -113.25 140.16 -112.75 136.69 C-110.1 134.64 -107.7 133.22 -104.75 131.69 C-103.63 131.09 -102.51 130.49 -101.36 129.88 C-89.56 123.7 -77.22 118.73 -64.7 114.21 C-63.54 113.79 -62.38 113.37 -61.19 112.94 C-60.2 112.59 -59.2 112.25 -58.18 111.89 C-53.42 109.54 -52.13 105.45 -50.49 100.62 C-50.28 100.01 -50.28 100.01 -49.21 96.89 C-48.76 95.54 -48.3 94.19 -47.85 92.84 C-47.37 91.43 -46.89 90.03 -46.41 88.62 C-45.4 85.64 -44.38 82.67 -43.38 79.69 C-41.81 75.07 -40.24 70.45 -38.66 65.83 C-36.61 59.82 -34.55 53.8 -32.51 47.78 C-32.27 47.08 -32.03 46.37 -31.78 45.65 C-30.38 41.53 -28.98 37.41 -27.58 33.29 C-26.18 29.17 -24.76 25.06 -23.34 20.95 C-22.87 19.58 -22.4 18.22 -21.94 16.85 C-17.75 4.38 -17.75 4.38 -12.75 -0.31 C-8.22 -1.82 -4.37 -2.09 0 0 Z "  transform="translate(603.75,100.3125)"/><path d="M0 0 C1.15 -0 2.31 -0.01 3.5 -0.01 C10.3 0.03 15.39 0.79 22.25 2.31 C22.25 10.56 22.25 18.81 22.25 27.31 C19.97 27.28 17.69 27.24 15.35 27.21 C13.11 27.18 10.88 27.17 8.65 27.15 C7.11 27.13 5.57 27.11 4.03 27.09 C-12.46 26.81 -12.46 26.81 -19.75 30.31 C-20.44 30.59 -21.14 30.87 -21.86 31.16 C-24.23 32.6 -24.66 33.79 -25.75 36.31 C-26.74 37.96 -27.75 39.59 -28.77 41.21 C-29.37 42.18 -29.98 43.14 -30.6 44.13 C-31.25 45.16 -31.89 46.19 -32.56 47.25 C-33.94 49.44 -35.31 51.63 -36.68 53.82 C-37.37 54.91 -38.06 56.01 -38.76 57.14 C-41.59 61.65 -44.39 66.17 -47.19 70.69 C-47.7 71.52 -48.22 72.35 -48.75 73.21 C-51.45 77.57 -54.13 81.93 -56.81 86.31 C-58.23 88.64 -59.65 90.96 -61.08 93.29 C-62.09 94.94 -63.1 96.6 -64.11 98.26 C-77.06 119.42 -77.06 119.42 -82.75 121.31 C-87.41 121.85 -90.86 121.74 -95.12 119.69 C-98.13 116.97 -99.49 115.17 -100.75 111.31 C-100.47 104.92 -98.81 100.86 -95.44 95.5 C-95.21 95.13 -95.21 95.13 -94.09 93.29 C-92.66 90.95 -91.21 88.63 -89.75 86.31 C-89.52 85.94 -89.52 85.94 -88.34 84.06 C-85.91 80.18 -83.47 76.31 -81.01 72.45 C-77.45 66.86 -73.95 61.24 -70.44 55.62 C-69.81 54.63 -69.19 53.63 -68.54 52.6 C-65.26 47.35 -62 42.09 -58.78 36.8 C-58.12 35.73 -57.47 34.67 -56.8 33.57 C-55.56 31.55 -54.33 29.53 -53.11 27.51 C-44.84 14.07 -36.23 5.65 -20.72 1.67 C-13.76 0.13 -7.1 -0.1 0 0 Z "  transform="translate(102.75,348.6875)"/><path d="M0 0 C1.2 0.01 2.41 0.01 3.65 0.02 C17.99 0.21 32.4 2.1 43.31 12.38 C47.4 16.63 50.42 21.43 53.5 26.44 C54.1 27.4 54.71 28.37 55.33 29.36 C57.18 32.34 59.03 35.33 60.88 38.31 C61.98 40.08 63.08 41.85 64.18 43.61 C75.26 61.4 86.21 79.28 96.88 97.31 C97.24 97.9 97.61 98.49 97.98 99.09 C101.14 104.29 102.07 108.34 100.88 114.31 C98.29 117.67 95.16 120.98 90.79 121.61 C85.98 121.64 82.66 121.59 78.88 118.31 C74.48 113 70.91 107.25 67.44 101.31 C62.33 92.69 57.08 84.18 51.74 75.69 C48.33 70.26 44.95 64.81 41.61 59.32 C40.89 58.15 40.18 56.98 39.47 55.81 C38.11 53.59 36.76 51.36 35.42 49.13 C23.79 30.06 23.79 30.06 14.68 27.76 C11.16 27.2 7.71 27.19 4.17 27.21 C3.44 27.22 2.72 27.22 1.97 27.22 C-0.33 27.22 -2.64 27.24 -4.94 27.25 C-6.5 27.26 -8.07 27.26 -9.64 27.26 C-13.47 27.27 -17.3 27.29 -21.12 27.31 C-21.32 24.08 -21.51 20.85 -21.69 17.62 C-21.74 16.71 -21.8 15.8 -21.86 14.86 C-21.91 13.98 -21.95 13.09 -22 12.18 C-22.05 11.36 -22.1 10.55 -22.15 9.72 C-22.12 7.13 -21.71 4.82 -21.12 2.31 C-14.05 0.13 -7.37 -0.04 0 0 Z "  transform="translate(536.125,348.6875)"/><path d="M0 0 C20.7 2.65 45.31 8.05 59 25 C63.85 32.47 66.49 40 68.5 48.62 C68.79 49.83 69.08 51.04 69.38 52.28 C90.26 141.47 90.26 141.47 82.25 157.5 C79.58 160.47 77.53 162.39 73.81 163.88 C69.57 164.06 65.73 163.02 62 161 C58.69 157.46 57.45 154.95 56.86 150.16 C56.72 149.01 56.57 147.86 56.42 146.68 C56.28 145.47 56.14 144.25 56 143 C55.85 141.79 55.71 140.57 55.56 139.32 C55.17 136.07 54.8 132.82 54.43 129.57 C45.33 50.49 45.33 50.49 33 37 C21.25 28.12 5.15 28.01 -9 27 C-8.37 23.55 -7.51 20.28 -6.41 16.95 C-6.1 16.03 -5.79 15.1 -5.47 14.14 C-5.15 13.19 -4.83 12.23 -4.5 11.25 C-4.18 10.28 -3.86 9.31 -3.53 8.31 C-3.22 7.39 -2.91 6.47 -2.59 5.52 C-2.31 4.67 -2.03 3.83 -1.74 2.96 C-1 1 -1 1 0 0 Z "  transform="translate(496,497)"/><path d="M0 0 C1.66 2.05 2.41 3.83 3.28 6.32 C3.43 6.76 3.43 6.76 4.21 8.97 C4.36 9.43 4.36 9.43 5.14 11.73 C5.46 12.64 5.78 13.54 6.11 14.48 C7.51 18.53 8.46 21.45 8.46 25.79 C7.83 25.84 7.83 25.84 4.64 26.09 C-26.09 28.68 -26.09 28.68 -33.86 35.78 C-39.46 42.47 -41.55 52.43 -43.42 60.79 C-43.66 61.87 -43.91 62.95 -44.16 64.06 C-49.78 89.95 -53.53 116.42 -56.21 142.77 C-56.35 144.01 -56.48 145.25 -56.62 146.54 C-56.73 147.61 -56.84 148.68 -56.95 149.78 C-57.81 154.15 -59.29 157.65 -62.61 160.67 C-66.96 162.34 -70.94 162.46 -75.54 161.79 C-79.95 159.63 -82.71 157.38 -84.54 152.79 C-84.98 146.9 -84.37 141.03 -83.63 135.18 C-83.53 134.39 -83.43 133.59 -83.33 132.77 C-83.01 130.19 -82.69 127.62 -82.36 125.04 C-82.3 124.6 -82.3 124.6 -82.02 122.35 C-79.99 106.41 -77.6 90.58 -74.54 74.79 C-74.41 74.12 -74.28 73.44 -74.15 72.74 C-73.31 68.35 -72.44 63.96 -71.54 59.57 C-71.26 58.17 -70.98 56.77 -70.7 55.37 C-67.27 38.07 -62.27 23.96 -47.79 12.98 C-36.34 5.52 -23.08 2.98 -9.88 0.28 C-7.94 -0.13 -6 -0.57 -4.07 -1.03 C-1.54 -1.21 -1.54 -1.21 0 0 Z "  transform="translate(144.5439453125,498.206298828125)"/></g>
   <g id="b-ant-l-rig"><g id="b-ant-l"><path d="M201,60 C202,42 214,24 228,8" fill="none" stroke="currentColor" stroke-width="29" stroke-linecap="round"/></g></g>
@@ -791,27 +749,11 @@ footer {
           <div class="card-sep" role="separator"></div>
           <div class="card-expand">
             <div class="card-expand-inner">
-              <div class="preview-kicker">How a minute gets earned</div>
-              <div class="app-preview" aria-label="ScreenReps app preview">
-                <div class="srp-row">
-                  <div class="srp-icon blocked" aria-hidden="true">🚫</div>
-                  <div>
-                    <div class="srp-title">Instagram</div>
-                    <div class="srp-sub">0 minutes left today</div>
-                  </div>
-                  <span class="srp-pill locked">Blocked</span>
-                </div>
-                <div class="srp-between" aria-hidden="true">
-                  <span class="srp-line"></span> 12 squats, counted by camera <span class="srp-line"></span>
-                </div>
-                <div class="srp-row">
-                  <div class="srp-icon unlocked" aria-hidden="true">💪</div>
-                  <div>
-                    <div class="srp-title">Reps verified</div>
-                    <div class="srp-sub">Nice form, by the way</div>
-                  </div>
-                  <span class="srp-pill earned">+15 min</span>
-                </div>
+              <div class="preview-kicker">See it in action</div>
+              <div class="shots" aria-label="ScreenReps screenshots">
+                <div class="phone"><div class="screen"><img src="assets/shot-screenreps-1.png" alt="ScreenReps — counting squat reps with the camera" loading="lazy" onerror="this.style.display='none'"><div class="shot-ph"><span class="shot-emoji" aria-hidden="true">📱</span><span>Screenshot 1</span></div></div></div>
+                <div class="phone"><div class="screen"><img src="assets/shot-screenreps-2.png" alt="ScreenReps — out of screen time" loading="lazy" onerror="this.style.display='none'"><div class="shot-ph"><span class="shot-emoji" aria-hidden="true">📱</span><span>Screenshot 2</span></div></div></div>
+                <div class="phone"><div class="screen"><img src="assets/shot-screenreps-3.png" alt="ScreenReps onboarding — how it works" loading="lazy" onerror="this.style.display='none'"><div class="shot-ph"><span class="shot-emoji" aria-hidden="true">📱</span><span>Screenshot 3</span></div></div></div>
               </div>
             </div>
           </div>
@@ -838,19 +780,11 @@ footer {
           <div class="card-sep" role="separator"></div>
           <div class="card-expand">
             <div class="card-expand-inner">
-              <div class="preview-kicker">What a scanned meal looks like</div>
-              <div class="app-preview" aria-label="PetFuel app preview">
-                <div class="pfp-head">
-                  <span aria-hidden="true">🐶</span> Luna's dinner
-                  <span class="pfp-scan">Scanned</span>
-                </div>
-                <div class="pfp-chips" aria-label="Detected ingredients">
-                  <span class="pfp-chip">Chicken 42%</span>
-                  <span class="pfp-chip">Brown rice 28%</span>
-                  <span class="pfp-chip">Carrot 12%</span>
-                  <span class="pfp-chip">Salmon oil 4%</span>
-                </div>
-                <div class="pfp-verdict">✓ Balanced for a 9 kg beagle</div>
+              <div class="preview-kicker">See it in action</div>
+              <div class="shots" aria-label="PetFuel screenshots">
+                <div class="phone"><div class="screen"><span class="notch" aria-hidden="true"></span><div class="shot-ph"><span class="shot-emoji" aria-hidden="true">📱</span><span>Screenshot 1</span></div></div></div>
+                <div class="phone"><div class="screen"><span class="notch" aria-hidden="true"></span><div class="shot-ph"><span class="shot-emoji" aria-hidden="true">📱</span><span>Screenshot 2</span></div></div></div>
+                <div class="phone"><div class="screen"><span class="notch" aria-hidden="true"></span><div class="shot-ph"><span class="shot-emoji" aria-hidden="true">📱</span><span>Screenshot 3</span></div></div></div>
               </div>
             </div>
           </div>
@@ -905,8 +839,31 @@ if ('IntersectionObserver' in window) {
 const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 const canHover     = window.matchMedia('(hover: hover)').matches;
 
+/* ── WHOLE-PAGE APP THEMING ──────────────────────
+   Opening a card pulls the entire page into that
+   app's world. A short debounce on release avoids a
+   flash of neutral when sliding between the two
+   cards. The nav logo swaps to its light variant on
+   the dark ScreenReps theme so it stays visible. */
+const navScarabImg = document.querySelector('.nav-logo-img');
+const navWordImg   = document.querySelector('.nav-wordmark-img');
+const DARK_THEME   = { 'theme-screenreps': true };
+let themeTimer = null;
+
+function applyTheme(name) {
+  clearTimeout(themeTimer);
+  document.body.classList.remove('theme-screenreps', 'theme-petfuel');
+  if (name) document.body.classList.add(name);
+  const dark = !!(name && DARK_THEME[name]);
+  if (navWordImg)   navWordImg.src   = dark ? 'assets/wordmark-white-thin.png' : 'assets/wordmark-navy-thin.png';
+  if (navScarabImg) navScarabImg.src = dark ? 'assets/scarab-white.png'        : 'assets/scarab-normal.png';
+}
+function requestTheme(name) { clearTimeout(themeTimer); applyTheme(name); }
+function releaseTheme()     { clearTimeout(themeTimer); themeTimer = setTimeout(() => applyTheme(null), 80); }
+
 document.querySelectorAll('.product-card-wrap').forEach(wrapEl => {
   const panel = wrapEl.querySelector('.card-expand');
+  const themeName = wrapEl.classList.contains('sr') ? 'theme-screenreps' : 'theme-petfuel';
   let isOpen = false;
   let anim = null;
 
@@ -915,6 +872,7 @@ document.querySelectorAll('.product-card-wrap').forEach(wrapEl => {
     isOpen = want;
     wrapEl.classList.toggle('is-open', isOpen);
     wrapEl.setAttribute('aria-expanded', String(isOpen));
+    if (isOpen) requestTheme(themeName); else releaseTheme();
 
     if (anim) anim.cancel();
 
@@ -1191,62 +1149,23 @@ fullStop.addEventListener('click', () => {
   };
 });
 
-/* ── EYE GAZE + ANTENNA TWITCH ───────────────────────────────
-   Eyes drift toward the cursor; the nearest antenna's upper half
-   curls inward when the cursor gets close to it. Both pause/idle
-   while the scarab is being tickled. */
+/* ── EYE GAZE ──────────────────────────────────────────────────
+   Eyes drift toward the cursor. */
 (function () {
   if (!gEyeshift || !stage) return;
-  const baraka   = document.getElementById('baraka');
-  const GAZE     = 8;    // max eye shift, SVG user units (~2.5px on screen)
-  const PROX     = 74;   // px from an antenna that triggers a twitch
-  const BOTH_GAP = 46;   // |dL-dR| under this → both antennae twitch
-  const AL = { x: 216, y: 26 }, AR = { x: 423, y: 26 }; // antenna points, viewBox coords
-  let mx = 0, my = 0, raf = null;
-
-  function setTwitch(s) {
-    if (!baraka) return;
-    baraka.classList.toggle('twitch-left',  s === 'left');
-    baraka.classList.toggle('twitch-right', s === 'right');
-    baraka.classList.toggle('twitch-both',  s === 'both');
-  }
-
-  function tick() {
-    raf = null;
-    const r = stage.getBoundingClientRect();
-
-    /* eyes */
-    if (isTickling) {
-      gEyeshift.style.transform = '';
-    } else {
-      const ex = r.left + r.width * 0.50, ey = r.top + r.height * 0.348;
-      const dx = mx - ex, dy = my - ey, d = Math.hypot(dx, dy);
-      if (d > 0) {
-        const s = Math.min(d / 180, 1);
-        gEyeshift.style.transform =
-          `translate(${((dx/d)*GAZE*s).toFixed(2)}px, ${((dy/d)*GAZE*s).toFixed(2)}px)`;
-      }
-    }
-
-    /* antenna proximity — the SVG content is letterboxed inside the stage */
-    if (isTickling) { setTwitch('none'); return; }
-    const scale = r.width / 639;                 // width-constrained (meet)
-    const offY  = (r.height - 661 * scale) / 2;
-    const sx = vx => r.left + vx * scale;
-    const sy = vy => r.top + offY + vy * scale;
-    const dL = Math.hypot(mx - sx(AL.x), my - sy(AL.y));
-    const dR = Math.hypot(mx - sx(AR.x), my - sy(AR.y));
-    const nearL = dL < PROX, nearR = dR < PROX;
-    let s = 'none';
-    if (nearL && nearR && Math.abs(dL - dR) < BOTH_GAP) s = 'both';
-    else if (nearL && dL <= dR) s = 'left';
-    else if (nearR) s = 'right';
-    setTwitch(s);
-  }
-
+  const GAZE = 8;
   document.addEventListener('mousemove', e => {
-    mx = e.clientX; my = e.clientY;
-    if (!raf) raf = requestAnimationFrame(tick);
+    if (isTickling) { gEyeshift.style.transform = ''; return; }
+    const r = stage.getBoundingClientRect();
+    const ex = r.left + r.width * 0.50;
+    const ey = r.top  + r.height * 0.348;
+    const dx = e.clientX - ex, dy = e.clientY - ey;
+    const d = Math.hypot(dx, dy);
+    if (d > 0) {
+      const s = Math.min(d / 180, 1);
+      gEyeshift.style.transform =
+        `translate(${((dx/d)*GAZE*s).toFixed(2)}px,${((dy/d)*GAZE*s).toFixed(2)}px)`;
+    }
   }, { passive: true });
 }());
 </script>
