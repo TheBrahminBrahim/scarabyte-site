@@ -6,7 +6,7 @@
 <title>Scarabyte — Software for Real Life</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,700;12..96,800&family=Caveat:wght@600;700&family=Nunito:wght@300;400;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,700;12..96,800&family=Caveat:wght@600;700&family=Nunito:wght@300;400;600;700&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet">
 
 <style>
 /* ================================================
@@ -150,6 +150,10 @@ a { color: inherit; }
 /* ================================================
    NAVIGATION
    ================================================ */
+/* The homepage is a clean splash — no top bar.
+   Other pages (without body.home) keep the nav. */
+body.home .nav { display: none; }
+
 .nav {
   position: fixed;
   inset-block-start: 0;
@@ -174,12 +178,14 @@ a { color: inherit; }
   color: var(--primary);
 }
 .nav-logo-img { width: 42px; height: auto; display: block; }
-.nav-wordmark-img {
-  height: 22.5px;
-  width: auto;
-  display: block;
-  /* optically align with the scarab's middle pair of legs (~62% down the icon) */
-  margin-top: 10.5px;
+.nav-wordmark {
+  font-family: 'Rajdhani', var(--font-d);
+  font-weight: 500;
+  font-size: 1.77rem;
+  letter-spacing: 0.005em;
+  line-height: 1;
+  color: var(--primary);
+  white-space: nowrap;
 }
 
 .nav-links {
@@ -241,19 +247,30 @@ a { color: inherit; }
 
 /* ── Headline ── */
 .hero-h1 {
-  font-family: var(--font-d);
-  font-weight: 800;
-  font-size: clamp(3rem, 8.5vw, 5.8rem);
-  line-height: 1.03;
-  letter-spacing: -0.038em;
-  color: var(--primary);
-  text-wrap: balance;
-  max-width: 14ch;
+  font-family: 'Rajdhani', var(--font-d);
+  font-weight: 700;
+  font-size: clamp(2.4rem, 9vw, 5.4rem);
+  line-height: 1.05;
+  letter-spacing: 0.06em;
+  color: #04295F; /* match Baraka's outline ink */
   margin-bottom: 1.2rem;
+  min-height: 1.05em;
+  white-space: nowrap;
 }
-.hero-h1 .line-1 { display: block; animation: fadeUp 0.65s ease-out 0.30s backwards; }
-.hero-h1 .line-2 { display: block; animation: fadeUp 0.65s ease-out 0.42s backwards; }
-.hero-h1 .accent { color: #E0A82E; }
+/* The word sits in its own relative box so the caret can hang off
+   the right edge without counting toward the word's centering. */
+.hero-type { position: relative; display: inline-block; }
+/* Blinking caret — taken out of flow so "ScaraByte" centers on its
+   own and the underscore overhangs to the right. */
+.hero-type-caret {
+  position: absolute;
+  left: 100%;
+  bottom: 0;
+  margin-left: 0.06em;
+  font-weight: 400;
+  animation: caretBlink 1.05s infinite;
+}
+@keyframes caretBlink { 0%, 50% { opacity: 1; } 50.01%, 100% { opacity: 0; } }
 
 /* ================================================
    SCARAB STAGE
@@ -666,11 +683,14 @@ footer {
   text-decoration: none;
 }
 .footer-logo-img { width: 26px; height: auto; display: block; opacity: 0.75; }
-.footer-name-img {
-  height: 13px;
-  width: auto;
-  display: block;
-  opacity: 0.9;
+.footer-name {
+  font-family: 'Rajdhani', var(--font-d);
+  font-weight: 700;
+  font-size: 0.92rem;
+  letter-spacing: 0.01em;
+  line-height: 1;
+  color: #fff;
+  opacity: 0.85;
 }
 .footer-right { text-align: right; }
 .footer-contact-label {
@@ -714,15 +734,15 @@ footer {
 
 </style>
 </head>
-<body>
+<body class="home">
 
 <!-- ============================
-     NAV
+     NAV  (hidden on the homepage via body.home — see .nav rules)
      ============================ -->
 <nav class="nav">
   <a href="#" class="nav-logo" aria-label="Scarabyte home">
     <img class="nav-logo-img" src="assets/scarab-normal.png" alt="" aria-hidden="true">
-    <img class="nav-wordmark-img" src="assets/wordmark-navy-thin.png" alt="ScaraByte">
+    <span class="nav-wordmark">ScaraByte</span>
   </a>
 </nav>
 
@@ -734,9 +754,8 @@ footer {
   <div class="hero-dots" aria-hidden="true"></div>
 
   <div class="hero-inner">
-    <h1 class="hero-h1">
-      <span class="line-1">We build software</span>
-      <span class="line-2">for <span class="accent">real</span> life<span id="fullStop">.</span></span>
+    <h1 class="hero-h1" aria-label="ScaraByte">
+      <span class="hero-type" aria-hidden="true"><span class="hero-type-text" id="typeText"></span><span class="hero-type-caret" id="typeCursor">_</span></span>
     </h1>
 
     <!-- Scarab mascot (decorative; interactions are a hidden gem) -->
@@ -884,7 +903,7 @@ footer {
 <footer>
   <a href="#" class="footer-logo" aria-label="Scarabyte home">
     <img class="footer-logo-img" src="assets/scarab-white.png" alt="" aria-hidden="true">
-    <img class="footer-name-img" src="assets/wordmark-white-thin.png" alt="ScaraByte">
+    <span class="footer-name">ScaraByte</span>
   </a>
   <span class="footer-copy">© 2026 Scarabyte</span>
 </footer>
@@ -922,7 +941,6 @@ const canHover     = window.matchMedia('(hover: hover)').matches;
    cards. The nav logo swaps to its light variant on
    the dark ScreenReps theme so it stays visible. */
 const navScarabImg = document.querySelector('.nav-logo-img');
-const navWordImg   = document.querySelector('.nav-wordmark-img');
 const DARK_THEME   = { 'theme-screenreps': true };
 let themeTimer = null;
 
@@ -931,7 +949,6 @@ function applyTheme(name) {
   document.body.classList.remove('theme-screenreps', 'theme-petfuel');
   if (name) document.body.classList.add(name);
   const dark = !!(name && DARK_THEME[name]);
-  if (navWordImg)   navWordImg.src   = dark ? 'assets/wordmark-white-thin.png' : 'assets/wordmark-navy-thin.png';
   if (navScarabImg) navScarabImg.src = dark ? 'assets/scarab-white.png'        : 'assets/scarab-normal.png';
 }
 function requestTheme(name) { clearTimeout(themeTimer); applyTheme(name); }
@@ -1159,71 +1176,26 @@ bellyZone.addEventListener('mouseleave', () => {
 // The scarab blinks on its own — unless the visitor prefers reduced motion.
 if (!matchMedia('(prefers-reduced-motion: reduce)').matches) scheduleBlink();
 
-/* ── FULL STOP SUN EASTER EGG ───────────────────────
-   Click the period at the end of the headline.
-   It detaches, flies down to Baraka's head, and
-   becomes the Egyptian sun disc (Khepri).
-   The sun lives on document.body (position:fixed) so
-   nothing inside scarab-stage can affect it.          */
-const fullStop = document.getElementById('fullStop');
-const SUN_SIZE = 54;
-let sunActive  = false;
-let sunTO      = null;
+/* ── HERO WORDMARK TYPE-IN ───────────────────────────
+   Types "ScaraByte" on load with a blinking caret.
+   Reduced motion → the full word appears at once.     */
+(function () {
+  const typeEl = document.getElementById('typeText');
+  if (!typeEl) return;
+  const word = 'ScaraByte';
 
-fullStop.addEventListener('click', () => {
-  if (sunActive) return;
-  sunActive = true;
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    typeEl.textContent = word;
+    return;
+  }
 
-  const sr     = fullStop.getBoundingClientRect();
-  const stageR = stage.getBoundingClientRect();
-
-  // Period glyph sits at the baseline — use width as dot diameter, anchor to bottom
-  const dotSize = Math.max(sr.width, 10);
-  const startCX = sr.left + sr.width / 2;
-  const startCY = sr.bottom - dotSize / 2;
-  const endCX   = stageR.left + stageR.width / 2;
-  const endCY   = stageR.top  - 9;
-
-  const tx    = endCX - startCX;
-  const ty    = endCY - startCY;
-  const scale = SUN_SIZE / dotSize;
-
-  fullStop.style.opacity = '0';
-
-  const dot = document.createElement('div');
-  dot.style.cssText = `
-    position:fixed;
-    left:${startCX - dotSize/2}px;
-    top:${startCY  - dotSize/2}px;
-    width:${dotSize}px;height:${dotSize}px;
-    border-radius:50%;
-    pointer-events:none;
-    z-index:999;
-  `;
-  document.body.appendChild(dot);
-
-  dot.animate([
-    { transform: 'translate(0,0) scale(1)',
-      background: 'oklch(0.192 0.090 232)' },
-    { transform: `translate(${tx * 0.35}px,${ty * 0.15}px) scale(${scale * 0.65})`,
-      background: 'oklch(0.87 0.18 84)', offset: 0.38 },
-    { transform: `translate(${tx}px,${ty}px) scale(${scale})`,
-      background: 'oklch(0.87 0.18 84)' }
-  ], { duration: 700, easing: 'cubic-bezier(0.22, 1.25, 0.64, 1)', fill: 'forwards' })
-  .onfinish = () => {
-    // dot stays in place as the sun (fill:forwards); fade it out after 5s
-    clearTimeout(sunTO);
-    sunTO = setTimeout(() => {
-      dot.animate([{ opacity: 1 }, { opacity: 0 }],
-        { duration: 400, fill: 'forwards' })
-      .onfinish = () => {
-        dot.remove();
-        fullStop.style.opacity = '';
-        sunActive = false;
-      };
-    }, 5000);
-  };
-});
+  let i = 0;
+  function step() {
+    typeEl.textContent = word.slice(0, i);
+    if (i++ < word.length) setTimeout(step, 95 + Math.random() * 55);
+  }
+  setTimeout(step, 450);
+})();
 
 /* ── EYE GAZE ──────────────────────────────────────────────────
    Eyes drift toward the cursor. */
