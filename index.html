@@ -768,275 +768,45 @@ footer {
 }
 
 /* ================================================
-   CONTACT SECTION — LANYARD
+   CONTACT SECTION
    ================================================ */
 .contact-section {
   background: var(--surface);
   position: relative;
   display: flex;
-  flex-direction: column;
   align-items: center;
-  justify-content: flex-start;
+  justify-content: center;
   min-height: 100vh;
   min-height: 100svh;
+  padding: 7rem 1.5rem 8rem;
   overflow: hidden;
 }
-
-.contact-head {
-  text-align: center;
-  padding: 3.5rem 1.5rem 0;
+.contact-section .contact-block {
   position: relative;
-  z-index: 2;
+  z-index: 1;
+  text-align: center;
+  max-width: 640px;
 }
 .contact-title {
   font-family: 'Rajdhani', var(--font-d);
   font-weight: 700;
-  font-size: clamp(1.9rem, 5vw, 2.8rem);
+  font-size: clamp(2rem, 6vw, 3.4rem);
   letter-spacing: 0.04em;
   line-height: 1.05;
   color: var(--primary);
 }
 .contact-lead {
-  margin-top: 0.45rem;
-  color: var(--faint);
-  font-size: 0.75rem;
-  font-weight: 700;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-}
-
-/* Physics scene */
-.lanyard-scene {
-  position: relative;
-  flex: 1;
-  width: 100%;
-  touch-action: none;
-  user-select: none;
-}
-.lanyard-scene.dragging { cursor: grabbing; }
-
-.lanyard-rope-svg {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  pointer-events: none;
-  overflow: visible;
-}
-
-/* Pin/clip at top centre */
-.lanyard-anchor {
-  position: absolute;
-  top: 0;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 10px;
-  height: 18px;
-  background: var(--primary-mid);
-  border-radius: 0 0 5px 5px;
-  z-index: 5;
-  box-shadow: 0 2px 6px oklch(0.192 0.090 232 / 0.18);
-}
-
-/* Badge card */
-.lanyard-badge {
-  position: absolute;
-  left: 50%;
-  margin-left: -86px;  /* half of 172 */
-  top: 0;
-  width: 172px;
-  height: 252px;
-  transform-origin: 50% 0;   /* pivot = badge top-centre */
-  cursor: grab;
-  z-index: 2;
-  touch-action: none;
-  perspective: 900px;
-}
-.lanyard-badge:focus-visible { outline: 3px solid var(--accent); outline-offset: 4px; border-radius: 15px; }
-
-.badge-inner {
-  position: relative;
-  width: 100%;
-  height: 100%;
-  transform-style: preserve-3d;
-  transition: transform 0.65s cubic-bezier(0.34, 1.2, 0.64, 1);
-}
-.badge-inner.flipped { transform: rotateY(180deg); }
-
-.badge-face {
-  position: absolute;
-  inset: 0;
-  backface-visibility: hidden;
-  -webkit-backface-visibility: hidden;
-  border-radius: 15px;
-  overflow: hidden;
-}
-
-/* ── Front face ── */
-.badge-front {
-  background: #ffffff;
-  border: 2px solid var(--border-med);
-  box-shadow: 0 28px 64px oklch(0.192 0.090 232 / 0.20),
-              0 6px 16px  oklch(0.192 0.090 232 / 0.10);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-.badge-header-bar {
-  width: 100%;
-  background: var(--primary);
-  padding: 0.5rem 1rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-}
-.badge-wordmark-img {
-  height: 13px;
-  width: auto;
-  display: block;
-  opacity: 0.88;
-}
-
-/* ID photo — clipped to show Baraka's head + upper body */
-.badge-photo-wrap {
-  position: relative;
-  width: 116px;
-  height: 116px;
-  margin: 13px auto 0;
-  border-radius: 9px;
-  border: 2.5px solid var(--border-med);
-  background: var(--primary-pale);
-  overflow: hidden;
-  flex-shrink: 0;
-}
-.badge-photo-img {
-  position: absolute;
-  top: 0;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 190px;   /* wider than frame → crops to head + upper body */
-  height: auto;
-  display: block;
-}
-
-.badge-card-divider {
-  width: calc(100% - 22px);
-  height: 1px;
-  background: var(--border);
-  margin: 11px 0 0;
-  flex-shrink: 0;
-}
-.badge-id-info {
-  text-align: center;
-  padding: 9px 14px 14px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 3px;
-}
-.badge-name-text {
-  font-family: 'Rajdhani', var(--font-d);
-  font-weight: 700;
-  font-size: 1.1rem;
-  letter-spacing: 0.14em;
-  color: var(--primary);
-  line-height: 1;
-}
-.badge-role-text {
-  font-size: 0.62rem;
-  font-weight: 700;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
+  margin-top: 0.6rem;
   color: var(--muted);
+  font-size: 1.05rem;
 }
-
-/* Faux barcode strip at bottom */
-.badge-barcode {
-  margin-top: auto;
-  margin-bottom: 14px;
-  width: calc(100% - 28px);
-  height: 22px;
-  background: repeating-linear-gradient(
-    to right,
-    var(--primary) 0px, var(--primary) 2px,
-    transparent   2px, transparent   4px,
-    var(--primary) 4px, var(--primary) 5px,
-    transparent   5px, transparent   8px,
-    var(--primary) 8px, var(--primary) 11px,
-    transparent  11px, transparent  13px,
-    var(--primary)13px, var(--primary)14px,
-    transparent  14px, transparent  17px,
-    var(--primary)17px, var(--primary)20px,
-    transparent  20px, transparent  22px,
-    var(--primary)22px, var(--primary)23px,
-    transparent  23px, transparent  26px,
-    var(--primary)26px, var(--primary)28px,
-    transparent  28px, transparent  30px,
-    var(--primary)30px, var(--primary)31px,
-    transparent  31px, transparent  34px
-  );
-  opacity: 0.18;
-  border-radius: 2px;
-}
-
-/* ── Back face ── */
-.badge-back {
-  background: var(--primary);
-  transform: rotateY(180deg);
+.contact-section .contact-inner {
   display: flex;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 28px 64px oklch(0.192 0.090 232 / 0.20);
-}
-.badge-back-content {
-  text-align: center;
-  padding: 2rem 1.25rem;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-.badge-back-eyebrow {
-  font-size: 0.6rem;
-  font-weight: 700;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  color: oklch(0.470 0.040 232);
-}
-.badge-back-sep {
-  width: 36px;
-  height: 2px;
-  background: oklch(0.320 0.055 232);
-  border-radius: 2px;
-  margin: 0.85rem 0;
-}
-.badge-back-email {
-  display: block;
-  text-decoration: none;
-  font-weight: 700;
-  font-size: 0.86rem;
-  line-height: 1.5;
-  color: #ffffff;
-  word-break: break-word;
-}
-.badge-back-email .em-u { color: var(--accent); }
-
-/* Hint text at bottom of scene */
-.lanyard-hint-text {
-  position: absolute;
-  bottom: 2.5rem;
-  left: 50%;
-  transform: translateX(-50%);
-  font-size: 0.67rem;
-  font-weight: 700;
-  letter-spacing: 0.09em;
-  text-transform: uppercase;
-  color: var(--faint);
-  white-space: nowrap;
-  pointer-events: none;
-  z-index: 1;
+  gap: 0.5rem;
+  margin-top: 2.3rem;
+  margin-right: 0;
 }
 
 /* ================================================
@@ -1054,12 +824,19 @@ footer {
   .phone { width: 138px; }
   .hero-doodle { transform: translateX(calc(-50% - 64px)); }
   .contact-callout { justify-content: center; padding-bottom: 4.5rem; }
+  .contact-inner { margin-right: 0; }
   .about-section { padding: 6.5rem 1.3rem 8rem; }
   .about-pullquote { font-size: 1.15rem; }
-  .contact-head { padding: 2.5rem 1.3rem 0; }
+  .contact-section { padding: 5.5rem 1.3rem 7rem; }
 }
 @media (max-width: 600px) {
   .about-section .baraka-peek { display: none; }
+  .contact-section .baraka-peek { display: none; }
+}
+@media (max-width: 480px) {
+  .contact-section .footer-doodle { display: none; }
+  .contact-section .contact-inner { gap: 0; margin-top: 1.8rem; }
+  .contact-section .footer-email { font-size: 1.1rem; }
 }
 
 </style>
@@ -1215,60 +992,25 @@ footer {
      CONTACT
      ============================ -->
 <section class="contact-section" id="contact" aria-label="Contact">
-  <div class="contact-head">
+  <div class="contact-block">
     <h2 class="contact-title">Get in touch</h2>
-    <p class="contact-lead">Click to flip &middot; drag to swing</p>
-  </div>
-
-  <div class="lanyard-scene" id="lanyard-scene">
-    <!-- Anchor pin at top centre -->
-    <div class="lanyard-anchor" aria-hidden="true"></div>
-
-    <!-- Rope — coordinates set by JS -->
-    <svg class="lanyard-rope-svg" id="lanyard-rope-svg" aria-hidden="true">
-      <line id="lanyard-line"
-            style="stroke: var(--primary); opacity: 0.55;"
-            stroke-width="2.5"
-            stroke-linecap="round"/>
-    </svg>
-
-    <!-- Badge card -->
-    <div class="lanyard-badge" id="lanyard-badge"
-         role="button" tabindex="0"
-         aria-label="Baraka ID card — click to flip, drag to swing">
-      <div class="badge-inner" id="badge-inner">
-
-        <!-- Front: Baraka ID photo -->
-        <div class="badge-face badge-front">
-          <div class="badge-header-bar">
-            <img src="assets/wordmark-white-thin.png" alt="ScaraByte" class="badge-wordmark-img">
-          </div>
-          <div class="badge-photo-wrap">
-            <img src="assets/baraka-noarms.svg" alt="" class="badge-photo-img">
-          </div>
-          <div class="badge-card-divider"></div>
-          <div class="badge-id-info">
-            <span class="badge-name-text">BARAKA</span>
-            <span class="badge-role-text">Official Mascot</span>
-          </div>
-          <div class="badge-barcode" aria-hidden="true"></div>
-        </div>
-
-        <!-- Back: Contact info -->
-        <div class="badge-face badge-back" aria-hidden="true">
-          <div class="badge-back-content">
-            <span class="badge-back-eyebrow">Say hello</span>
-            <div class="badge-back-sep"></div>
-            <a href="mailto:hello@scarabyte.app" class="badge-back-email">
-              <span class="em-u">hello</span>@scarabyte.app
-            </a>
-          </div>
-        </div>
-
+    <p class="contact-lead">Questions, ideas, or just want to say hi? Drop us a line.</p>
+    <div class="contact-inner">
+      <div class="footer-doodle doodle" aria-hidden="true">
+        <span class="doodle-word">contact</span>
+        <svg class="doodle-arrow doodle-arrow-r" viewBox="0 0 100 44" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M6 20 C28 31 54 32 76 28 C84 26 90 23 96 22"/>
+          <g transform="rotate(-15 96 22)">
+            <path d="M84 16 C88 18 92 20 96 22"/>
+            <path d="M84 28 C88 26 92 24 96 22"/>
+          </g>
+        </svg>
       </div>
+      <a href="mailto:hello@scarabyte.app" class="footer-email"><span class="em-user">hello</span>@scarabyte.app</a>
     </div>
-
-    <span class="lanyard-hint-text" aria-hidden="true">Click to flip &middot; Drag to swing</span>
+  </div>
+  <div class="baraka-peek" aria-hidden="true">
+    <img src="assets/baraka-noarms.svg" alt="">
   </div>
 </section>
 
@@ -1573,105 +1315,6 @@ bellyZone.addEventListener('mouseleave', () => {
 
 // The scarab blinks on its own — unless the visitor prefers reduced motion.
 if (!matchMedia('(prefers-reduced-motion: reduce)').matches) scheduleBlink();
-
-/* ── LANYARD PHYSICS ────────────────────────────────
-   Pendulum simulation: badge swings on a rope from a
-   fixed pivot at the top of the scene.
-   Click (no drag) = flip the card.
-   Drag = apply angular velocity on release.           */
-(function () {
-  const scene  = document.getElementById('lanyard-scene');
-  const badge  = document.getElementById('lanyard-badge');
-  const inner  = document.getElementById('badge-inner');
-  const rope   = document.getElementById('lanyard-line');
-  if (!scene || !badge || !rope) return;
-
-  const ROPE = 175;   // rope length in px
-  const BW   = 172;   // badge width (must match CSS margin-left)
-
-  let angle = 0.16;   // radians from vertical — slight initial tilt
-  let omega = 0;      // angular velocity (rad/frame)
-  const G    = 0.28;  // effective gravity constant
-  const DAMP = 0.989; // damping factor per frame
-
-  let dragging = false, didMove = false;
-  let lastA = 0, lastT = 0;
-
-  function cx() { return scene.offsetWidth / 2; }
-
-  function step() {
-    if (dragging) return;
-    omega += -(G / ROPE) * Math.sin(angle);
-    omega *= DAMP;
-    angle += omega;
-  }
-
-  function draw() {
-    const px = cx();
-    // Rope end = badge top-centre in scene coords
-    const ex = px + ROPE * Math.sin(angle);
-    const ey = ROPE * Math.cos(angle);
-
-    rope.setAttribute('x1', px);
-    rope.setAttribute('y1', 0);
-    rope.setAttribute('x2', ex);
-    rope.setAttribute('y2', ey);
-
-    // rotate(angle) translateY(ROPE) with transform-origin: 50% 0
-    // positions badge top-centre at (ex, ey) and tilts it by angle
-    badge.style.transform = `rotate(${angle}rad) translateY(${ROPE}px)`;
-  }
-
-  function loop() { step(); draw(); requestAnimationFrame(loop); }
-
-  /* Convert pointer position to pendulum angle */
-  function toAngle(e) {
-    const r  = scene.getBoundingClientRect();
-    const pt = e.touches ? e.touches[0] : e;
-    const dx = pt.clientX - r.left - cx();
-    const dy = Math.max(pt.clientY - r.top, 1);
-    return Math.max(-1.3, Math.min(1.3, Math.atan2(dx, dy)));
-  }
-
-  badge.addEventListener('pointerdown', e => {
-    dragging = true; didMove = false;
-    lastA = angle; lastT = performance.now();
-    scene.classList.add('dragging');
-    badge.setPointerCapture(e.pointerId);
-    e.preventDefault();
-  });
-
-  badge.addEventListener('pointermove', e => {
-    if (!dragging) return;
-    didMove = true;
-    const now = performance.now();
-    const na  = toAngle(e);
-    omega = (na - lastA) / Math.max(now - lastT, 1) * 14;
-    lastA = na; lastT = now; angle = na;
-    e.preventDefault();
-  });
-
-  badge.addEventListener('pointerup', e => {
-    if (!dragging) return;
-    dragging = false;
-    scene.classList.remove('dragging');
-    omega = Math.max(-0.15, Math.min(0.15, omega));
-    if (!didMove) inner.classList.toggle('flipped');
-    e.preventDefault();
-  });
-
-  badge.addEventListener('pointercancel', () => {
-    dragging = false; scene.classList.remove('dragging');
-  });
-
-  badge.addEventListener('keydown', e => {
-    if (e.key === 'Enter' || e.key === ' ') {
-      inner.classList.toggle('flipped'); e.preventDefault();
-    }
-  });
-
-  requestAnimationFrame(loop);
-}());
 
 /* ── HERO WORDMARK TYPE-IN ───────────────────────────
    Types "ScaraByte" on load with a blinking caret.
