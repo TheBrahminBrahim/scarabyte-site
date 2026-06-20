@@ -715,6 +715,101 @@ footer {
 .footer-copy { font-size: 0.72rem; color: oklch(0.555 0.035 232); }
 
 /* ================================================
+   ABOUT SECTION
+   ================================================ */
+.about-section {
+  background: var(--bg);
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  min-height: 100svh;
+  padding: 8rem 1.5rem 9rem;
+  overflow: hidden;
+}
+.about-block {
+  position: relative;
+  z-index: 1;
+  max-width: 680px;
+}
+.about-title {
+  font-family: 'Rajdhani', var(--font-d);
+  font-weight: 700;
+  font-size: clamp(2.2rem, 6vw, 3.6rem);
+  letter-spacing: 0.01em;
+  line-height: 1.04;
+  color: var(--primary);
+}
+.about-subhead {
+  font-family: 'Caveat', var(--font-b);
+  font-weight: 700;
+  font-size: 1.75rem;
+  line-height: 1;
+  color: var(--accent-dark);
+  margin-top: 0.5rem;
+}
+.about-body { margin-top: 1.9rem; }
+.about-body p {
+  color: oklch(0.300 0.045 232);
+  font-size: 1.06rem;
+  line-height: 1.75;
+}
+.about-body p + p { margin-top: 1.1rem; }
+.about-pullquote {
+  margin-top: 2.1rem;
+  padding-left: 1.15rem;
+  border-left: 3px solid var(--accent);
+  font-family: 'Bricolage Grotesque', var(--font-d);
+  font-weight: 700;
+  font-size: 1.3rem;
+  line-height: 1.3;
+  color: var(--primary);
+}
+
+/* ================================================
+   CONTACT SECTION
+   ================================================ */
+.contact-section {
+  background: var(--surface);
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  min-height: 100svh;
+  padding: 7rem 1.5rem 8rem;
+  overflow: hidden;
+}
+.contact-section .contact-block {
+  position: relative;
+  z-index: 1;
+  text-align: center;
+  max-width: 640px;
+}
+.contact-title {
+  font-family: 'Rajdhani', var(--font-d);
+  font-weight: 700;
+  font-size: clamp(2rem, 6vw, 3.4rem);
+  letter-spacing: 0.04em;
+  line-height: 1.05;
+  color: var(--primary);
+}
+.contact-lead {
+  margin-top: 0.6rem;
+  color: var(--muted);
+  font-size: 1.05rem;
+}
+.contact-section .contact-inner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-top: 2.3rem;
+  margin-right: 0;
+}
+
+/* ================================================
    RESPONSIVE
    ================================================ */
 @media (max-width: 680px) {
@@ -730,6 +825,18 @@ footer {
   .hero-doodle { transform: translateX(calc(-50% - 64px)); }
   .contact-callout { justify-content: center; padding-bottom: 4.5rem; }
   .contact-inner { margin-right: 0; }
+  .about-section { padding: 6.5rem 1.3rem 8rem; }
+  .about-pullquote { font-size: 1.15rem; }
+  .contact-section { padding: 5.5rem 1.3rem 7rem; }
+}
+@media (max-width: 600px) {
+  .about-section .baraka-peek { display: none; }
+  .contact-section .baraka-peek { display: none; }
+}
+@media (max-width: 480px) {
+  .contact-section .footer-doodle { display: none; }
+  .contact-section .contact-inner { gap: 0; margin-top: 1.8rem; }
+  .contact-section .footer-email { font-size: 1.1rem; }
 }
 
 </style>
@@ -786,6 +893,25 @@ footer {
     </div>
   </div>
 
+</section>
+
+<!-- ============================
+     ABOUT
+     ============================ -->
+<section class="about-section" id="about" aria-label="About">
+  <article class="about-block">
+    <h2 class="about-title">Real problems. Beautiful software.</h2>
+    <p class="about-subhead">An indie studio that builds things worth using.</p>
+    <div class="about-body">
+      <p>Scarabyte is a small, independent studio. No investors, no growth teams, no roadmap driven by ad revenue — just a studio that picks real problems and builds the best possible solution to them.</p>
+      <p>We think software should earn its place. Every app we ship has to solve something genuine and look great doing it. ScreenReps turns screen time into real movement your camera actually counts. PetFuel takes the guesswork out of feeding your pet a homemade diet. The problems are different; the bar is the same.</p>
+      <p>Our mascot is Baraka — a scarab beetle who takes the work seriously but not himself. He has a habit of turning up in unexpected corners of our apps and site, and reacting in ways best discovered on your own. Keep an eye out.</p>
+    </div>
+    <p class="about-pullquote">If it&rsquo;s not useful and beautiful, it&rsquo;s not done.</p>
+  </article>
+  <div class="baraka-peek" aria-hidden="true">
+    <img src="assets/baraka-noarms.svg" alt="">
+  </div>
 </section>
 
 <!-- ============================
@@ -869,6 +995,32 @@ footer {
 </section>
 
 <!-- ============================
+     CONTACT
+     ============================ -->
+<section class="contact-section" id="contact" aria-label="Contact">
+  <div class="contact-block">
+    <h2 class="contact-title">Get in touch</h2>
+    <p class="contact-lead">Questions, ideas, or just want to say hi? Drop us a line.</p>
+    <div class="contact-inner">
+      <div class="footer-doodle doodle" aria-hidden="true">
+        <span class="doodle-word">contact</span>
+        <svg class="doodle-arrow doodle-arrow-r" viewBox="0 0 100 44" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M6 20 C28 31 54 32 76 28 C84 26 90 23 96 22"/>
+          <g transform="rotate(-15 96 22)">
+            <path d="M84 16 C88 18 92 20 96 22"/>
+            <path d="M84 28 C88 26 92 24 96 22"/>
+          </g>
+        </svg>
+      </div>
+      <a href="mailto:hello@scarabyte.app" class="footer-email"><span class="em-user">hello</span>@scarabyte.app</a>
+    </div>
+  </div>
+  <div class="baraka-peek" aria-hidden="true">
+    <img src="assets/baraka-noarms.svg" alt="">
+  </div>
+</section>
+
+<!-- ============================
      FOOTER
      ============================ -->
 <footer>
@@ -887,7 +1039,7 @@ footer {
     <span class="dock-ico"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 11.2 L12 4 L20 11.2"/><path d="M6 9.8 V20 H18 V9.8"/><path d="M10 20 V14 H14 V20"/></svg></span>
     <span class="dock-label">Home</span>
   </a>
-  <a class="dock-item" data-dock="about" href="about.html" aria-label="About">
+  <a class="dock-item" data-dock="about" href="#about" aria-label="About">
     <span class="dock-ico"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 16.5 V11.5"/><path d="M12 8 h0.01"/></svg></span>
     <span class="dock-label">About</span>
   </a>
@@ -895,7 +1047,7 @@ footer {
     <span class="dock-ico"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="4" width="7" height="7" rx="2"/><rect x="13" y="4" width="7" height="7" rx="2"/><rect x="4" y="13" width="7" height="7" rx="2"/><rect x="13" y="13" width="7" height="7" rx="2"/></svg></span>
     <span class="dock-label">Apps</span>
   </a>
-  <a class="dock-item" data-dock="contact" href="contact.html" aria-label="Contact">
+  <a class="dock-item" data-dock="contact" href="#contact" aria-label="Contact">
     <span class="dock-ico"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="6" width="17" height="12" rx="2.2"/><path d="M4.5 7.5 L12 13 L19.5 7.5"/></svg></span>
     <span class="dock-label">Contact</span>
   </a>

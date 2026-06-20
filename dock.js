@@ -20,18 +20,19 @@
     function scrollToTop() {
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
-    function scrollToProducts() {
-      var p = document.getElementById('products');
-      if (p) p.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    function scrollToSection(id) {
+      var el = document.getElementById(id);
+      if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
 
     items.forEach(function (it) {
       var role = it.getAttribute('data-dock');
       it.addEventListener('click', function (e) {
-        // On the home page, Home/Apps scroll in-page instead of reloading.
-        if (isHome && role === 'home')      { e.preventDefault(); scrollToTop(); }
-        else if (isHome && role === 'apps') { e.preventDefault(); scrollToProducts(); }
-        /* About, Contact, and Home/Apps from other pages follow their hrefs. */
+        if (!isHome) return; // let hrefs work on other pages
+        if (role === 'home')         { e.preventDefault(); scrollToTop(); }
+        else if (role === 'about')   { e.preventDefault(); scrollToSection('about'); }
+        else if (role === 'apps')    { e.preventDefault(); scrollToSection('products'); }
+        else if (role === 'contact') { e.preventDefault(); scrollToSection('contact'); }
       });
     });
 
@@ -43,14 +44,17 @@
     }
 
     if (isHome) {
+      var about    = document.getElementById('about');
       var products = document.getElementById('products');
+      var contact  = document.getElementById('contact');
       var ticking = false;
       function updateActive() {
         ticking = false;
+        var threshold = window.innerHeight * 0.45;
         var role = 'home';
-        if (products && products.getBoundingClientRect().top <= window.innerHeight * 0.45) {
-          role = 'apps';
-        }
+        if (about    && about.getBoundingClientRect().top    <= threshold) role = 'about';
+        if (products && products.getBoundingClientRect().top <= threshold) role = 'apps';
+        if (contact  && contact.getBoundingClientRect().top  <= threshold) role = 'contact';
         setActive(role);
       }
       window.addEventListener('scroll', function () {
