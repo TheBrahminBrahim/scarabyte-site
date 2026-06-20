@@ -6,7 +6,7 @@
 <title>Scarabyte — Software for Real Life</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,700;12..96,800&family=Caveat:wght@600;700&family=Nunito:wght@300;400;600;700&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,700;12..96,800&family=Caveat:wght@600;700&family=Nunito:wght@300;400;600;700&family=Rajdhani:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
 <style>
 /* ================================================
@@ -180,8 +180,8 @@ body.home .nav { display: none; }
 .nav-logo-img { width: 42px; height: auto; display: block; }
 .nav-wordmark {
   font-family: 'Rajdhani', var(--font-d);
-  font-weight: 500;
-  font-size: 1.77rem;
+  font-weight: 700;
+  font-size: 1.18rem;
   letter-spacing: 0.005em;
   line-height: 1;
   color: var(--primary);
@@ -248,8 +248,8 @@ body.home .nav { display: none; }
 /* ── Headline ── */
 .hero-h1 {
   font-family: 'Rajdhani', var(--font-d);
-  font-weight: 700;
-  font-size: clamp(2.4rem, 9vw, 5.4rem);
+  font-weight: 500;
+  font-size: clamp(2.4rem, 12vw, 9rem);
   line-height: 1.05;
   letter-spacing: 0.06em;
   color: #04295F; /* match Baraka's outline ink */
@@ -267,7 +267,7 @@ body.home .nav { display: none; }
   left: 100%;
   bottom: 0;
   margin-left: 0.06em;
-  font-weight: 400;
+  font-weight: 500;
   animation: caretBlink 1.05s infinite;
 }
 @keyframes caretBlink { 0%, 50% { opacity: 1; } 50.01%, 100% { opacity: 0; } }
@@ -733,6 +733,7 @@ footer {
 }
 
 </style>
+<link rel="stylesheet" href="dock.css">
 </head>
 <body class="home">
 
@@ -785,16 +786,6 @@ footer {
     </div>
   </div>
 
-  <div class="hero-doodle doodle" aria-hidden="true">
-    <span class="doodle-word">Apps</span>
-    <svg class="doodle-arrow" viewBox="0 0 72 98" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <path d="M40 8 C36 26 31 44 41 64 C45 74 49 80 53 90"/>
-      <g transform="rotate(7 53 90)">
-        <path d="M52 74 C53 79 53 85 53 90"/>
-        <path d="M40 82 C45 85 49 88 53 90"/>
-      </g>
-    </svg>
-  </div>
 </section>
 
 <!-- ============================
@@ -880,26 +871,6 @@ footer {
 <!-- ============================
      FOOTER
      ============================ -->
-<!-- Contact call-out — on the light page body, beside Baraka peeking up -->
-<section class="contact-callout" aria-label="Contact">
-  <div class="baraka-peek" aria-hidden="true">
-    <img src="assets/baraka-noarms.svg" alt="">
-  </div>
-  <div class="contact-inner">
-    <div class="footer-doodle doodle" aria-hidden="true">
-      <span class="doodle-word">contact</span>
-      <svg class="doodle-arrow doodle-arrow-r" viewBox="0 0 100 44" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M6 20 C28 31 54 32 76 28 C84 26 90 23 96 22"/>
-        <g transform="rotate(-15 96 22)">
-          <path d="M84 16 C88 18 92 20 96 22"/>
-          <path d="M84 28 C88 26 92 24 96 22"/>
-        </g>
-      </svg>
-    </div>
-    <a href="mailto:hello@scarabyte.app" class="footer-email"><span class="em-user">hello</span>@scarabyte.app</a>
-  </div>
-</section>
-
 <footer>
   <a href="#" class="footer-logo" aria-label="Scarabyte home">
     <img class="footer-logo-img" src="assets/scarab-white.png" alt="" aria-hidden="true">
@@ -908,6 +879,29 @@ footer {
   <span class="footer-copy">© 2026 Scarabyte</span>
 </footer>
 
+<!-- ============================
+     DOCK — primary navigation
+     ============================ -->
+<nav class="dock" id="dock" aria-label="Primary">
+  <a class="dock-item" data-dock="home" href="index.html" aria-label="Home">
+    <span class="dock-ico"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 11.2 L12 4 L20 11.2"/><path d="M6 9.8 V20 H18 V9.8"/><path d="M10 20 V14 H14 V20"/></svg></span>
+    <span class="dock-label">Home</span>
+  </a>
+  <a class="dock-item" data-dock="about" href="about.html" aria-label="About">
+    <span class="dock-ico"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 16.5 V11.5"/><path d="M12 8 h0.01"/></svg></span>
+    <span class="dock-label">About</span>
+  </a>
+  <a class="dock-item" data-dock="apps" href="index.html#products" aria-label="Apps">
+    <span class="dock-ico"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="4" width="7" height="7" rx="2"/><rect x="13" y="4" width="7" height="7" rx="2"/><rect x="4" y="13" width="7" height="7" rx="2"/><rect x="13" y="13" width="7" height="7" rx="2"/></svg></span>
+    <span class="dock-label">Apps</span>
+  </a>
+  <a class="dock-item" data-dock="contact" href="contact.html" aria-label="Contact">
+    <span class="dock-ico"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="6" width="17" height="12" rx="2.2"/><path d="M4.5 7.5 L12 13 L19.5 7.5"/></svg></span>
+    <span class="dock-label">Contact</span>
+  </a>
+</nav>
+
+<script src="dock.js"></script>
 <script>
 /* ── PRODUCT CARD SCROLL REVEAL ─────────────────── */
 const cards = document.querySelectorAll('.product-card-wrap');

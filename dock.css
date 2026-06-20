@@ -1,0 +1,167 @@
+/* ============================================================
+   SCARABYTE DOCK
+   A macOS-style magnifying dock (vanilla port of React Bits'
+   "Dock"). Shared by every page. Uses the site's design tokens
+   so it re-themes along with the per-app page themes.
+   ============================================================ */
+
+.dock {
+  position: fixed;
+  left: 50%;
+  bottom: clamp(0.9rem, 2.4vw, 1.6rem);
+  transform: translateX(-50%);
+  z-index: 80;
+
+  display: flex;
+  align-items: flex-end;          /* icons grow upward off the baseline */
+  gap: 0.6rem;
+
+  padding: 0.5rem 0.7rem;
+  border-radius: var(--r-pill, 9999px);
+
+  background: color-mix(in oklab, var(--surface, #fff) 80%, transparent);
+  border: 1px solid var(--border, rgba(0, 0, 0, 0.1));
+  box-shadow: 0 14px 36px oklch(0.192 0.090 232 / 0.20),
+              0 3px 10px  oklch(0.192 0.090 232 / 0.10);
+  backdrop-filter: blur(16px) saturate(1.4);
+  -webkit-backdrop-filter: blur(16px) saturate(1.4);
+
+  transition: background-color 0.5s ease, border-color 0.5s ease;
+  animation: dockRise 0.6s cubic-bezier(0.22, 1, 0.36, 1) 0.3s backwards;
+}
+
+@keyframes dockRise {
+  from { opacity: 0; transform: translateX(-50%) translateY(130%); }
+  to   { opacity: 1; transform: translateX(-50%) translateY(0); }
+}
+
+/* ── Items ─────────────────────────────────────────────── */
+.dock-item {
+  --size: 52px;
+  position: relative;
+  flex: 0 0 auto;
+  width: var(--size);
+  height: var(--size);
+
+  display: grid;
+  place-items: center;
+
+  border: none;
+  border-radius: 50%;
+  background: color-mix(in oklab, var(--primary, #04295F) 8%, transparent);
+  color: var(--primary, #04295F);
+  cursor: pointer;
+  text-decoration: none;
+  font: inherit;
+  -webkit-tap-highlight-color: transparent;
+
+  /* width/height drive the magnify; JS sets --size on pointermove */
+  transition: width 0.12s ease-out, height 0.12s ease-out,
+              background-color 0.25s ease, color 0.25s ease;
+}
+.dock-item:hover { background: color-mix(in oklab, var(--primary, #04295F) 15%, transparent); }
+.dock-item:focus-visible {
+  outline: 2px solid var(--accent, #E0A82E);
+  outline-offset: 3px;
+}
+
+.dock-ico {
+  width: 52%;
+  height: 52%;
+  display: grid;
+  place-items: center;
+  pointer-events: none;
+}
+.dock-ico svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* ── Label / tooltip above the icon ────────────────────── */
+.dock-label {
+  position: absolute;
+  bottom: calc(100% + 12px);
+  left: 50%;
+  transform: translateX(-50%) translateY(6px);
+
+  padding: 0.32rem 0.6rem;
+  border-radius: var(--r-sm, 8px);
+  background: var(--primary, #04295F);
+  color: #fff;
+  font-family: var(--font-b, system-ui, sans-serif);
+  font-size: 0.8rem;
+  font-weight: 700;
+  line-height: 1;
+  white-space: nowrap;
+
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.16s ease, transform 0.16s ease;
+}
+.dock-label::after {            /* little pointer triangle */
+  content: "";
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 5px solid transparent;
+  border-top-color: var(--primary, #04295F);
+}
+.dock-item:hover  .dock-label,
+.dock-item:focus-visible .dock-label {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+/* ── Active page/section marker ─────────────────────────── */
+.dock-item.is-active::before {
+  content: "";
+  position: absolute;
+  bottom: -4px;
+  left: 50%;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--accent, #E0A82E);
+  transform: translateX(-50%);
+}
+
+/* ── Touch / no-hover: simple tap bar, labels always shown, no magnify ── */
+@media (hover: none), (pointer: coarse) {
+  .dock { gap: 0.25rem; padding: 0.4rem 0.55rem; bottom: 0.7rem; }
+  .dock-item {
+    width: auto !important;
+    height: auto !important;
+    border-radius: var(--r-md, 16px);
+    background: transparent;
+    grid-auto-flow: row;
+    gap: 3px;
+    padding: 0.35rem 0.5rem;
+  }
+  .dock-item:hover { background: transparent; }
+  .dock-ico { width: 24px; height: 24px; }
+  .dock-label {
+    position: static;
+    transform: none;
+    opacity: 1;
+    background: none;
+    color: var(--muted, #667);
+    padding: 0;
+    font-size: 0.62rem;
+    font-weight: 700;
+  }
+  .dock-label::after { display: none; }
+  .dock-item.is-active .dock-label { color: var(--primary, #04295F); }
+  .dock-item.is-active::before { display: none; }
+}
+
+/* ── Reduced motion: keep it usable, drop the flourishes ── */
+@media (prefers-reduced-motion: reduce) {
+  .dock { animation: none; }
+}
