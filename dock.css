@@ -93,7 +93,7 @@
   padding: 0.32rem 0.6rem;
   border-radius: var(--r-sm, 8px);
   background: var(--primary, #04295F);
-  color: #fff;
+  color: var(--bg, #fff);            /* opposite of --primary in both themes */
   font-family: var(--font-b, system-ui, sans-serif);
   font-size: 0.8rem;
   font-weight: 700;
@@ -161,7 +161,21 @@
   .dock-item.is-active::before { display: none; }
 }
 
+/* ── Theme toggle: sun ⇄ moon morph ─────────────────────── */
+.dock-theme-ico { position: relative; }
+.dock-theme-ico svg {
+  position: absolute;
+  inset: 0;
+  transition: opacity 0.3s ease, transform 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.dock-theme-ico .ico-moon            { opacity: 0; transform: rotate(-70deg) scale(0.4); }
+html.theme-dark .dock-theme-ico .ico-sun  { opacity: 0; transform: rotate(70deg) scale(0.4); }
+html.theme-dark .dock-theme-ico .ico-moon { opacity: 1; transform: none; }
+
 /* ── Reduced motion: keep it usable, drop the flourishes ── */
 @media (prefers-reduced-motion: reduce) {
   .dock { animation: none; }
+  .dock-theme-ico svg { transition: opacity 0.2s ease; transform: none; }
+  .dock-theme-ico .ico-moon { transform: none; }
+  html.theme-dark .dock-theme-ico .ico-sun { transform: none; }
 }

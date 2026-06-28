@@ -19,6 +19,9 @@
 <link rel="manifest" href="/site.webmanifest">
 <meta name="theme-color" content="#E0A82E">
 
+<!-- Apply the saved dark-theme choice before first paint (no flash of light). -->
+<script>try{if(localStorage.getItem('sb-theme')==='dark')document.documentElement.classList.add('theme-dark');}catch(e){}</script>
+
 <style>
 /* ================================================
    DESIGN TOKENS
@@ -67,6 +70,40 @@
    ================================================ */
 body { transition: background-color 0.5s ease, color 0.5s ease; }
 
+/* ── GLOBAL DARK THEME (toggled from the dock) ──────────
+   A deepened-navy inversion of the light palette. Applied
+   on <html> by the no-flash head script and the toggle, so
+   it sits UNDER the per-app hover themes below — those live
+   on <body> and win while a product card is hovered, then
+   release back to this dark base. */
+html.theme-dark {
+  --bg:           oklch(0.155 0.050 232);
+  --surface:      oklch(0.205 0.055 232);
+  --surface-2:    oklch(0.245 0.058 232);
+  --border:       oklch(0.305 0.045 232);
+  --border-med:   oklch(0.380 0.045 232);
+
+  --primary:      oklch(0.965 0.010 232);
+  --primary-mid:  oklch(0.780 0.030 232);
+  --primary-pale: oklch(0.245 0.058 232);
+
+  --accent:       #E0A82E;
+  --accent-light: oklch(0.300 0.055 85);
+  --accent-dark:  oklch(0.830 0.110 85);
+
+  --ink:          oklch(0.950 0.012 232);
+  --muted:        oklch(0.720 0.020 232);
+  --faint:        oklch(0.560 0.018 232);
+
+  --nav-bg:    oklch(0.155 0.050 232 / 0.85);
+  --cta-bg:    #E0A82E;
+  --cta-ink:   oklch(0.155 0.050 232);
+  --footer-bg: oklch(0.120 0.045 232);
+  --dot:       oklch(0.965 0.010 232 / 0.10);
+
+  color-scheme: dark;
+}
+
 body.theme-screenreps {
   --bg:#16181C; --surface:#1E2126; --surface-2:#22262C; --border:#2C3038; --border-med:#3A3F47;
   --primary:#F4F4F5; --primary-mid:#C9CCD2; --primary-pale:#22262C;
@@ -83,6 +120,26 @@ body.theme-petfuel {
   --nav-bg:oklch(0.975 0.006 175 / 0.85); --cta-bg:#0E7C72; --cta-ink:#FFFFFF;
   --footer-bg:#0A5F58; --dot:oklch(0.150 0.020 175 / 0.08);
 }
+
+/* The hero headline is hardcoded to brand navy in light mode; in dark mode
+   follow the primary token so it reads as near-white, not navy-on-navy. */
+html.theme-dark .hero-h1 { color: var(--primary); }
+
+/* About-section body copy is hardcoded to a dark navy for the light page;
+   lift it to a comfortably readable light tone on the dark background. */
+html.theme-dark .about-body p { color: oklch(0.820 0.022 232); }
+
+/* Baraka + the corner-peek scarab follow the dark theme (go white). */
+html.theme-dark #baraka { --ink: oklch(0.965 0.010 232); }
+html.theme-dark .baraka-peek img { filter: brightness(0) invert(1) brightness(0.96); }
+
+/* Circular theme-wipe (View Transitions API). JS animates a
+   clip-path circle expanding from the toggle button; we disable
+   the default cross-fade so the new theme reveals cleanly on top. */
+::view-transition-old(root),
+::view-transition-new(root) { animation: none; mix-blend-mode: normal; }
+::view-transition-old(root) { z-index: 0; }
+::view-transition-new(root) { z-index: 1; }
 
 /* Smooth the re-theme on the big surfaces + text */
 .nav, .nav-cta, .products, footer,
@@ -1046,6 +1103,13 @@ footer {
     <span class="dock-ico"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="6" width="17" height="12" rx="2.2"/><path d="M4.5 7.5 L12 13 L19.5 7.5"/></svg></span>
     <span class="dock-label">Contact</span>
   </a>
+  <button class="dock-item dock-theme" data-dock="theme" type="button" aria-pressed="false" aria-label="Switch to dark theme">
+    <span class="dock-ico dock-theme-ico">
+      <svg class="ico-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4.2"/><path d="M12 2.4v2.6M12 19v2.6M4.3 4.3l1.9 1.9M17.8 17.8l1.9 1.9M2.4 12h2.6M19 12h2.6M4.3 19.7l1.9-1.9M17.8 6.2l1.9-1.9"/></svg>
+      <svg class="ico-moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20.5 14.2A8.2 8.2 0 1 1 10.2 3.6 6.4 6.4 0 0 0 20.5 14.2Z"/></svg>
+    </span>
+    <span class="dock-label">Theme</span>
+  </button>
 </nav>
 
 <script src="dock.js"></script>
@@ -1089,7 +1153,9 @@ function applyTheme(name) {
   clearTimeout(themeTimer);
   document.body.classList.remove('theme-screenreps', 'theme-petfuel');
   if (name) document.body.classList.add(name);
-  const dark = !!(name && DARK_THEME[name]);
+  // Logo follows the *displayed* theme: a hovered app's darkness when one is
+  // open, otherwise the global dark-mode base.
+  const dark = name ? !!DARK_THEME[name] : document.documentElement.classList.contains('theme-dark');
   if (navScarabImg) navScarabImg.src = dark ? 'assets/scarab-white.png'        : 'assets/scarab-normal.png';
 }
 function requestTheme(name) { clearTimeout(themeTimer); applyTheme(name); }
@@ -1150,6 +1216,57 @@ document.querySelectorAll('.product-card-wrap').forEach(wrapEl => {
     }
   });
 });
+
+/* ── DARK-THEME TOGGLE (dock button) ─────────────────
+   Flips html.theme-dark, persists the choice, and plays a
+   circular "wipe" of the new theme out from the button via
+   the View Transitions API. Falls back to an instant switch
+   (still eased by the 0.5s colour transitions) where the API
+   is missing or the user prefers reduced motion. */
+(function () {
+  const root  = document.documentElement;
+  const btn   = document.querySelector('.dock [data-dock="theme"]');
+  if (!btn) return;
+
+  function syncUI() {
+    const dark = root.classList.contains('theme-dark');
+    btn.setAttribute('aria-pressed', dark ? 'true' : 'false');
+    btn.setAttribute('aria-label', dark ? 'Switch to light theme' : 'Switch to dark theme');
+  }
+
+  function commit() {
+    root.classList.toggle('theme-dark');
+    try { localStorage.setItem('sb-theme', root.classList.contains('theme-dark') ? 'dark' : 'light'); } catch (e) {}
+    syncUI();
+    // Refresh the nav logo to match the new base — but only when no product
+    // card is currently pulling the page into an app theme.
+    if (!document.body.classList.contains('theme-screenreps') &&
+        !document.body.classList.contains('theme-petfuel')) {
+      applyTheme(null);
+    }
+  }
+
+  btn.addEventListener('click', function () {
+    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (!document.startViewTransition || reduce) { commit(); return; }
+
+    const r = btn.getBoundingClientRect();
+    const x = r.left + r.width / 2;
+    const y = r.top + r.height / 2;
+    const end = Math.hypot(Math.max(x, innerWidth - x), Math.max(y, innerHeight - y));
+
+    const vt = document.startViewTransition(commit);
+    vt.ready.then(function () {
+      root.animate(
+        { clipPath: ['circle(0px at ' + x + 'px ' + y + 'px)',
+                     'circle(' + end + 'px at ' + x + 'px ' + y + 'px)'] },
+        { duration: 520, easing: 'cubic-bezier(0.22, 1, 0.36, 1)', pseudoElement: '::view-transition-new(root)' }
+      );
+    }).catch(function () {});
+  });
+
+  syncUI();
+})();
 
 /* ── SCARAB INTERACTIONS (hidden gem) ───────────────
    Rub the head  → happy >< face (no belly clutch)
