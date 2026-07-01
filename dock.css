@@ -119,17 +119,15 @@
   transform: translateX(-50%) translateY(0);
 }
 
-/* ── Active page/section marker ─────────────────────────── */
-.dock-item.is-active::before {
-  content: "";
-  position: absolute;
-  bottom: -4px;
-  left: 50%;
-  width: 4px;
-  height: 4px;
-  border-radius: 50%;
-  background: var(--accent, #E0A82E);
-  transform: translateX(-50%);
+/* ── Active page/section marker ─────────────────────────
+   A subtly darker fill on the active icon — same hue as the
+   idle/hover states, just deeper, so it reads as "selected"
+   without shouting. */
+.dock-item.is-active {
+  background: color-mix(in oklab, var(--primary, #04295F) 22%, transparent);
+}
+.dock-item.is-active:hover {
+  background: color-mix(in oklab, var(--primary, #04295F) 26%, transparent);
 }
 
 /* ── Touch / no-hover: simple tap bar, labels always shown, no magnify ── */
@@ -158,7 +156,11 @@
   }
   .dock-label::after { display: none; }
   .dock-item.is-active .dock-label { color: var(--primary, #04295F); }
-  .dock-item.is-active::before { display: none; }
+  /* Same subtle darker fill as desktop, softened for the tap bar */
+  .dock-item.is-active,
+  .dock-item.is-active:hover {
+    background: color-mix(in oklab, var(--primary, #04295F) 12%, transparent);
+  }
 }
 
 /* ── Theme toggle: sun ⇄ moon morph ─────────────────────── */

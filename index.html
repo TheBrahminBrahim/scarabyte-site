@@ -104,23 +104,6 @@ html.theme-dark {
   color-scheme: dark;
 }
 
-body.theme-screenreps {
-  --bg:#16181C; --surface:#1E2126; --surface-2:#22262C; --border:#2C3038; --border-med:#3A3F47;
-  --primary:#F4F4F5; --primary-mid:#C9CCD2; --primary-pale:#22262C;
-  --accent:#FF5C35; --accent-light:#3A2A22; --accent-dark:#FFB59E;
-  --ink:#F4F4F5; --muted:#9CA0A8; --faint:#6B7079;
-  --nav-bg:oklch(0.205 0.010 256 / 0.85); --cta-bg:#FF5C35; --cta-ink:#16181C;
-  --footer-bg:#0D0E11; --dot:oklch(0.985 0 0 / 0.10);
-}
-body.theme-petfuel {
-  --bg:#F4F7F6; --surface:#EAF0EF; --surface-2:#E4ECEA; --border:#D2DAD9; --border-med:#C2CCCA;
-  --primary:#101A19; --primary-mid:#33403E; --primary-pale:#DDEEEC;
-  --accent:#0E7C72; --accent-light:#DDEEEC; --accent-dark:#0A5F58;
-  --ink:#101A19; --muted:#5C6B6A; --faint:#93A09F;
-  --nav-bg:oklch(0.975 0.006 175 / 0.85); --cta-bg:#0E7C72; --cta-ink:#FFFFFF;
-  --footer-bg:#0A5F58; --dot:oklch(0.150 0.020 175 / 0.08);
-}
-
 /* The hero headline is hardcoded to brand navy in light mode; in dark mode
    follow the primary token so it reads as near-white, not navy-on-navy. */
 html.theme-dark .hero-h1 { color: var(--primary); }
@@ -144,7 +127,7 @@ html.theme-dark .baraka-peek img { filter: brightness(0) invert(1) brightness(0.
 /* Smooth the re-theme on the big surfaces + text */
 .nav, .nav-cta, .products, footer,
 .products-title, .products-lead, .hero-h1,
-.card-name, .card-tag, .card-desc, .preview-kicker,
+.icon-caption, .preview-kicker,
 .hero-doodle {
   transition: background-color 0.5s ease, color 0.5s ease, border-color 0.5s ease;
 }
@@ -154,6 +137,12 @@ html.theme-dark .baraka-peek img { filter: brightness(0) invert(1) brightness(0.
    ================================================ */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 html { font-size: 16px; scroll-behavior: smooth; }
+
+/* Dock-nav scroll targets: land on the actual content block (not the
+   outer, vertically-centered section) so the header sits right near the
+   top instead of leaving a gap that pushes the rest of the card down
+   behind the fixed bottom dock. */
+.about-block, .products-inner, .contact-block { scroll-margin-top: 28px; }
 body {
   background: var(--bg);
   color: var(--ink);
@@ -463,7 +452,7 @@ body.home .nav { display: none; }
    ================================================ */
 .products {
   background: var(--surface);
-  padding: 8rem 2rem 9rem;
+  padding: 3.5rem 2rem 6rem;
   position: relative;
   overflow: hidden;
 }
@@ -471,7 +460,7 @@ body.home .nav { display: none; }
 
 .products-inner { max-width: 920px; margin: 0 auto; }
 
-.products-head { text-align: center; margin-bottom: 4.5rem; }
+.products-head { text-align: center; margin-bottom: 3rem; }
 .products-title {
   font-family: var(--font-d);
   font-weight: 700;
@@ -488,157 +477,178 @@ body.home .nav { display: none; }
   line-height: 1.72;
 }
 
-/* Stacked full-width product rows */
-.product-stack {
+/* ── Icon row — tap or hover an app's icon to preview it below ── */
+.icon-row {
+  display: flex;
+  justify-content: center;
+  gap: clamp(1.75rem, 6vw, 4rem);
+  margin-bottom: 2.25rem;
+}
+.icon-tile {
   display: flex;
   flex-direction: column;
-  gap: 2.5rem;
-  max-width: 840px;
-  margin: 0 auto;
-}
-
-/* ── Card wrapper — wings as pseudo-elements ── */
-.product-card-wrap {
-  position: relative;
+  align-items: center;
+  gap: 0.7rem;
+  background: none;
+  border: none;
+  font: inherit;
+  color: inherit;
   cursor: pointer;
+  padding: 0.5rem;
 }
-.product-card-wrap.anim {
+.icon-tile.anim {
   opacity: 0;
-  transform: translateY(26px);
-  transition: opacity 0.7s cubic-bezier(0.23, 1, 0.32, 1),
-              transform 0.7s cubic-bezier(0.23, 1, 0.32, 1);
+  transform: translateY(22px);
+  transition: opacity 0.6s cubic-bezier(0.23, 1, 0.32, 1),
+              transform 0.6s cubic-bezier(0.23, 1, 0.32, 1);
 }
-.product-card-wrap.anim.in-view {
+.icon-tile.anim.in-view {
   opacity: 1;
   transform: translateY(0);
 }
-
-/* ── Card ── */
-.product-card {
-  background: var(--bg);
-  border-radius: var(--r-xl);
-  border: 1.5px solid var(--border);
-  overflow: hidden;
-  transition:
-    box-shadow 0.42s cubic-bezier(0.23, 1, 0.32, 1),
-    border-color 0.3s,
-    background-color 0.5s ease,
-    transform 0.42s cubic-bezier(0.23, 1, 0.32, 1);
-  position: relative;
-}
-.product-card-wrap.is-open .product-card {
-  box-shadow: 0 20px 60px oklch(0.192 0.090 232 / 0.10);
-  border-color: var(--border-med);
-  transform: translateY(-4px);
-}
-
-/* Subtle top-left gradient glow on hover */
-.product-card::before {
-  content: '';
-  position: absolute; inset: 0;
-  background: linear-gradient(145deg, oklch(0.192 0.090 232 / 0.028), transparent 55%);
-  opacity: 0;
-  transition: opacity 0.4s;
-  pointer-events: none;
-}
-.product-card-wrap.is-open .product-card::before { opacity: 1; }
-
-/* Card content — header info always visible */
-.card-body { padding: 2.25rem 2.5rem 2rem; position: relative; z-index: 1; }
-.card-top   { display: flex; align-items: center; gap: 1.25rem; margin-bottom: 1.3rem; }
-
-.card-badge {
-  width: 62px; height: 62px;
-  border-radius: 18px;
-  flex-shrink: 0;
-  display: block;
+.icon-badge {
+  width: 78px; height: 78px;
+  border-radius: 22px;
   object-fit: cover;
-  border: 1px solid var(--border);
-  box-shadow: 0 2px 10px oklch(0.192 0.090 232 / 0.10);
+  display: block;
+  border: 1.5px solid var(--border);
+  box-shadow: 0 4px 16px oklch(0.192 0.090 232 / 0.08);
+  transition: transform 0.32s cubic-bezier(0.23, 1, 0.32, 1), box-shadow 0.32s, border-color 0.32s;
 }
-
-.card-name {
+.icon-badge.lock {
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.9rem;
+  background: oklch(0.300 0.050 285);
+  color: oklch(0.870 0.130 90);
+}
+.icon-tile.is-active .icon-badge {
+  transform: translateY(-6px) scale(1.05);
+  box-shadow: 0 14px 30px oklch(0.192 0.090 232 / 0.18);
+  border-color: var(--border-med);
+}
+.icon-caption {
   font-family: var(--font-d);
   font-weight: 700;
-  font-size: clamp(1.45rem, 3.2vw, 1.85rem);
-  letter-spacing: -0.024em;
-  color: var(--primary);
-  line-height: 1.15;
-}
-.card-tag {
   font-size: 0.95rem;
   color: var(--muted);
+  transition: color 0.32s;
+}
+.icon-tile.is-active .icon-caption { color: var(--primary); }
+.icon-soon {
+  font-size: 0.6rem;
+  font-weight: 800;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--faint);
+  margin-top: -0.4rem;
+}
+
+.icon-hint {
+  text-align: center;
+  color: var(--faint);
+  font-size: 0.85rem;
+  font-weight: 700;
+  padding-bottom: 0.5rem;
+  transition: opacity 0.3s;
+}
+.icon-hint.hidden { opacity: 0; }
+
+/* ── Hover card — floats above/below the hovered or tapped icon; doesn't
+   reflow the page, so it never fights the fixed bottom dock for space. ── */
+.hover-card {
+  position: fixed;
+  top: 0; left: 0;
+  z-index: 150;
+  width: min(500px, calc(100vw - 24px));
+  max-height: min(74vh, 552px);
+  overflow-x: hidden;
+  overflow-y: auto;
+  background: var(--hc-bg, var(--bg));
+  color: var(--hc-ink, var(--ink));
+  border: 1.5px solid var(--hc-border, var(--border));
+  border-radius: var(--r-xl);
+  box-shadow: 0 24px 48px oklch(0.192 0.090 232 / 0.20), 0 4px 14px oklch(0.192 0.090 232 / 0.10);
+  opacity: 0;
+  pointer-events: none;
+  transform: translate(-50%, 6px) scale(0.96);
+  transform-origin: center bottom;
+  transition: opacity 0.16s ease, transform 0.22s cubic-bezier(0.16, 1, 0.3, 1),
+              background-color 0.3s ease, border-color 0.3s ease;
+}
+.hover-card.place-below { transform-origin: center top; }
+.hover-card.open {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translate(-50%, 0) scale(1);
+}
+.hover-card-body { padding: 1.7rem 2.1rem 1.4rem; }
+.hover-card-top { display: flex; align-items: center; gap: 1.1rem; margin-bottom: 1rem; }
+.hover-card-top img {
+  width: 54px; height: 54px;
+  border-radius: 16px;
+  flex-shrink: 0;
+  object-fit: cover;
+  border: 1px solid var(--hc-border, var(--border));
+  box-shadow: 0 2px 10px oklch(0.192 0.090 232 / 0.10);
+}
+.hover-card-top .lock-mini {
+  width: 54px; height: 54px;
+  border-radius: 16px;
+  flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  background: oklch(0.300 0.050 285);
+  font-size: 1.5rem;
+}
+.hover-card-name {
+  font-family: var(--font-d);
+  font-weight: 700;
+  font-size: 1.35rem;
+  letter-spacing: -0.022em;
+  line-height: 1.15;
+}
+.hover-card-tag {
+  font-size: 0.88rem;
+  color: var(--hc-muted, var(--muted));
   font-weight: 600;
-  margin-top: 0.3rem;
+  margin-top: 0.25rem;
   line-height: 1.4;
 }
-
-.card-desc {
-  font-size: 1rem;
-  color: var(--muted);
-  line-height: 1.74;
-  max-width: 60ch;
-  margin-bottom: 1.35rem;
+.hover-card-desc {
+  font-size: 0.92rem;
+  color: var(--hc-muted, var(--muted));
+  line-height: 1.62;
+  margin-bottom: 1rem;
 }
-
-/* Card link — always visible */
-.card-link {
+.hover-card-link {
   display: inline-flex;
   align-items: center;
   text-decoration: none;
   font-weight: 800;
-  font-size: 0.95rem;
-  color: var(--accent-dark);
+  font-size: 0.9rem;
+  background: var(--hc-cta-bg, var(--cta-bg));
+  color: var(--hc-cta-ink, var(--cta-ink));
   gap: 0.4rem;
-  padding: 0.6rem 1.15rem;
-  border: 1.5px solid var(--border-med);
+  padding: 0.56rem 1.2rem;
   border-radius: var(--r-pill);
-  transition: gap 0.22s, background-color 0.42s ease, color 0.42s ease, border-color 0.42s ease;
+  transition: gap 0.22s;
 }
-.card-link .arr { display: inline-block; transition: transform 0.22s; }
-.card-link:hover { gap: 0.62rem; }
-.card-link:hover .arr { transform: translateX(3px); }
-/* When a card is open, its URL becomes the app's filled CTA */
-.product-card-wrap.is-open .card-link {
-  background: var(--cta-bg);
-  color: var(--cta-ink);
-  border-color: var(--cta-bg);
+.hover-card-link .arr { display: inline-block; transition: transform 0.22s; }
+.hover-card-link:hover { gap: 0.62rem; }
+.hover-card-link:hover .arr { transform: translateX(3px); }
+.hover-card-soon {
+  display: inline-flex;
+  font-weight: 800;
+  font-size: 0.8rem;
+  background: var(--accent-light);
+  color: var(--accent-dark);
+  padding: 0.5rem 1.1rem;
+  border-radius: var(--r-pill);
 }
+.hover-card-sep { height: 1px; background: var(--hc-border, var(--border)); margin: 0 2.1rem; }
+.hover-card-shots-wrap { padding: 1.1rem 2.1rem 1.4rem; }
+.hover-card .phone { width: 108px; }
 
-/* Wing hint chip in card header */
-.card-wing-hint {
-  margin-left: auto;
-  font-size: 0.68rem;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--faint);
-  white-space: nowrap;
-  transition: opacity 0.3s;
-  align-self: flex-start;
-  padding-top: 0.4rem;
-}
-.product-card-wrap.is-open .card-wing-hint { opacity: 0; }
-
-/* Separator line — draws in when open */
-.card-sep {
-  height: 1px;
-  background: var(--border);
-  margin: 0 2.5rem;
-  transform-origin: left;
-  transform: scaleX(0);
-  transition: transform 0.42s cubic-bezier(0.23, 1, 0.32, 1) 0.06s;
-}
-.product-card-wrap.is-open .card-sep { transform: scaleX(1); }
-
-/* Expandable preview — height animated by JS */
-.card-expand {
-  height: 0;
-  overflow: hidden;
-}
-.card-expand-inner { padding: 1.6rem 2.5rem 2.25rem; }
-
-.card-expand-inner > .preview-kicker {
+.preview-kicker {
   font-size: 0.7rem;
   font-weight: 700;
   letter-spacing: 0.09em;
@@ -882,10 +892,10 @@ footer {
    ================================================ */
 @media (max-width: 680px) {
   .nav { padding: 0.85rem 1.25rem; }
-  .card-body { padding: 1.6rem 1.4rem 1.5rem; }
-  .card-sep { margin: 0 1.4rem; }
-  .card-expand-inner { padding: 1.25rem 1.4rem 1.6rem; }
-  .card-wing-hint { display: none; }
+  .hover-card-body { padding: 1.4rem 1.4rem 1.3rem; }
+  .hover-card-sep { margin: 0 1.4rem; }
+  .hover-card-shots-wrap { padding: 1.1rem 1.4rem 1.4rem; }
+  .icon-row { gap: 1.6rem; }
   footer { flex-direction: column; text-align: center; gap: 0.6rem; }
   .footer-right { text-align: center; }
   .shots { justify-content: flex-start; gap: 0.8rem; }
@@ -908,7 +918,7 @@ footer {
 }
 
 </style>
-<link rel="stylesheet" href="dock.css">
+<link rel="stylesheet" href="dock.css?v=2">
 </head>
 <body class="home">
 
@@ -966,14 +976,14 @@ footer {
 <!-- ============================
      ABOUT
      ============================ -->
-<section class="about-section" id="about" aria-label="About">
-  <article class="about-block">
+<section class="about-section" aria-label="About">
+  <article class="about-block" id="about">
     <h2 class="about-title">Real problems. Beautiful software.</h2>
     <p class="about-subhead">An indie studio that builds things worth using.</p>
     <div class="about-body">
       <p>Scarabyte is a small, independent studio. No investors, no growth teams, no roadmap driven by ad revenue — just a studio that picks real problems and builds the best possible solution to them.</p>
-      <p>We think software should earn its place. Every app we ship has to solve something genuine and look great doing it. ScreenReps turns screen time into real movement your camera actually counts. PetFuel takes the guesswork out of feeding your pet a homemade diet. The problems are different; the bar is the same.</p>
-      <p>Our mascot is Baraka — a scarab beetle who takes the work seriously but not himself. He has a habit of turning up in unexpected corners of our apps and site, and reacting in ways best discovered on your own. Keep an eye out.</p>
+      <p>We think software should earn its place. Every app we ship has to solve something genuine and look great doing it. The problems are different; the bar is the same.</p>
+      <p>Our mascot is Baraka — a scarab beetle who takes the work seriously but not himself. He loves affection and interacting with site visitors...</p>
     </div>
     <p class="about-pullquote">If it&rsquo;s not useful and beautiful, it&rsquo;s not done.</p>
   </article>
@@ -982,85 +992,39 @@ footer {
 <!-- ============================
      PRODUCTS
      ============================ -->
-<section class="products" id="products" aria-label="Products">
+<section class="products" aria-label="Products">
 
 
-  <div class="products-inner">
+  <div class="products-inner" id="products">
     <div class="products-head">
       <h2 class="products-title">Our apps</h2>
     </div>
 
-    <div class="product-stack">
-
-      <!-- ScreenReps card -->
-      <div class="product-card-wrap sr" id="srCard" tabindex="0" role="button" aria-expanded="false" aria-label="ScreenReps — expand preview">
-        <article class="product-card">
-          <div class="card-body">
-            <div class="card-top">
-              <img class="card-badge" src="assets/icon-screenreps.png" alt="ScreenReps app icon">
-              <div>
-                <div class="card-name">ScreenReps</div>
-                <div class="card-tag">Earn screen time by moving</div>
-              </div>
-            </div>
-            <p class="card-desc">Block the apps that scroll-trap you, then unlock minutes with real exercise your camera actually counts.</p>
-            <a class="card-link" href="https://screenreps.app" target="_blank" rel="noopener">
-              screenreps.app <span class="arr" aria-hidden="true">→</span>
-            </a>
-          </div>
-          <div class="card-sep" role="separator"></div>
-          <div class="card-expand">
-            <div class="card-expand-inner">
-              <div class="preview-kicker">See it in action</div>
-              <div class="shots" aria-label="ScreenReps screenshots">
-                <div class="phone"><div class="screen"><img src="assets/shot-screenreps-1.png" alt="ScreenReps — counting squat reps with the camera" loading="lazy" onerror="this.style.display='none'"><div class="shot-ph"><span class="shot-emoji" aria-hidden="true">📱</span><span>Screenshot 1</span></div></div></div>
-                <div class="phone"><div class="screen"><img src="assets/shot-screenreps-2.png" alt="ScreenReps — out of screen time" loading="lazy" onerror="this.style.display='none'"><div class="shot-ph"><span class="shot-emoji" aria-hidden="true">📱</span><span>Screenshot 2</span></div></div></div>
-                <div class="phone"><div class="screen"><img src="assets/shot-screenreps-3.png" alt="ScreenReps onboarding — how it works" loading="lazy" onerror="this.style.display='none'"><div class="shot-ph"><span class="shot-emoji" aria-hidden="true">📱</span><span>Screenshot 3</span></div></div></div>
-              </div>
-            </div>
-          </div>
-        </article>
-      </div>
-
-      <!-- PetFuel card -->
-      <div class="product-card-wrap pf" id="pfCard" tabindex="0" role="button" aria-expanded="false" aria-label="PetFuel — expand preview">
-        <article class="product-card">
-          <div class="card-body">
-            <div class="card-top">
-              <img class="card-badge" src="assets/icon-petfuel.png" alt="PetFuel app icon">
-              <div>
-                <div class="card-name">PetFuel</div>
-                <div class="card-tag">AI nutrition tracking for your pets</div>
-              </div>
-            </div>
-            <p class="card-desc">Your vet says "balanced diet." PetFuel shows you what that actually means — meal by meal, day by day, powered by AI that knows your animal.</p>
-            <a class="card-link" href="https://petfuel.app" target="_blank" rel="noopener">
-              petfuel.app <span class="arr" aria-hidden="true">→</span>
-            </a>
-          </div>
-          <div class="card-sep" role="separator"></div>
-          <div class="card-expand">
-            <div class="card-expand-inner">
-              <div class="preview-kicker">See it in action</div>
-              <div class="shots" aria-label="PetFuel screenshots">
-                <div class="phone"><div class="screen"><span class="notch" aria-hidden="true"></span><div class="shot-ph"><span class="shot-emoji" aria-hidden="true">📱</span><span>Screenshot 1</span></div></div></div>
-                <div class="phone"><div class="screen"><span class="notch" aria-hidden="true"></span><div class="shot-ph"><span class="shot-emoji" aria-hidden="true">📱</span><span>Screenshot 2</span></div></div></div>
-                <div class="phone"><div class="screen"><span class="notch" aria-hidden="true"></span><div class="shot-ph"><span class="shot-emoji" aria-hidden="true">📱</span><span>Screenshot 3</span></div></div></div>
-              </div>
-            </div>
-          </div>
-        </article>
-      </div>
-
+    <div class="icon-row" id="iconRow">
+      <button class="icon-tile" data-app="sr" aria-expanded="false" aria-label="ScreenReps — tap to preview">
+        <img class="icon-badge" src="assets/icon-screenreps.png" alt="ScreenReps app icon">
+        <span class="icon-caption">ScreenReps</span>
+      </button>
+      <button class="icon-tile" data-app="pf" aria-expanded="false" aria-label="PetFuel — tap to preview">
+        <img class="icon-badge" src="assets/icon-petfuel.png" alt="PetFuel app icon">
+        <span class="icon-caption">PetFuel</span>
+      </button>
+      <button class="icon-tile" data-app="cl" aria-expanded="false" aria-label="ChoreLock — tap to preview, coming soon">
+        <img class="icon-badge" src="assets/icon-chorelock.png" alt="ChoreLock app icon">
+        <span class="icon-caption">ChoreLock</span>
+        <span class="icon-soon">Coming soon</span>
+      </button>
     </div>
+
+    <p class="icon-hint" id="iconHint">Hover or tap an app to see what it does</p>
   </div>
 </section>
 
 <!-- ============================
      CONTACT
      ============================ -->
-<section class="contact-section" id="contact" aria-label="Contact">
-  <div class="contact-block">
+<section class="contact-section" aria-label="Contact">
+  <div class="contact-block" id="contact">
     <h2 class="contact-title">Get in touch</h2>
     <p class="contact-lead">Questions, ideas, or just want to say hi? Drop us a line.</p>
     <div class="contact-inner">
@@ -1112,109 +1076,225 @@ footer {
   </button>
 </nav>
 
+<div class="hover-card" id="hoverCard" role="tooltip"></div>
+
 <script src="dock.js"></script>
 <script>
-/* ── PRODUCT CARD SCROLL REVEAL ─────────────────── */
-const cards = document.querySelectorAll('.product-card-wrap');
-cards.forEach(c => c.classList.add('anim'));
+/* ── ICON ROW SCROLL REVEAL ─────────────────── */
+const iconTiles = document.querySelectorAll('.icon-tile');
+iconTiles.forEach(t => t.classList.add('anim'));
 
 if ('IntersectionObserver' in window) {
   const io = new IntersectionObserver((entries) => {
-    entries.forEach((entry, i) => {
+    entries.forEach((entry) => {
       if (entry.isIntersecting) {
-        // stagger: SR first, PF 120ms later
-        const delay = entry.target.classList.contains('pf') ? 120 : 0;
-        setTimeout(() => entry.target.classList.add('in-view'), delay);
+        const idx = Array.from(iconTiles).indexOf(entry.target);
+        setTimeout(() => entry.target.classList.add('in-view'), idx * 90);
         io.unobserve(entry.target);
       }
     });
   }, { threshold: 0.12 });
-  cards.forEach(c => io.observe(c));
+  iconTiles.forEach(t => io.observe(t));
 } else {
   // Fallback: show immediately
-  cards.forEach(c => c.classList.add('in-view'));
+  iconTiles.forEach(t => t.classList.add('in-view'));
 }
 
-/* ── JS-DRIVEN CARD EXPANSION ───────────────────── */
+/* Nav logo now only follows the dark-mode toggle — app hovers no longer
+   retheme the whole page (see the hover card below), just the card itself. */
+const navScarabImg = document.querySelector('.nav-logo-img');
+function applyTheme() {
+  const dark = document.documentElement.classList.contains('theme-dark');
+  if (navScarabImg) navScarabImg.src = dark ? 'assets/scarab-white.png' : 'assets/scarab-normal.png';
+}
+
+/* ── APP HOVER CARD ───────────────────────────────
+   A floating card positioned relative to the hovered/tapped icon, instead
+   of an inline panel that pushed page content around — so it never has to
+   fight the fixed bottom dock for space. Desktop: hover opens it (with a
+   short delay so brushing past icons doesn't spam it) and moving off both
+   the icon and the card closes it. Touch/keyboard: tap or activate to
+   toggle, since there's no hover state to rely on. */
 const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 const canHover     = window.matchMedia('(hover: hover)').matches;
 
-/* ── WHOLE-PAGE APP THEMING ──────────────────────
-   Opening a card pulls the entire page into that
-   app's world. A short debounce on release avoids a
-   flash of neutral when sliding between the two
-   cards. The nav logo swaps to its light variant on
-   the dark ScreenReps theme so it stays visible. */
-const navScarabImg = document.querySelector('.nav-logo-img');
-const DARK_THEME   = { 'theme-screenreps': true };
-let themeTimer = null;
+const APP_DATA = {
+  sr: {
+    name: 'ScreenReps', tag: 'Earn screen time by moving',
+    desc: 'Block the apps that scroll-trap you, then unlock minutes with real exercise your camera actually counts.',
+    link: 'screenreps.app', href: 'https://screenreps.app', badge: 'assets/icon-screenreps.png',
+    theme: { bg: '#16181C', ink: '#F4F4F5', muted: '#9CA0A8', border: '#2C3038', ctaBg: '#FF5C35', ctaInk: '#16181C' },
+    shots: [
+      { src: 'assets/shot-screenreps-1.png', alt: 'ScreenReps — counting squat reps with the camera' },
+      { src: 'assets/shot-screenreps-2.png', alt: 'ScreenReps — out of screen time' },
+      { src: 'assets/shot-screenreps-3.png', alt: 'ScreenReps onboarding — how it works' }
+    ]
+  },
+  pf: {
+    name: 'PetFuel', tag: 'AI nutrition tracking for your pets',
+    desc: 'Your vet says "balanced diet." PetFuel shows you what that actually means — meal by meal, day by day, powered by AI that knows your animal.',
+    link: 'petfuel.app', href: 'https://petfuel.app', badge: 'assets/icon-petfuel.png',
+    theme: { bg: '#F4F7F6', ink: '#101A19', muted: '#5C6B6A', border: '#D2DAD9', ctaBg: '#0E7C72', ctaInk: '#FFFFFF' },
+    shots: []
+  },
+  cl: {
+    name: 'ChoreLock', tag: 'Unlock apps by actually tidying up',
+    desc: 'ScreenReps for chores: apps stay locked until your camera confirms the room is actually tidy — no more taking your word for it.',
+    badge: 'assets/icon-chorelock.png',
+    theme: { bg: '#1A1826', ink: '#EDEBF5', muted: '#A79FC2', border: '#332E47', ctaBg: '#8B7FE8', ctaInk: '#1A1826' },
+    locked: true
+  }
+};
 
-function applyTheme(name) {
-  clearTimeout(themeTimer);
-  document.body.classList.remove('theme-screenreps', 'theme-petfuel');
-  if (name) document.body.classList.add(name);
-  // Logo follows the *displayed* theme: a hovered app's darkness when one is
-  // open, otherwise the global dark-mode base.
-  const dark = name ? !!DARK_THEME[name] : document.documentElement.classList.contains('theme-dark');
-  if (navScarabImg) navScarabImg.src = dark ? 'assets/scarab-white.png'        : 'assets/scarab-normal.png';
+const iconRowEl  = document.getElementById('iconRow');
+const iconHint   = document.getElementById('iconHint');
+const hoverCard  = document.getElementById('hoverCard');
+const dockEl     = document.getElementById('dock');
+
+let openKey = null;
+let showTimer = null;
+let hideTimer = null;
+const OPEN_DELAY = reduceMotion ? 0 : 100;
+const CLOSE_DELAY = 200;
+
+function shotMarkup(app) {
+  if (app.shots.length) {
+    return app.shots.map(s => `<div class="phone"><div class="screen"><img src="${s.src}" alt="${s.alt}" loading="lazy" onerror="this.style.display='none'"><div class="shot-ph"><span class="shot-emoji" aria-hidden="true">📱</span><span>Screenshot</span></div></div></div>`).join('');
+  }
+  return Array.from({ length: 3 }).map(() =>
+    `<div class="phone"><div class="screen"><span class="notch" aria-hidden="true"></span><div class="shot-ph"><span class="shot-emoji" aria-hidden="true">📱</span><span>Screenshot</span></div></div></div>`
+  ).join('');
 }
-function requestTheme(name) { clearTimeout(themeTimer); applyTheme(name); }
-function releaseTheme()     { clearTimeout(themeTimer); themeTimer = setTimeout(() => applyTheme(null), 80); }
 
-document.querySelectorAll('.product-card-wrap').forEach(wrapEl => {
-  const panel = wrapEl.querySelector('.card-expand');
-  const themeName = wrapEl.classList.contains('sr') ? 'theme-screenreps' : 'theme-petfuel';
-  let isOpen = false;
-  let anim = null;
-
-  function setOpen(want) {
-    if (want === isOpen) return;
-    isOpen = want;
-    wrapEl.classList.toggle('is-open', isOpen);
-    wrapEl.setAttribute('aria-expanded', String(isOpen));
-    if (isOpen) requestTheme(themeName); else releaseTheme();
-
-    if (anim) anim.cancel();
-
-    // Measure: current rendered height → natural target height
-    const from = panel.getBoundingClientRect().height;
-    panel.style.height = 'auto';
-    const natural = panel.scrollHeight;
-    panel.style.height = from + 'px';
-    const to = isOpen ? natural : 0;
-
-    if (reduceMotion) {
-      panel.style.height = isOpen ? 'auto' : '0px';
-      return;
-    }
-
-    anim = panel.animate(
-      [{ height: from + 'px' }, { height: to + 'px' }],
-      { duration: isOpen ? 540 : 400, easing: 'cubic-bezier(0.23, 1, 0.32, 1)' }
-    );
-    anim.onfinish = () => {
-      panel.style.height = isOpen ? 'auto' : '0px';
-      anim = null;
-    };
+function buildCardHTML(key) {
+  const d = APP_DATA[key];
+  if (d.locked) {
+    return `
+      <div class="hover-card-body">
+        <div class="hover-card-top">
+          <img src="${d.badge}" alt="${d.name} app icon">
+          <div><div class="hover-card-name">${d.name}</div><div class="hover-card-tag">${d.tag}</div></div>
+        </div>
+        <p class="hover-card-desc">${d.desc}</p>
+        <span class="hover-card-soon">Coming soon</span>
+      </div>`;
   }
+  return `
+    <div class="hover-card-body">
+      <div class="hover-card-top">
+        <img src="${d.badge}" alt="${d.name} app icon">
+        <div><div class="hover-card-name">${d.name}</div><div class="hover-card-tag">${d.tag}</div></div>
+      </div>
+      <p class="hover-card-desc">${d.desc}</p>
+      <a class="hover-card-link" href="${d.href}" target="_blank" rel="noopener">${d.link} <span class="arr" aria-hidden="true">→</span></a>
+    </div>
+    <div class="hover-card-sep"></div>
+    <div class="hover-card-shots-wrap">
+      <div class="shots" aria-label="${d.name} screenshots">${shotMarkup(d)}</div>
+    </div>`;
+}
 
-  panel.style.height = '0px';
+function applyCardTheme(theme) {
+  hoverCard.style.setProperty('--hc-bg', theme.bg);
+  hoverCard.style.setProperty('--hc-ink', theme.ink);
+  hoverCard.style.setProperty('--hc-muted', theme.muted);
+  hoverCard.style.setProperty('--hc-border', theme.border);
+  hoverCard.style.setProperty('--hc-cta-bg', theme.ctaBg);
+  hoverCard.style.setProperty('--hc-cta-ink', theme.ctaInk);
+}
 
+/* Anchors the card to its trigger: prefers floating above the icon (clear of
+   the dock by construction), flips below when there's more room there, and
+   clamps within the viewport — capped above the fixed dock either way. */
+function positionCard(trigger) {
+  const r = trigger.getBoundingClientRect();
+  const dockTop = dockEl ? dockEl.getBoundingClientRect().top : window.innerHeight;
+  const cardWidth = hoverCard.offsetWidth;
+  const cardHeight = hoverCard.offsetHeight;
+  const gap = 14;
+  const margin = 12;
+
+  const spaceAbove = r.top - margin;
+  const spaceBelow = dockTop - r.bottom - margin;
+  const placeAbove = spaceAbove >= cardHeight + gap || spaceAbove >= spaceBelow;
+
+  let top = placeAbove ? r.top - gap - cardHeight : r.bottom + gap;
+  top = Math.max(margin, Math.min(top, dockTop - cardHeight - margin));
+
+  let left = r.left + r.width / 2;
+  left = Math.max(cardWidth / 2 + margin, Math.min(left, window.innerWidth - cardWidth / 2 - margin));
+
+  hoverCard.style.top = top + 'px';
+  hoverCard.style.left = left + 'px';
+  hoverCard.classList.toggle('place-below', !placeAbove);
+}
+
+function openCard(key, trigger) {
+  openKey = key;
+  iconTiles.forEach(t => {
+    const active = t.dataset.app === key;
+    t.classList.toggle('is-active', active);
+    t.setAttribute('aria-expanded', String(active));
+  });
+  iconHint.classList.add('hidden');
+  hoverCard.innerHTML = buildCardHTML(key);
+  applyCardTheme(APP_DATA[key].theme);
+  positionCard(trigger);
+  hoverCard.classList.add('open');
+}
+
+function closeCard() {
+  if (openKey === null) return;
+  openKey = null;
+  iconTiles.forEach(t => { t.classList.remove('is-active'); t.setAttribute('aria-expanded', 'false'); });
+  iconHint.classList.remove('hidden');
+  hoverCard.classList.remove('open');
+}
+
+function scheduleOpen(key, trigger) {
+  clearTimeout(hideTimer);
+  clearTimeout(showTimer);
+  if (openKey !== null) {
+    openCard(key, trigger); // already engaged with another card — switch instantly
+  } else {
+    showTimer = setTimeout(() => openCard(key, trigger), OPEN_DELAY);
+  }
+}
+function scheduleClose() {
+  clearTimeout(showTimer);
+  clearTimeout(hideTimer);
+  hideTimer = setTimeout(closeCard, CLOSE_DELAY);
+}
+
+iconTiles.forEach(tile => {
   if (canHover) {
-    wrapEl.addEventListener('mouseenter', () => setOpen(true));
-    wrapEl.addEventListener('mouseleave', () => setOpen(false));
+    tile.addEventListener('mouseenter', () => scheduleOpen(tile.dataset.app, tile));
+    tile.addEventListener('mouseleave', scheduleClose);
   }
-  // Tap / click toggles (touch devices, and a nice affordance everywhere)
-  wrapEl.addEventListener('click', e => {
-    if (e.target.closest('a')) return; // let links be links
-    setOpen(!isOpen);
+  // Tap / click toggles — the only interaction on touch, and a nice
+  // affordance everywhere (keyboard activation of the <button> lands here too).
+  tile.addEventListener('click', () => {
+    if (openKey === tile.dataset.app) closeCard();
+    else openCard(tile.dataset.app, tile);
   });
-  wrapEl.addEventListener('keydown', e => {
-    if (e.key === 'Enter' || e.key === ' ') {
-      e.preventDefault();
-      setOpen(!isOpen);
-    }
-  });
+});
+
+if (canHover) {
+  // Moving onto the card itself (to click the link or scroll screenshots)
+  // must not let the icon's mouseleave close it underneath the cursor.
+  hoverCard.addEventListener('mouseenter', () => clearTimeout(hideTimer));
+  hoverCard.addEventListener('mouseleave', scheduleClose);
+}
+
+// The card is anchored to a trigger's on-screen position; scrolling or
+// resizing invalidates that, so just close it rather than track it live.
+window.addEventListener('scroll', () => { if (openKey !== null) closeCard(); }, { passive: true });
+window.addEventListener('resize', () => { if (openKey !== null) closeCard(); });
+document.addEventListener('keydown', e => { if (e.key === 'Escape' && openKey !== null) closeCard(); });
+document.addEventListener('click', e => {
+  if (openKey === null) return;
+  if (e.target.closest('.hover-card') || e.target.closest('.icon-tile')) return;
+  closeCard();
 });
 
 /* ── DARK-THEME TOGGLE (dock button) ─────────────────
@@ -1238,12 +1318,7 @@ document.querySelectorAll('.product-card-wrap').forEach(wrapEl => {
     root.classList.toggle('theme-dark');
     try { localStorage.setItem('sb-theme', root.classList.contains('theme-dark') ? 'dark' : 'light'); } catch (e) {}
     syncUI();
-    // Refresh the nav logo to match the new base — but only when no product
-    // card is currently pulling the page into an app theme.
-    if (!document.body.classList.contains('theme-screenreps') &&
-        !document.body.classList.contains('theme-petfuel')) {
-      applyTheme(null);
-    }
+    applyTheme();
   }
 
   btn.addEventListener('click', function () {
