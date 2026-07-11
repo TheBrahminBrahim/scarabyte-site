@@ -137,11 +137,11 @@ html.theme-dark .baraka-peek img { filter: brightness(0) invert(1) brightness(0.
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 html { font-size: 16px; scroll-behavior: smooth; }
 
-/* Dock-nav scroll targets: land on the actual content block (not the
-   outer, vertically-centered section) so the header sits right near the
-   top instead of leaving a gap that pushes the rest of the card down
-   behind the fixed bottom dock. */
-.about-block, .products-inner, .contact-block { scroll-margin-top: 28px; }
+/* Dock-nav scroll targets: each content section is exactly one viewport
+   tall, and the dock scrolls to the SECTION top, so the chosen section
+   fills the window with no sliver of the next one showing. The home page
+   has no fixed top bar, so no top offset is needed. */
+.about-section, .products, .contact-section { scroll-margin-top: 0; }
 body {
   background: var(--bg);
   color: var(--ink);
@@ -454,7 +454,8 @@ body.home .nav { display: none; }
   padding: 4rem 2rem;
   position: relative;
   overflow: hidden;   /* clips the card stack at the section edge, like the reference */
-  min-height: 740px;
+  min-height: 100vh;
+  min-height: 100svh; /* one full viewport, so a dock jump fills the window */
   display: flex;
   align-items: center;
 }
@@ -504,10 +505,12 @@ body.home .nav { display: none; }
 .swap-stage {
   position: absolute;
   bottom: 0;
-  right: 0;
+  /* Hold a small inset from the container's right edge so the front card's
+     GET button always clears the viewport, even on a narrow window. */
+  right: clamp(8px, 2vw, 34px);
   width: 640px;
   height: 480px;
-  transform: translate(0.5%, 12%);
+  transform: translate(0, 9%);
   transform-origin: bottom right;
   perspective: 1000px;
   z-index: 2;
@@ -864,12 +867,11 @@ footer {
    reference component's breakpoints. */
 @media (max-width: 900px) {
   .swap-stage { transform: translate(1%, 16%) scale(0.72); }
-  .products { min-height: 620px; }
 }
 @media (max-width: 680px) {
   .nav { padding: 0.85rem 1.25rem; }
   .swap-stage { transform: translate(1.5%, 18%) scale(0.54); }
-  .products { min-height: 560px; padding: 3.5rem 1.3rem; }
+  .products { padding: 3.5rem 1.3rem; }
   .products-inner { align-self: flex-start; }
   .products-copy { max-width: 100%; }
   footer { flex-direction: column; text-align: center; gap: 0.6rem; }
@@ -964,8 +966,8 @@ footer {
 <!-- ============================
      ABOUT
      ============================ -->
-<section class="about-section" aria-label="About">
-  <article class="about-block" id="about">
+<section class="about-section" id="about" aria-label="About">
+  <article class="about-block">
     <h2 class="about-title">Real problems. Beautiful software.</h2>
     <p class="about-subhead">An indie studio that builds things worth using.</p>
     <div class="about-body">
@@ -980,10 +982,9 @@ footer {
 <!-- ============================
      PRODUCTS
      ============================ -->
-<section class="products" aria-label="Products">
+<section class="products" id="products" aria-label="Products">
 
-
-  <div class="products-inner" id="products">
+  <div class="products-inner">
     <div class="products-copy">
       <h2 class="products-title">Our apps</h2>
       <p class="products-lead">Real problems, beautifully solved — one app at a time.</p>
@@ -1061,8 +1062,8 @@ footer {
 <!-- ============================
      CONTACT
      ============================ -->
-<section class="contact-section" aria-label="Contact">
-  <div class="contact-block" id="contact">
+<section class="contact-section" id="contact" aria-label="Contact">
+  <div class="contact-block">
     <h2 class="contact-title">Get in touch</h2>
     <p class="contact-lead">Questions, ideas, or just want to say hi? Drop us a line.</p>
     <div class="contact-inner">
@@ -1141,8 +1142,8 @@ swapCards.forEach(c => { cardByKey[c.dataset.app] = c; });
 let swapOrder = swapCards.map(c => c.dataset.app); // front first
 let swapping  = false;
 
-const CARD_DX = 64;      // per-slot shift right
-const CARD_DY = 70;      // per-slot shift up
+const CARD_DX = 52;      // per-slot shift right
+const CARD_DY = 66;      // per-slot shift up
 const CARD_DZ = 96;      // per-slot shift away from the viewer
 const CARD_SKEW = 6;     // the signature lean, in degrees
 const DROP_PX  = 540;    // how far the front card dives before tucking back
@@ -1184,6 +1185,13 @@ function advanceStack() {
   swapping = true;
   card.classList.add('swapping');   // WAAPI owns the transform during flight
   card.style.zIndex = '4';          // stays in front for the drop...
+  // Park the card's *base* transform at its final back-slot pose NOW, while
+  // transition:none (the .swapping class) suppresses any jump. The keyframes
+  // still start the visible flight from the front, and WAAPI overrides the
+  // base during playback — but when the animation ends (fill:none) and the
+  // browser reverts to this base for a frame, it reverts to the back slot,
+  // not the front. That one-frame revert-to-front was the blink.
+  card.style.transform = slotTransform(back);
   layoutStack();                    // ...while the others glide forward now
 
   const anim = card.animate([
@@ -1195,12 +1203,20 @@ function advanceStack() {
   // Mid-flight, at the bottom of the dive, tuck it behind the pile.
   setTimeout(() => { card.style.zIndex = ''; }, SWAP_MS * 0.42);
 
-  anim.onfinish = anim.oncancel = () => {
+  // Release the flight state once — from onfinish normally, or from a timeout
+  // fallback if the animation's finish event never fires (e.g. WAAPI throttled
+  // in a backgrounded tab), so the deck can never wedge on `swapping`.
+  let released = false;
+  const release = () => {
+    if (released) return;
+    released = true;
+    clearTimeout(failsafe);
     card.classList.remove('swapping');
-    card.style.transform = slotTransform(back);
-    card.style.zIndex = '';
+    card.style.zIndex = '';       // base transform is already the back slot
     swapping = false;
   };
+  const failsafe = setTimeout(release, SWAP_MS + 150);
+  anim.onfinish = anim.oncancel = release;
 }
 
 /* Direct jump — the chosen card glides forward, the rest re-stack. */
