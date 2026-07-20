@@ -486,17 +486,6 @@ body.home .nav { display: none; }
 /* Left copy block — the stack owns the right/bottom of the section */
 .products-copy { max-width: 400px; }
 .products-copy .products-lead { margin: 0.7rem 0 0; max-width: 34ch; }
-.products-hint {
-  display: inline-block;
-  font-family: 'Caveat', var(--font-b);
-  font-weight: 700;
-  font-size: 1.55rem;
-  line-height: 1;
-  color: var(--accent-dark);
-  margin-top: 1.4rem;
-  transform: rotate(-2deg);
-}
-
 /* ── Card-swap stack — a skewed 3D pile anchored to the section's
    bottom-right corner (deliberately bleeding past the edges, like the
    ReactBits CardSwap it's modeled on). The front card is the active app;
@@ -510,7 +499,7 @@ body.home .nav { display: none; }
   right: clamp(8px, 2vw, 34px);
   width: 640px;
   height: 480px;
-  transform: translate(0, 9%);
+  transform: translate(0, 9%) scale(1.35);
   transform-origin: bottom right;
   perspective: 1000px;
   z-index: 2;
@@ -866,11 +855,11 @@ footer {
 /* The stack scales down from its bottom-right anchor, exactly like the
    reference component's breakpoints. */
 @media (max-width: 900px) {
-  .swap-stage { transform: translate(1%, 16%) scale(0.72); }
+  .swap-stage { transform: translate(1%, 16%) scale(0.97); }
 }
 @media (max-width: 680px) {
   .nav { padding: 0.85rem 1.25rem; }
-  .swap-stage { transform: translate(1.5%, 18%) scale(0.54); }
+  .swap-stage { transform: translate(1.5%, 18%) scale(0.73); }
   .products { padding: 3.5rem 1.3rem; }
   .products-inner { align-self: flex-start; }
   .products-copy { max-width: 100%; }
@@ -988,7 +977,6 @@ footer {
     <div class="products-copy">
       <h2 class="products-title">Our apps</h2>
       <p class="products-lead">Real problems, beautifully solved — one app at a time.</p>
-      <p class="products-hint">Click the stack, it deals itself!</p>
     </div>
   </div>
 
@@ -1304,6 +1292,18 @@ layoutStack();
     const y = r.top + r.height / 2;
     const end = Math.hypot(Math.max(x, innerWidth - x), Math.max(y, innerHeight - y));
 
+    // Hold the page still for the wipe. The transition's "old" side is a
+    // frozen screenshot, so anything still moving in the live view (a card
+    // flight, the bobbing scarab) tears at the circle's edge and snaps when
+    // the wipe ends. Pause — don't cancel — so everything resumes in phase.
+    pauseAuto();
+    const held = document.getAnimations().filter(a => a.playState === 'running');
+    held.forEach(a => a.pause());
+    const releaseHold = function () {
+      held.forEach(a => { try { a.play(); } catch (e) {} });
+      maybeSchedule();
+    };
+
     const vt = document.startViewTransition(commit);
     vt.ready.then(function () {
       root.animate(
@@ -1312,6 +1312,7 @@ layoutStack();
         { duration: 520, easing: 'cubic-bezier(0.22, 1, 0.36, 1)', pseudoElement: '::view-transition-new(root)' }
       );
     }).catch(function () {});
+    vt.finished.catch(function () {}).then(releaseHold);
   });
 
   syncUI();
