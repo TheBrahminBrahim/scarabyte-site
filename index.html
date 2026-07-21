@@ -1283,9 +1283,29 @@ layoutStack();
     applyTheme();
   }
 
+  // One shared freeze across overlapping wipes: a second click lands while
+  // the first wipe still holds the page, and the first (now-skipped)
+  // transition must not thaw the page under the new wipe.
+  let heldAnims = [];
+  let wipeToken = 0;
+
+  // A wipe can't cover a page that's still glide-scrolling — the old side
+  // of the transition is a frozen screenshot — so remember when the page
+  // last moved and fall back to the instant switch while it's in motion.
+  let lastScrollAt = -Infinity;
+  addEventListener('scroll', function () { lastScrollAt = performance.now(); }, { passive: true });
+
+  // Self-healing: if this browser ever plays the wipe badly (software
+  // rendering, a degraded GPU process — anything that freezes it mid-circle),
+  // drop to the instant switch for the rest of the session and try the wipe
+  // again fresh on the next visit.
+  let wipeDisabled = false;
+  try { wipeDisabled = sessionStorage.getItem('sb-wipe') === 'off'; } catch (e) {}
+
   btn.addEventListener('click', function () {
-    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    if (!document.startViewTransition || reduce) { commit(); return; }
+    const reduce  = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const gliding = performance.now() - lastScrollAt < 120;
+    if (!document.startViewTransition || reduce || gliding || wipeDisabled) { commit(); return; }
 
     const r = btn.getBoundingClientRect();
     const x = r.left + r.width / 2;
@@ -1297,12 +1317,12 @@ layoutStack();
     // flight, the bobbing scarab) tears at the circle's edge and snaps when
     // the wipe ends. Pause — don't cancel — so everything resumes in phase.
     pauseAuto();
-    const held = document.getAnimations().filter(a => a.playState === 'running');
-    held.forEach(a => a.pause());
-    const releaseHold = function () {
-      held.forEach(a => { try { a.play(); } catch (e) {} });
-      maybeSchedule();
-    };
+    const token = ++wipeToken;
+    document.getAnimations().forEach(function (a) {
+      const pseudo = a.effect && a.effect.pseudoElement;
+      if (pseudo && pseudo.indexOf('::view-transition') === 0) return; // the wipe itself
+      if (a.playState === 'running') { heldAnims.push(a); a.pause(); }
+    });
 
     const vt = document.startViewTransition(commit);
     vt.ready.then(function () {
@@ -1311,8 +1331,25 @@ layoutStack();
                      'circle(' + end + 'px at ' + x + 'px ' + y + 'px)'] },
         { duration: 520, easing: 'cubic-bezier(0.22, 1, 0.36, 1)', pseudoElement: '::view-transition-new(root)' }
       );
+      // Meter the wipe's own frame health; a frozen span mid-circle means
+      // this environment can't run it fluidly.
+      let last = performance.now(), worst = 0, metering = true;
+      function meter(t) { worst = Math.max(worst, t - last); last = t; if (metering) requestAnimationFrame(meter); }
+      requestAnimationFrame(meter);
+      vt.finished.catch(function () {}).then(function () {
+        metering = false;
+        if (worst > 250) {
+          wipeDisabled = true;
+          try { sessionStorage.setItem('sb-wipe', 'off'); } catch (e) {}
+        }
+      });
     }).catch(function () {});
-    vt.finished.catch(function () {}).then(releaseHold);
+    vt.finished.catch(function () {}).then(function () {
+      if (token !== wipeToken) return;   // a newer wipe owns the hold now
+      const anims = heldAnims; heldAnims = [];
+      anims.forEach(function (a) { try { a.play(); } catch (e) {} });
+      maybeSchedule();
+    });
   });
 
   syncUI();
