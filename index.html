@@ -483,141 +483,229 @@ body.home .nav { display: none; }
   line-height: 1.72;
 }
 
-/* Left copy block — the stack owns the right/bottom of the section */
-.products-copy { max-width: 400px; }
-.products-copy .products-lead { margin: 0.7rem 0 0; max-width: 34ch; }
-/* ── Card-swap stack — a skewed 3D pile anchored to the section's
-   bottom-right corner (deliberately bleeding past the edges, like the
-   ReactBits CardSwap it's modeled on). The front card is the active app;
-   the others wait up-and-behind along the perspective axis. It deals
-   itself on a timer, pauses on hover, and a click flips it early. ── */
-.swap-stage {
-  position: absolute;
-  bottom: 0;
-  /* Hold a small inset from the container's right edge so the front card's
-     GET button always clears the viewport, even on a narrow window. */
-  right: clamp(8px, 2vw, 34px);
-  width: 640px;
-  height: 480px;
-  transform: translate(0, 9%) scale(1.35);
-  transform-origin: bottom right;
-  perspective: 1000px;
-  z-index: 2;
+/* ── STUDIO SHELF ────────────────────────────────────
+   A quiet project rail on the left; a stage on the right that
+   re-lights to the selected project and swaps to the frame that
+   fits it — iPhone frames for the iOS apps, a browser window for
+   the web games. The frame itself says what kind of thing you're
+   looking at, so mixed platforms sit naturally on one shelf. */
+.shelf {
+  display: grid;
+  grid-template-columns: 255px 1fr;
+  gap: clamp(1.6rem, 4vw, 3.2rem);
+  align-items: center;
 }
+/* Grid items may never inherit their content's min-width — otherwise the
+   scrollable rail would blow the column out to its full content width. */
+.shelf > * { min-width: 0; }
+.shelf-left .products-lead { margin: 0.6rem 0 0; max-width: 26ch; }
 
-.app-card {
-  position: absolute;
-  top: 50%; left: 50%;
-  width: 640px;
-  height: 480px;
-  background: var(--ac-bg);
-  color: var(--ac-ink);
-  border: 1px solid var(--ac-border);
-  border-radius: 14px;
-  overflow: hidden;
+.rail {
   display: flex;
   flex-direction: column;
-  box-shadow: 0 24px 48px oklch(0.192 0.090 232 / 0.22);
-  /* JS positions each card into its stack slot; this is the resting pose */
-  transform: translate(-50%, -50%) skewY(6deg);
-  transition: transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
-  will-change: transform;
-  backface-visibility: hidden;
-  cursor: pointer;
+  gap: 0.55rem;
+  margin-top: 1.7rem;
 }
-/* Dimmer for the cards waiting behind — sits over all card content */
-.app-card::after {
-  content: '';
-  position: absolute; inset: 0;
-  z-index: 10;
-  background: oklch(0.10 0.03 232);
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 0.7s ease;
-}
-.app-card.pos-0 { z-index: 3; }
-.app-card.pos-1 { z-index: 2; }
-.app-card.pos-2 { z-index: 1; }
-.app-card.pos-1::after { opacity: 0.14; }
-.app-card.pos-2::after { opacity: 0.26; }
-/* While a card is mid-flight the Web Animations API owns its transform */
-.app-card.swapping { transition: none; }
-.app-card a, .app-card button { cursor: pointer; }
-
-/* Card interior — a window-chrome bar, a line of copy, then screenshots */
-.app-card-bar {
-  display: flex;
+.rail-item {
+  display: grid;
+  grid-template-columns: 46px 1fr;
+  gap: 0.85rem;
   align-items: center;
-  gap: 0.65rem;
-  padding: 0.68rem 1.15rem;
-  border-bottom: 1px solid var(--ac-border);
-  flex-shrink: 0;
+  padding: 0.6rem 0.75rem;
+  border-radius: 16px;
+  border: 1.5px solid transparent;
+  background: none;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+  text-align: left;
+  transition: border-color 0.25s, background-color 0.25s, transform 0.25s, box-shadow 0.25s;
 }
-.app-card-bar > img {
-  width: 27px; height: 27px;
-  border-radius: 8px;
+.rail-item:hover { transform: translateX(3px); background: var(--bg); }
+.rail-item.on {
+  border-color: var(--accent);
+  background: var(--bg);
+  box-shadow: 0 8px 20px oklch(0.192 0.090 232 / 0.10);
+}
+.rail-ico {
+  width: 46px; height: 46px;
+  border-radius: 12px;
   object-fit: cover;
+  display: block;
+  border: 1px solid var(--border);
 }
-.app-bar-name {
+.rail-ico.drawn { display: grid; place-items: center; }
+.rail-name {
   font-family: var(--font-d);
   font-weight: 700;
-  font-size: 1.06rem;
-  letter-spacing: -0.01em;
-  flex: 1;
-  min-width: 0;
+  font-size: 1rem;
+  line-height: 1.15;
+  color: var(--primary);
 }
-.app-get {
+.rail-type {
+  display: block;
+  font-size: 0.62rem;
+  font-weight: 800;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--faint);
+  margin-top: 0.18rem;
+}
+.rail-item.on .rail-type { color: var(--accent-dark); }
+
+/* The stage — one panel that becomes the selected project's world */
+.stage-panel {
+  position: relative;
+  border-radius: var(--r-xl);
+  border: 1.5px solid var(--st-line, var(--border));
+  background: var(--st-bg, var(--bg));
+  color: var(--st-ink, var(--ink));
+  min-height: clamp(460px, 58vh, 580px);
+  display: grid;
+  grid-template-columns: 1fr 0.9fr;
+  gap: 1.6rem;
+  align-items: center;
+  padding: clamp(1.8rem, 3.2vw, 3rem);
+  overflow: hidden;
+  box-shadow: 0 26px 52px oklch(0.192 0.090 232 / 0.16);
+  transition: background-color 0.5s ease, color 0.5s ease, border-color 0.5s ease;
+}
+.stage-panel[data-app="sr"] { --st-bg:#16181C; --st-ink:#F4F4F5; --st-mut:#9CA0A8; --st-line:#2C3038; --st-cta:#FF5C35; --st-cta-ink:#16181C; }
+.stage-panel[data-app="pf"] { --st-bg:#F4F7F6; --st-ink:#101A19; --st-mut:#5C6B6A; --st-line:#D2DAD9; --st-cta:#0E7C72; --st-cta-ink:#FFFFFF; }
+.stage-panel[data-app="wr"] { --st-bg:#F5F7FB; --st-ink:#14213A; --st-mut:#5B6B85; --st-line:#D9E1EE; --st-cta:#3366CC; --st-cta-ink:#FFFFFF; }
+.stage-panel[data-app="cl"] { --st-bg:#1A1826; --st-ink:#EDEBF5; --st-mut:#A79FC2; --st-line:#332E47; --st-cta:#8B7FE8; --st-cta-ink:#1A1826; }
+
+.st-name {
+  font-family: var(--font-d);
+  font-weight: 800;
+  font-size: clamp(1.7rem, 3.2vw, 2.3rem);
+  letter-spacing: -0.02em;
+  line-height: 1.05;
+}
+/* The name links to the project's website; underline on hover says so. */
+.st-name a { color: inherit; text-decoration: none; }
+.st-name a[href]:hover {
+  text-decoration: underline;
+  text-decoration-color: var(--st-cta);
+  text-decoration-thickness: 3px;
+  text-underline-offset: 6px;
+}
+.st-tag {
+  font-family: var(--font-d);
+  font-weight: 700;
+  font-size: 1.08rem;
+  line-height: 1.3;
+  margin-top: 0.5rem;
+  color: var(--st-mut);
+}
+.st-desc {
+  font-size: 0.95rem;
+  line-height: 1.65;
+  color: var(--st-mut);
+  margin-top: 0.85rem;
+  max-width: 40ch;
+}
+.st-cta {
   display: inline-flex;
   align-items: center;
+  gap: 0.45rem;
   text-decoration: none;
   font-weight: 800;
-  font-size: 0.72rem;
-  letter-spacing: 0.05em;
-  background: var(--ac-cta);
-  color: var(--ac-cta-ink);
-  padding: 0.3rem 1.05rem;
+  font-size: 0.92rem;
+  background: var(--st-cta);
+  color: var(--st-cta-ink);
+  padding: 0.62rem 1.5rem;
   border-radius: var(--r-pill);
-  transition: filter 0.2s, transform 0.2s;
+  margin-top: 1.4rem;
+  transition: filter 0.2s, transform 0.2s, gap 0.2s;
 }
-.app-get:hover { filter: brightness(1.1); transform: translateY(-1px); }
-.app-get.is-soon { background: var(--ac-border); color: var(--ac-ink); cursor: default; }
-
-.app-card-body { padding: 1.15rem 1.45rem 0; }
-.app-tag {
-  font-family: var(--font-d);
-  font-weight: 700;
-  font-size: 1.38rem;
-  letter-spacing: -0.015em;
-  line-height: 1.2;
+.st-cta:hover { filter: brightness(1.08); transform: translateY(-1px); gap: 0.62rem; }
+/* ChoreLock: no link yet — the pill goes quiet */
+.st-cta:not([href]) {
+  background: transparent;
+  border: 2px solid var(--st-cta);
+  color: var(--st-cta);
+  cursor: default;
 }
-.app-desc {
-  font-size: 0.93rem;
-  color: var(--ac-muted);
-  line-height: 1.58;
-  margin-top: 0.45rem;
-  max-width: 62ch;
+.st-cta:not([href]):hover { filter: none; transform: none; gap: 0.45rem; }
+
+/* Adaptive media well: one frame per project, crossfaded */
+.st-media {
+  position: relative;
+  display: grid;
+  place-items: center;
+  min-height: clamp(300px, 42vh, 420px);
 }
-
-.shots-wrap { margin-top: auto; padding: 1rem 1.45rem 1.1rem; }
-.swap-stage .phone { width: 116px; }
-
-/* Keyboard path through the stack: invisible until it receives focus,
-   then surfaces as a real button beside the pile. */
-.swap-next-sr {
+.mframe {
   position: absolute;
-  left: -9999px;
-  top: 0;
-  z-index: 20;
-  font: inherit;
-  font-weight: 800;
-  font-size: 0.85rem;
-  background: var(--cta-bg);
-  color: var(--cta-ink);
-  border: none;
-  border-radius: var(--r-pill);
-  padding: 0.5rem 1.2rem;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  opacity: 0;
+  transform: scale(0.95);
+  transition: opacity 0.45s ease, transform 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+  pointer-events: none;
 }
-.swap-next-sr:focus-visible { left: auto; right: 100%; top: 40%; margin-right: 1rem; }
+.mframe.on { opacity: 1; transform: none; pointer-events: auto; }
+/* Screenshots/preview link to the project's website; lift on hover. */
+.media-link {
+  display: block;
+  text-decoration: none;
+  color: inherit;
+  transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.media-link:hover { transform: translateY(-4px); }
+.stage-panel .shots { gap: 0.9rem; }
+.stage-panel .phone { width: clamp(104px, 10vw, 126px); }
+
+/* Browser window frame — the web-game "species" */
+.webwin {
+  width: min(400px, 100%);
+  border-radius: 14px;
+  overflow: hidden;
+  border: 1.5px solid var(--st-line);
+  background: #FFFFFF;
+  box-shadow: 0 22px 40px oklch(0 0 0 / 0.18);
+}
+.webwin-bar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0.55rem 0.8rem;
+  background: #E9EEF6;
+}
+.webwin-bar i { width: 9px; height: 9px; border-radius: 50%; }
+.webwin-bar i:nth-child(1) { background: #E8756B; }
+.webwin-bar i:nth-child(2) { background: #E5C465; }
+.webwin-bar i:nth-child(3) { background: #7CC58B; }
+.webwin-url {
+  flex: 1;
+  margin-left: 0.4rem;
+  background: #FFFFFF;
+  border-radius: var(--r-pill);
+  font-size: 0.66rem;
+  font-weight: 600;
+  color: #5B6B85;
+  padding: 0.16rem 0.85rem;
+  letter-spacing: 0.02em;
+}
+.webwin-body { padding: 1.05rem 1.2rem 1.35rem; display: grid; gap: 0.62rem; }
+.race-row { display: flex; justify-content: space-between; align-items: baseline; gap: 0.8rem; }
+.race-title {
+  font-family: var(--font-d);
+  font-weight: 800;
+  font-size: 0.98rem;
+  color: #14213A;
+}
+.race-timer {
+  font-family: 'Rajdhani', var(--font-d);
+  font-weight: 700;
+  font-size: 1.02rem;
+  font-variant-numeric: tabular-nums;
+  color: #3366CC;
+}
+.wl { height: 9px; border-radius: 5px; background: #E2E8F2; }
+.wl.link { background: #BBD0F2; }
 
 /* App Store-style screenshot strip */
 .shots {
@@ -852,21 +940,34 @@ footer {
 /* ================================================
    RESPONSIVE
    ================================================ */
-/* The stack scales down from its bottom-right anchor, exactly like the
-   reference component's breakpoints. */
+/* The shelf folds: rail moves above the stage as a horizontal strip,
+   then the stage itself stacks copy over media. */
 @media (max-width: 900px) {
-  .swap-stage { transform: translate(1%, 16%) scale(0.97); }
+  .shelf { grid-template-columns: 1fr; gap: 1.6rem; align-items: start; }
+  .shelf-left .products-lead { max-width: 44ch; }
+  .rail {
+    flex-direction: row;
+    overflow-x: auto;
+    gap: 0.5rem;
+    margin-top: 1.2rem;
+    padding-bottom: 0.4rem;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+  .rail::-webkit-scrollbar { display: none; }
+  .rail-item { grid-template-columns: 38px 1fr; min-width: 168px; flex: 0 0 auto; }
+  .rail-item:hover { transform: none; }
+  .rail-ico { width: 38px; height: 38px; border-radius: 10px; }
 }
 @media (max-width: 680px) {
   .nav { padding: 0.85rem 1.25rem; }
-  .swap-stage { transform: translate(1.5%, 18%) scale(0.73); }
-  .products { padding: 3.5rem 1.3rem; }
-  .products-inner { align-self: flex-start; }
-  .products-copy { max-width: 100%; }
+  .products { padding: 3.5rem 1.3rem 7rem; }
+  .stage-panel { grid-template-columns: 1fr; min-height: 0; gap: 1.3rem; padding: 1.6rem 1.4rem; }
+  .st-media { min-height: 250px; }
+  .stage-panel .phone { width: 96px; }
+  .webwin { width: min(330px, 100%); }
   footer { flex-direction: column; text-align: center; gap: 0.6rem; }
   .footer-right { text-align: center; }
-  .shots { justify-content: flex-start; gap: 0.8rem; }
-  .phone { width: 138px; }
   .hero-doodle { transform: translateX(calc(-50% - 64px)); }
   .contact-callout { justify-content: center; padding-bottom: 4.5rem; }
   .contact-inner { margin-right: 0; }
@@ -974,76 +1075,82 @@ footer {
 <section class="products" id="products" aria-label="Products">
 
   <div class="products-inner">
-    <div class="products-copy">
-      <h2 class="products-title">Our apps</h2>
-      <p class="products-lead">Real problems, beautifully solved — one app at a time.</p>
+    <div class="shelf">
+
+      <div class="shelf-left">
+        <h2 class="products-title">Our apps</h2>
+        <p class="products-lead">Different problems, different shapes — one studio's standard.</p>
+
+        <div class="rail" id="shelfRail" role="tablist" aria-label="ScaraByte projects" aria-orientation="vertical">
+          <button class="rail-item on" data-app="sr" role="tab" aria-selected="true" id="railTab-sr" aria-controls="shelfStage">
+            <img class="rail-ico" src="assets/icon-screenreps.png" alt="">
+            <span><span class="rail-name">ScreenReps</span><span class="rail-type">iOS app</span></span>
+          </button>
+          <button class="rail-item" data-app="pf" role="tab" aria-selected="false" id="railTab-pf" aria-controls="shelfStage" tabindex="-1">
+            <img class="rail-ico" src="assets/icon-petfuel.png" alt="">
+            <span><span class="rail-name">PetFuel</span><span class="rail-type">iOS app</span></span>
+          </button>
+          <button class="rail-item" data-app="wr" role="tab" aria-selected="false" id="railTab-wr" aria-controls="shelfStage" tabindex="-1">
+            <img class="rail-ico" src="assets/icon-wikirush.png" alt="" style="background:#F5F7FB; object-fit:contain; padding:4px;">
+            <span><span class="rail-name">WikiRush</span><span class="rail-type">Web game</span></span>
+          </button>
+          <button class="rail-item" data-app="cl" role="tab" aria-selected="false" id="railTab-cl" aria-controls="shelfStage" tabindex="-1">
+            <img class="rail-ico" src="assets/icon-chorelock.png" alt="">
+            <span><span class="rail-name">ChoreLock</span><span class="rail-type">Hatching soon</span></span>
+          </button>
+        </div>
+      </div>
+
+      <div class="stage-panel" id="shelfStage" data-app="sr" role="tabpanel" aria-labelledby="railTab-sr">
+        <div class="st-copy" aria-live="polite">
+          <h3 class="st-name"><a id="stNameLink" href="https://screenreps.app" target="_blank" rel="noopener">ScreenReps</a></h3>
+          <p class="st-tag" id="stTag">Earn screen time by moving</p>
+          <p class="st-desc" id="stDesc">Block the apps that scroll-trap you, then unlock minutes with real exercise your camera actually counts.</p>
+          <a class="st-cta" id="stCta" href="https://apps.apple.com/app/screenreps/id6763800109" target="_blank" rel="noopener">Get the app <span aria-hidden="true">↗</span></a>
+        </div>
+
+        <div class="st-media">
+          <div class="mframe on" data-m="sr">
+            <a class="media-link" href="https://screenreps.app" target="_blank" rel="noopener" aria-label="Visit screenreps.app">
+              <div class="shots" aria-label="ScreenReps screenshots">
+                <div class="phone"><div class="screen"><img src="assets/shot-screenreps-1.png" alt="ScreenReps — counting squat reps with the camera" loading="lazy"></div></div>
+                <div class="phone"><div class="screen"><img src="assets/shot-screenreps-2.png" alt="ScreenReps — out of screen time" loading="lazy"></div></div>
+              </div>
+            </a>
+          </div>
+          <div class="mframe" data-m="pf">
+            <a class="media-link" href="https://petfuel.app" target="_blank" rel="noopener" aria-label="Visit petfuel.app">
+              <div class="shots" aria-label="PetFuel screenshots coming soon">
+                <div class="phone"><div class="screen"><span class="notch" aria-hidden="true"></span><div class="shot-ph"><span class="shot-emoji" aria-hidden="true">📱</span><span>Screenshot</span></div></div></div>
+                <div class="phone"><div class="screen"><span class="notch" aria-hidden="true"></span><div class="shot-ph"><span class="shot-emoji" aria-hidden="true">📱</span><span>Screenshot</span></div></div></div>
+              </div>
+            </a>
+          </div>
+          <div class="mframe" data-m="wr">
+            <a class="media-link" href="https://wikirush.org" target="_blank" rel="noopener" aria-label="Play WikiRush at wikirush.org">
+              <div class="webwin" aria-label="WikiRush in the browser">
+                <div class="webwin-bar"><i></i><i></i><i></i><span class="webwin-url">wikirush.org</span></div>
+                <div class="webwin-body">
+                  <div class="race-row"><span class="race-title">Napoleon → Cheese</span><span class="race-timer" id="wrTimer">00:00</span></div>
+                  <div class="wl" style="width:92%"></div>
+                  <div class="wl link" style="width:55%"></div>
+                  <div class="wl" style="width:84%"></div>
+                  <div class="wl link" style="width:38%"></div>
+                  <div class="wl" style="width:66%"></div>
+                </div>
+              </div>
+            </a>
+          </div>
+          <div class="mframe" data-m="cl">
+            <div class="shots" aria-label="ChoreLock screenshots coming soon">
+              <div class="phone"><div class="screen"><span class="notch" aria-hidden="true"></span><div class="shot-ph"><span class="shot-emoji" aria-hidden="true">🔒</span><span>Sneak peek soon</span></div></div></div>
+              <div class="phone"><div class="screen"><span class="notch" aria-hidden="true"></span><div class="shot-ph"><span class="shot-emoji" aria-hidden="true">🧽</span><span>Sneak peek soon</span></div></div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
     </div>
-  </div>
-
-  <div class="swap-stage" id="swapStage" aria-label="Our apps, as a stack of cards">
-
-    <article class="app-card" data-app="sr" aria-label="ScreenReps"
-             style="--ac-bg:#16181C; --ac-ink:#F4F4F5; --ac-muted:#9CA0A8; --ac-border:#2C3038; --ac-cta:#FF5C35; --ac-cta-ink:#16181C;">
-      <div class="app-card-bar">
-        <img src="assets/icon-screenreps.png" alt="">
-        <h3 class="app-bar-name">ScreenReps</h3>
-        <a class="app-get" href="https://screenreps.app" target="_blank" rel="noopener" aria-label="Get ScreenReps at screenreps.app">GET</a>
-      </div>
-      <div class="app-card-body">
-        <p class="app-tag">Earn screen time by moving</p>
-        <p class="app-desc">Block the apps that scroll-trap you, then unlock minutes with real exercise your camera actually counts.</p>
-      </div>
-      <div class="shots-wrap">
-        <div class="shots" aria-label="ScreenReps screenshots">
-          <div class="phone"><div class="screen"><img src="assets/shot-screenreps-1.png" alt="ScreenReps — counting squat reps with the camera" loading="lazy"></div></div>
-          <div class="phone"><div class="screen"><img src="assets/shot-screenreps-2.png" alt="ScreenReps — out of screen time" loading="lazy"></div></div>
-          <div class="phone"><div class="screen"><img src="assets/shot-screenreps-3.png" alt="ScreenReps onboarding — how it works" loading="lazy"></div></div>
-        </div>
-      </div>
-    </article>
-
-    <article class="app-card" data-app="pf" aria-label="PetFuel"
-             style="--ac-bg:#F4F7F6; --ac-ink:#101A19; --ac-muted:#5C6B6A; --ac-border:#D2DAD9; --ac-cta:#0E7C72; --ac-cta-ink:#FFFFFF;">
-      <div class="app-card-bar">
-        <img src="assets/icon-petfuel.png" alt="">
-        <h3 class="app-bar-name">PetFuel</h3>
-        <a class="app-get" href="https://petfuel.app" target="_blank" rel="noopener" aria-label="Get PetFuel at petfuel.app">GET</a>
-      </div>
-      <div class="app-card-body">
-        <p class="app-tag">AI nutrition tracking for your pets</p>
-        <p class="app-desc">Your vet says &ldquo;balanced diet.&rdquo; PetFuel shows you what that actually means — meal by meal, day by day.</p>
-      </div>
-      <div class="shots-wrap">
-        <div class="shots" aria-label="PetFuel screenshots coming soon">
-          <div class="phone"><div class="screen"><span class="notch" aria-hidden="true"></span><div class="shot-ph"><span class="shot-emoji" aria-hidden="true">📱</span><span>Screenshot</span></div></div></div>
-          <div class="phone"><div class="screen"><span class="notch" aria-hidden="true"></span><div class="shot-ph"><span class="shot-emoji" aria-hidden="true">📱</span><span>Screenshot</span></div></div></div>
-          <div class="phone"><div class="screen"><span class="notch" aria-hidden="true"></span><div class="shot-ph"><span class="shot-emoji" aria-hidden="true">📱</span><span>Screenshot</span></div></div></div>
-        </div>
-      </div>
-    </article>
-
-    <article class="app-card" data-app="cl" aria-label="ChoreLock"
-             style="--ac-bg:#1A1826; --ac-ink:#EDEBF5; --ac-muted:#A79FC2; --ac-border:#332E47; --ac-cta:#8B7FE8; --ac-cta-ink:#1A1826;">
-      <div class="app-card-bar">
-        <img src="assets/icon-chorelock.png" alt="">
-        <h3 class="app-bar-name">ChoreLock</h3>
-        <span class="app-get is-soon">SOON</span>
-      </div>
-      <div class="app-card-body">
-        <p class="app-tag">Unlock apps by actually tidying up</p>
-        <p class="app-desc">ScreenReps for chores: apps stay locked until your camera confirms the room is actually tidy.</p>
-      </div>
-      <div class="shots-wrap">
-        <div class="shots" aria-label="ChoreLock screenshots coming soon">
-          <div class="phone"><div class="screen"><span class="notch" aria-hidden="true"></span><div class="shot-ph"><span class="shot-emoji" aria-hidden="true">🔒</span><span>Sneak peek soon</span></div></div></div>
-          <div class="phone"><div class="screen"><span class="notch" aria-hidden="true"></span><div class="shot-ph"><span class="shot-emoji" aria-hidden="true">🧽</span><span>Sneak peek soon</span></div></div></div>
-          <div class="phone"><div class="screen"><span class="notch" aria-hidden="true"></span><div class="shot-ph"><span class="shot-emoji" aria-hidden="true">📱</span><span>Sneak peek soon</span></div></div></div>
-        </div>
-      </div>
-    </article>
-
-    <button class="swap-next-sr" id="swapNext" type="button">Show the next app card</button>
-
   </div>
 </section>
 
@@ -1122,142 +1229,128 @@ function applyTheme() {
    no autoplay, instant swaps on click. */
 const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-const swapStage = document.getElementById('swapStage');
-const swapCards = Array.from(swapStage.querySelectorAll('.app-card'));
-const cardByKey = {};
-swapCards.forEach(c => { cardByKey[c.dataset.app] = c; });
+/* ── STUDIO SHELF ───────────────────────────────────
+   A project rail on the left drives the stage on the right: the stage
+   re-lights to the selected project's palette (CSS handles the colour
+   transition via data-app) and crossfades to the media frame that fits
+   it — phone frames for iOS apps, a browser window for web games. */
+/* Each project carries two destinations: `site` (its website — the name
+   and the screenshots link there) and `ctaHref` (where the action button
+   goes — the App Store for published iOS apps, the site otherwise). */
+const SHELF = {
+  sr: { name: 'ScreenReps',
+        tag:  'Earn screen time by moving',
+        desc: 'Block the apps that scroll-trap you, then unlock minutes with real exercise your camera actually counts.',
+        cta:  'Get the app',
+        site: 'https://screenreps.app',
+        ctaHref: 'https://apps.apple.com/app/screenreps/id6763800109' },
+  pf: { name: 'PetFuel',
+        tag:  'AI nutrition tracking for your pets',
+        desc: 'Your vet says “balanced diet.” PetFuel shows you what that actually means — meal by meal, day by day.',
+        cta:  'Get the app',
+        site: 'https://petfuel.app',
+        ctaHref: 'https://petfuel.app' },
+  wr: { name: 'WikiRush',
+        tag:  'Race through Wikipedia, link by link',
+        desc: 'Napoleon to Cheese in five clicks? Prove it. A racing game built on the world’s encyclopedia — no install, just a browser.',
+        cta:  'Play in browser',
+        site: 'https://wikirush.org',
+        ctaHref: 'https://wikirush.org' },
+  cl: { name: 'ChoreLock',
+        tag:  'Unlock apps by actually tidying up',
+        desc: 'ScreenReps for chores: apps stay locked until your camera confirms the room is actually tidy.',
+        cta:  'Hatching soon',
+        site: null,
+        ctaHref: null }
+};
 
-let swapOrder = swapCards.map(c => c.dataset.app); // front first
-let swapping  = false;
+const shelfStage = document.getElementById('shelfStage');
+const railItems  = Array.from(document.querySelectorAll('.rail-item'));
+const mframes    = Array.from(shelfStage.querySelectorAll('.mframe'));
 
-const CARD_DX = 52;      // per-slot shift right
-const CARD_DY = 66;      // per-slot shift up
-const CARD_DZ = 96;      // per-slot shift away from the viewer
-const CARD_SKEW = 6;     // the signature lean, in degrees
-const DROP_PX  = 540;    // how far the front card dives before tucking back
-const SWAP_MS  = 980;
-const AUTO_MS  = 4200;   // autoplay cadence
-
-function slotTransform(i, dropY = 0) {
-  return `translate(-50%, -50%) translate3d(${i * CARD_DX}px, ${-i * CARD_DY + dropY}px, ${-i * CARD_DZ}px) skewY(${CARD_SKEW}deg)`;
+/* WikiRush's little race timer ticks while its frame is on stage. */
+const wrTimerEl = document.getElementById('wrTimer');
+let wrTick = null, wrSec = 0;
+function wrTimerStop() { clearInterval(wrTick); wrTick = null; }
+function wrTimerStart() {
+  wrTimerStop();
+  if (reduceMotion) { wrTimerEl.textContent = '00:42'; return; }
+  wrSec = 0;
+  wrTimerEl.textContent = '00:00';
+  wrTick = setInterval(() => {
+    wrSec = (wrSec + 1) % 6000;
+    wrTimerEl.textContent =
+      String(Math.floor(wrSec / 60)).padStart(2, '0') + ':' + String(wrSec % 60).padStart(2, '0');
+  }, 1000);
 }
-
-function layoutStack() {
-  swapOrder.forEach((key, i) => {
-    const card = cardByKey[key];
-    card.classList.remove('pos-0', 'pos-1', 'pos-2');
-    card.classList.add('pos-' + i);
-    // A card mid-flight keeps its WAAPI transform; everyone else glides
-    // to their slot via the CSS transition.
-    if (!card.classList.contains('swapping')) card.style.transform = slotTransform(i);
-    const front = i === 0;
-    // Cards waiting behind are decorative until brought forward:
-    // hidden from the accessibility tree and out of the tab order.
-    card.setAttribute('aria-hidden', String(!front));
-    card.querySelectorAll('a, button').forEach(el => {
-      if (front) el.removeAttribute('tabindex');
-      else el.setAttribute('tabindex', '-1');
-    });
-  });
-}
-
-/* Front card → back of the stack, with the signature drop-and-tuck. */
-function advanceStack() {
-  if (swapping) return;
-  const card = cardByKey[swapOrder[0]];
-  swapOrder.push(swapOrder.shift());
-  const back = swapOrder.length - 1;
-
-  if (reduceMotion || !card.animate) { layoutStack(); return; }
-
-  swapping = true;
-  card.classList.add('swapping');   // WAAPI owns the transform during flight
-  card.style.zIndex = '4';          // stays in front for the drop...
-  // Park the card's *base* transform at its final back-slot pose NOW, while
-  // transition:none (the .swapping class) suppresses any jump. The keyframes
-  // still start the visible flight from the front, and WAAPI overrides the
-  // base during playback — but when the animation ends (fill:none) and the
-  // browser reverts to this base for a frame, it reverts to the back slot,
-  // not the front. That one-frame revert-to-front was the blink.
-  card.style.transform = slotTransform(back);
-  layoutStack();                    // ...while the others glide forward now
-
-  const anim = card.animate([
-    { transform: slotTransform(0), easing: 'cubic-bezier(0.5, 0, 0.75, 0.55)' },
-    { transform: slotTransform(0, DROP_PX), offset: 0.4, easing: 'cubic-bezier(0.22, 1, 0.36, 1)' },
-    { transform: slotTransform(back) }
-  ], { duration: SWAP_MS, easing: 'linear' });
-
-  // Mid-flight, at the bottom of the dive, tuck it behind the pile.
-  setTimeout(() => { card.style.zIndex = ''; }, SWAP_MS * 0.42);
-
-  // Release the flight state once — from onfinish normally, or from a timeout
-  // fallback if the animation's finish event never fires (e.g. WAAPI throttled
-  // in a backgrounded tab), so the deck can never wedge on `swapping`.
-  let released = false;
-  const release = () => {
-    if (released) return;
-    released = true;
-    clearTimeout(failsafe);
-    card.classList.remove('swapping');
-    card.style.zIndex = '';       // base transform is already the back slot
-    swapping = false;
-  };
-  const failsafe = setTimeout(release, SWAP_MS + 150);
-  anim.onfinish = anim.oncancel = release;
-}
-
-/* Direct jump — the chosen card glides forward, the rest re-stack. */
-function bringToFront(key) {
-  if (swapping || !cardByKey[key] || swapOrder[0] === key) return;
-  swapOrder = [key].concat(swapOrder.filter(k => k !== key));
-  layoutStack();
-}
-
-swapCards.forEach(card => {
-  card.addEventListener('click', e => {
-    if (swapOrder[0] === card.dataset.app) {
-      // Front card: anywhere that isn't a link, button, or the
-      // scrollable screenshot strip flips to the next app.
-      if (e.target.closest('a, button, .shots')) return;
-      advanceStack();
-    } else {
-      bringToFront(card.dataset.app);
-    }
-  });
+document.addEventListener('visibilitychange', () => {
+  if (document.hidden) wrTimerStop();
+  else if (shelfStage.dataset.app === 'wr') wrTimerStart();
 });
 
-const swapNextBtn = document.getElementById('swapNext');
-if (swapNextBtn) swapNextBtn.addEventListener('click', advanceStack);
+function selectProject(key) {
+  const p = SHELF[key];
+  if (!p) return;
 
-/* Autoplay: deal while the stack is on screen and not being examined. */
-let autoTimer = null;
-let stageHovered = false;
-let stageInView  = false;
+  railItems.forEach(it => {
+    const on = it.dataset.app === key;
+    it.classList.toggle('on', on);
+    it.setAttribute('aria-selected', String(on));
+    if (on) { it.removeAttribute('tabindex'); shelfStage.setAttribute('aria-labelledby', it.id); }
+    else it.setAttribute('tabindex', '-1');
+  });
 
-function maybeSchedule() {
-  if (reduceMotion || autoTimer || !stageInView || stageHovered || document.hidden) return;
-  autoTimer = setTimeout(() => { autoTimer = null; advanceStack(); maybeSchedule(); }, AUTO_MS);
+  shelfStage.dataset.app = key;
+  document.getElementById('stTag').textContent  = p.tag;
+  document.getElementById('stDesc').textContent = p.desc;
+
+  // The name is a link to the project's website (plain text when none yet).
+  const nameLink = document.getElementById('stNameLink');
+  nameLink.textContent = p.name;
+  if (p.site) {
+    nameLink.setAttribute('href', p.site);
+    nameLink.setAttribute('target', '_blank');
+    nameLink.setAttribute('rel', 'noopener');
+  } else {
+    nameLink.removeAttribute('href');
+    nameLink.removeAttribute('target');
+    nameLink.removeAttribute('rel');
+  }
+
+  const cta = document.getElementById('stCta');
+  cta.innerHTML = '';
+  cta.append(p.cta + (p.ctaHref ? ' ' : ''));
+  if (p.ctaHref) {
+    const arr = document.createElement('span');
+    arr.setAttribute('aria-hidden', 'true');
+    arr.textContent = '↗';
+    cta.append(arr);
+    cta.setAttribute('href', p.ctaHref);
+    cta.setAttribute('target', '_blank');
+    cta.setAttribute('rel', 'noopener');
+  } else {
+    cta.removeAttribute('href');
+    cta.removeAttribute('target');
+    cta.removeAttribute('rel');
+  }
+
+  mframes.forEach(f => f.classList.toggle('on', f.dataset.m === key));
+  if (key === 'wr') wrTimerStart(); else wrTimerStop();
 }
-function pauseAuto() { clearTimeout(autoTimer); autoTimer = null; }
 
-swapStage.addEventListener('mouseenter', () => { stageHovered = true; pauseAuto(); });
-swapStage.addEventListener('mouseleave', () => { stageHovered = false; maybeSchedule(); });
-swapStage.addEventListener('focusin',    () => { stageHovered = true; pauseAuto(); });
-swapStage.addEventListener('focusout',   () => { stageHovered = false; maybeSchedule(); });
-document.addEventListener('visibilitychange', () => { document.hidden ? pauseAuto() : maybeSchedule(); });
+railItems.forEach(it => it.addEventListener('click', () => selectProject(it.dataset.app)));
 
-if ('IntersectionObserver' in window) {
-  new IntersectionObserver(entries => {
-    stageInView = entries[0].isIntersecting;
-    stageInView ? maybeSchedule() : pauseAuto();
-  }, { threshold: 0.25 }).observe(swapStage);
-} else {
-  stageInView = true;
-  maybeSchedule();
-}
-
-layoutStack();
+/* Arrow keys walk the shelf (standard tabs pattern). */
+document.getElementById('shelfRail').addEventListener('keydown', e => {
+  const keys = ['ArrowDown', 'ArrowUp', 'ArrowRight', 'ArrowLeft'];
+  if (keys.indexOf(e.key) === -1) return;
+  e.preventDefault();
+  const cur  = railItems.findIndex(it => it.classList.contains('on'));
+  const step = (e.key === 'ArrowDown' || e.key === 'ArrowRight') ? 1 : -1;
+  const next = railItems[(cur + step + railItems.length) % railItems.length];
+  selectProject(next.dataset.app);
+  next.focus();
+});
 
 /* ── DARK-THEME TOGGLE (dock button) ─────────────────
    Flips html.theme-dark, persists the choice, and plays a
