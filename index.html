@@ -1406,10 +1406,10 @@ document.getElementById('shelfRail').addEventListener('keydown', e => {
     const end = Math.hypot(Math.max(x, innerWidth - x), Math.max(y, innerHeight - y));
 
     // Hold the page still for the wipe. The transition's "old" side is a
-    // frozen screenshot, so anything still moving in the live view (a card
-    // flight, the bobbing scarab) tears at the circle's edge and snaps when
-    // the wipe ends. Pause — don't cancel — so everything resumes in phase.
-    pauseAuto();
+    // frozen screenshot, so anything still moving in the live view (the
+    // bobbing scarab, the doodle arrow) tears at the circle's edge and
+    // snaps when the wipe ends. Pause — don't cancel — so everything
+    // resumes in phase.
     const token = ++wipeToken;
     document.getAnimations().forEach(function (a) {
       const pseudo = a.effect && a.effect.pseudoElement;
@@ -1441,7 +1441,6 @@ document.getElementById('shelfRail').addEventListener('keydown', e => {
       if (token !== wipeToken) return;   // a newer wipe owns the hold now
       const anims = heldAnims; heldAnims = [];
       anims.forEach(function (a) { try { a.play(); } catch (e) {} });
-      maybeSchedule();
     });
   });
 
