@@ -655,7 +655,10 @@ body.home .nav { display: none; }
   transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1);
 }
 .media-link:hover { transform: translateY(-4px); }
-.stage-panel .shots { gap: 0.9rem; }
+/* No overflow clipping in the stage: the two phones always fit, and a scroll
+   container slices their drop shadows into a hard-edged grey rectangle on the
+   light panels. */
+.stage-panel .shots { gap: 1.05rem; overflow: visible; padding: 0; }
 .stage-panel .phone { width: clamp(104px, 10vw, 126px); }
 
 /* Browser window frame — the web-game "species" */
@@ -725,7 +728,7 @@ body.home .nav { display: none; }
   background: #0a0a0c;
   border-radius: 26px;
   padding: 5px;
-  box-shadow: 0 16px 34px oklch(0 0 0 / 0.22);
+  box-shadow: 0 2px 6px oklch(0 0 0 / 0.10), 0 14px 30px oklch(0 0 0 / 0.14);
   scroll-snap-align: center;
 }
 .phone .screen {
