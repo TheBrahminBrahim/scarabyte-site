@@ -124,19 +124,26 @@
     var BASE = 52, MAX = 80, INF = 130;
 
     function magnify(clientX) {
+      // Read every position first, then write, so the browser lays out once
+      // per pointer move instead of once per icon.
+      var centers = new Array(items.length);
       for (var i = 0; i < items.length; i++) {
         var r = items[i].getBoundingClientRect();
-        var c = r.left + r.width / 2;
-        var d = Math.abs(clientX - c);
+        centers[i] = r.left + r.width / 2;
+      }
+      for (var j = 0; j < items.length; j++) {
+        var d = Math.abs(clientX - centers[j]);
         var t = Math.max(0, 1 - d / INF);
         t = t * t * (3 - 2 * t);                 // smoothstep for a softer wave
         var size = BASE + (MAX - BASE) * t;
-        items[i].style.setProperty('--size', size.toFixed(1) + 'px');
+        items[j].style.setProperty('--size', size.toFixed(1) + 'px');
+        items[j].style.setProperty('--k', (size / MAX).toFixed(3)); // icon scale, see dock.css
       }
     }
     function reset() {
       for (var i = 0; i < items.length; i++) {
         items[i].style.setProperty('--size', BASE + 'px');
+        items[i].style.setProperty('--k', (BASE / MAX).toFixed(3));
       }
     }
 

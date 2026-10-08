@@ -45,6 +45,7 @@
 
   display: grid;
   place-items: center;
+  place-content: center;   /* icons are laid out larger than the button; keep the track centred too */
 
   border: none;
   border-radius: 50%;
@@ -65,12 +66,18 @@
   outline-offset: 3px;
 }
 
+/* Icons are laid out at their largest size and scaled down with a
+   transform (JS sets --k next to --size), so magnifying never
+   re-rasterises them: the button box changes, the icon just scales. */
 .dock-ico {
-  width: 52%;
-  height: 52%;
+  width: 42px;
+  height: 42px;
   display: grid;
   place-items: center;
   pointer-events: none;
+  transform: scale(var(--k, 0.65));
+  transition: transform 0.12s ease-out;
+  will-change: transform;
 }
 .dock-ico svg {
   width: 100%;
@@ -145,7 +152,6 @@
 .dock.apps-open .dock-apps { width: auto; margin-left: 0; overflow: visible; }
 .dock-app {
   padding: 0;
-  overflow: hidden;
   opacity: 0;
   transform: scale(0.5);
   pointer-events: none;
@@ -154,11 +160,20 @@
               box-shadow 0.25s ease;
 }
 .dock.apps-open .dock-app { opacity: 1; transform: none; pointer-events: auto; }
-.dock.apps-open .dock-app:nth-child(2) { transition-delay: 0.05s; }
-.dock.apps-open .dock-app:nth-child(3) { transition-delay: 0.1s; }
-.dock.apps-open .dock-app:nth-child(4) { transition-delay: 0.15s; }
+/* Stagger only the pop-in (opacity, transform). Width/height must stay
+   instant: they are what the magnify drives, and any delay there makes
+   the icons trail the pointer. Order matches the transition list above. */
+.dock.apps-open .dock-app:nth-child(2) { transition-delay: 0s, 0s, 0.05s, 0.05s, 0s; }
+.dock.apps-open .dock-app:nth-child(3) { transition-delay: 0s, 0s, 0.1s, 0.1s, 0s; }
+.dock.apps-open .dock-app:nth-child(4) { transition-delay: 0s, 0s, 0.15s, 0.15s, 0s; }
 .dock-app .dock-label { overflow: visible; }
-.dock-app-ico { width: 100%; height: 100%; object-fit: cover; display: block; border-radius: 50%; pointer-events: none; }
+.dock-app-ico {
+  width: 80px; height: 80px;        /* largest magnified size; scaled down from there */
+  object-fit: cover; display: block; border-radius: 50%; pointer-events: none;
+  transform: scale(var(--k, 0.65));
+  transition: transform 0.12s ease-out;
+  will-change: transform;
+}
 .dock-app.is-active { box-shadow: 0 0 0 2.5px var(--accent, #E0A82E); }
 .dock-app:hover { background: transparent; }
 
@@ -176,7 +191,7 @@
     padding: 0.35rem 0.5rem;
   }
   .dock-item:hover { background: transparent; }
-  .dock-ico { width: 24px; height: 24px; }
+  .dock-ico { width: 24px; height: 24px; transform: none; transition: none; will-change: auto; }
   .dock-label {
     position: static;
     transform: none;
