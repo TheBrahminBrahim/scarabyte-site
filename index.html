@@ -447,324 +447,93 @@ body.home .nav { display: none; }
 .footer-doodle .doodle-arrow-r { width: 74px; height: auto; }
 
 /* ================================================
-   PRODUCTS
+   PRODUCTS — THE SHOWROOM
+   One oversized iPhone, pinned for a few screens of scroll.
+   Each scroll step swipes its screen to the next app, swaps
+   the copy, and re-lights the whole room in that app's colour.
+   WikiRush (a web game) swaps the phone for a laptop. The dock
+   grows a row of app icons while the room is on screen and is
+   the way to jump between apps.
+   Below 900px, or with reduced motion, the same content renders
+   as a plain stacked list (.show-stack) instead.
    ================================================ */
-.products {
-  background: var(--surface);
-  padding: 4rem 2rem;
-  position: relative;
-  overflow: hidden;   /* clips the card stack at the section edge, like the reference */
-  min-height: 100vh;
-  min-height: 100svh; /* one full viewport, so a dock jump fills the window */
-  display: flex;
-  align-items: center;
-}
+.products { position: relative; height: 100svh; min-height: 640px; overflow: hidden; color: var(--on, #fff); isolation: isolate; }
+.show-bg { position: absolute; inset: 0; opacity: 0; z-index: -1; }
+.show-bg:first-child { opacity: 1; }
+.show-bg::after { content: ""; position: absolute; inset: 0; background: radial-gradient(60% 70% at 72% 50%, color-mix(in oklab, var(--c) 28%, transparent), transparent 70%); }
 
-.products-inner {
-  width: 100%;
-  max-width: 1060px;
-  margin: 0 auto;
-  position: relative;
-}
+.show-head { position: absolute; top: clamp(1.4rem, 4vh, 2.6rem); left: clamp(1.4rem, 5vw, 5rem); right: clamp(1.4rem, 5vw, 5rem); display: flex; justify-content: space-between; align-items: baseline; gap: 1rem; }
+.show-head h2 { font-family: var(--font-d); font-weight: 800; font-size: clamp(1.4rem, 2.4vw, 1.9rem); letter-spacing: -0.02em; margin: 0; }
+.show-count { font-family: var(--font-d); font-weight: 700; font-variant-numeric: tabular-nums; font-size: 1rem; opacity: 0.7; }
 
-.products-title {
-  font-family: var(--font-d);
-  font-weight: 700;
-  font-size: clamp(1.9rem, 4.5vw, 3rem);
-  letter-spacing: -0.028em;
-  color: var(--primary);
-  margin-bottom: 0.65rem;
-}
-.products-lead {
-  color: var(--muted);
-  font-size: 0.97rem;
-  max-width: 44ch;
-  margin: 0 auto;
-  line-height: 1.72;
-}
+.show-grid { position: absolute; inset: 0; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); align-items: center; padding: 0 clamp(1.4rem, 5vw, 5rem) clamp(3rem, 8vh, 5.5rem); gap: clamp(1rem, 4vw, 4rem); }
 
-/* ── STUDIO SHELF ────────────────────────────────────
-   A quiet project rail on the left; a stage on the right that
-   re-lights to the selected project and swaps to the frame that
-   fits it — iPhone frames for the iOS apps, a browser window for
-   the web games. The frame itself says what kind of thing you're
-   looking at, so mixed platforms sit naturally on one shelf. */
-.shelf {
-  display: grid;
-  grid-template-columns: 255px 1fr;
-  gap: clamp(1.6rem, 4vw, 3.2rem);
-  align-items: center;
-}
-/* Grid items may never inherit their content's min-width — otherwise the
-   scrollable rail would blow the column out to its full content width. */
-.shelf > * { min-width: 0; }
-.shelf-left .products-lead { margin: 0.6rem 0 0; max-width: 26ch; }
+.show-copy { position: relative; min-height: 360px; }
+.show-item { position: absolute; inset: 0; display: flex; flex-direction: column; justify-content: center; gap: 0.9rem; max-width: 34rem; opacity: 0; visibility: hidden; }
+.show-item:first-child { opacity: 1; visibility: inherit; }
+.show-item .meta { display: flex; align-items: center; gap: 0.8rem; }
+.show-item h3 { font-family: var(--font-d); font-weight: 800; font-size: clamp(2.6rem, 5.6vw, 4.6rem); letter-spacing: -0.035em; line-height: 0.98; margin: 0; }
+.show-item .tag { font-family: var(--font-d); font-weight: 700; font-size: clamp(1.15rem, 1.8vw, 1.45rem); line-height: 1.25; opacity: 0.9; margin: 0; }
+.show-item .desc { font-size: 1.02rem; line-height: 1.65; max-width: 44ch; opacity: 0.82; margin: 0; }
+.show-item .acts { display: flex; align-items: center; gap: 1.3rem; margin-top: 0.4rem; flex-wrap: wrap; }
 
-.rail {
-  display: flex;
-  flex-direction: column;
-  gap: 0.55rem;
-  margin-top: 1.7rem;
-}
-.rail-item {
-  display: grid;
-  grid-template-columns: 46px 1fr;
-  gap: 0.85rem;
-  align-items: center;
-  padding: 0.6rem 0.75rem;
-  border-radius: 16px;
-  border: 1.5px solid transparent;
-  background: none;
-  font: inherit;
-  color: inherit;
-  cursor: pointer;
-  text-align: left;
-  transition: border-color 0.25s, background-color 0.25s, transform 0.25s, box-shadow 0.25s;
-}
-.rail-item:hover { transform: translateX(3px); background: var(--bg); }
-.rail-item.on {
-  border-color: var(--accent);
-  background: var(--bg);
-  box-shadow: 0 8px 20px oklch(0.192 0.090 232 / 0.10);
-}
-.rail-ico {
-  width: 46px; height: 46px;
-  border-radius: 12px;
-  object-fit: cover;
-  display: block;
-  border: 1px solid var(--border);
-}
-.rail-ico.drawn { display: grid; place-items: center; }
-.rail-name {
-  font-family: var(--font-d);
-  font-weight: 700;
-  font-size: 1rem;
-  line-height: 1.15;
-  color: var(--primary);
-}
-.rail-type {
-  display: block;
-  font-size: 0.62rem;
-  font-weight: 800;
-  letter-spacing: 0.09em;
-  text-transform: uppercase;
-  color: var(--faint);
-  margin-top: 0.18rem;
-}
-.rail-item.on .rail-type { color: var(--accent-dark); }
+.show-stage { position: relative; height: 100%; display: grid; place-items: center; perspective: 1600px; }
+.show-device { position: relative; transform-style: preserve-3d; will-change: transform; }
+.show-device .iphone { --w: clamp(240px, 22vw, 320px); }
+.screen-track { height: 100%; will-change: transform; }
+.screen-track img { height: 100%; }
+.show-laptop { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); opacity: 0; visibility: hidden; }
+.show-laptop .laptop { --w: clamp(420px, 40vw, 600px); }
 
-/* The stage — one panel that becomes the selected project's world */
-.stage-panel {
-  position: relative;
-  border-radius: var(--r-xl);
-  border: 1.5px solid var(--st-line, var(--border));
-  background: var(--st-bg, var(--bg));
-  color: var(--st-ink, var(--ink));
-  min-height: clamp(460px, 58vh, 580px);
-  display: grid;
-  grid-template-columns: 1fr 0.9fr;
-  gap: 1.6rem;
-  align-items: center;
-  padding: clamp(1.8rem, 3.2vw, 3rem);
-  overflow: hidden;
-  box-shadow: 0 26px 52px oklch(0.192 0.090 232 / 0.16);
-  transition: background-color 0.5s ease, color 0.5s ease, border-color 0.5s ease;
-}
-.stage-panel[data-app="sr"] { --st-bg:#16181C; --st-ink:#F4F4F5; --st-mut:#9CA0A8; --st-line:#2C3038; --st-cta:#FF5C35; --st-cta-ink:#16181C; }
-.stage-panel[data-app="pf"] { --st-bg:#F4F7F6; --st-ink:#101A19; --st-mut:#5C6B6A; --st-line:#D2DAD9; --st-cta:#0E7C72; --st-cta-ink:#FFFFFF; }
-.stage-panel[data-app="wr"] { --st-bg:#F5F7FB; --st-ink:#14213A; --st-mut:#5B6B85; --st-line:#D9E1EE; --st-cta:#3366CC; --st-cta-ink:#FFFFFF; }
-.stage-panel[data-app="cl"] { --st-bg:#1A1826; --st-ink:#EDEBF5; --st-mut:#A79FC2; --st-line:#332E47; --st-cta:#8B7FE8; --st-cta-ink:#1A1826; }
+/* App copy bits shared by the room and the stacked fallback */
+.app-cta { display: inline-flex; align-items: center; gap: 0.45rem; text-decoration: none; font-weight: 800; font-size: 0.95rem; padding: 0.7rem 1.4rem; border-radius: var(--r-pill); background: var(--c); color: var(--c-ink, #fff); transition: transform 0.25s cubic-bezier(0.22, 1, 0.36, 1), filter 0.25s; }
+.app-cta:hover { transform: translateY(-2px); filter: brightness(1.07); }
+.app-cta:active { transform: translateY(0) scale(0.98); }
+.app-cta.is-soon { background: transparent; border: 2px solid var(--c); color: var(--c); cursor: default; }
+.app-cta.is-soon:hover { transform: none; filter: none; }
+.app-site { font-weight: 700; font-size: 0.9rem; text-decoration: none; opacity: 0.8; border-bottom: 1.5px solid currentColor; padding-bottom: 1px; color: inherit; }
+.app-site:hover { opacity: 1; }
+.app-kind { font-weight: 800; font-size: 0.8rem; opacity: 0.75; }
+.app-icon { width: 56px; height: 56px; border-radius: 14px; object-fit: cover; box-shadow: 0 6px 16px rgb(0 0 0 / 0.18); display: block; }
 
-.st-name {
-  font-family: var(--font-d);
-  font-weight: 800;
-  font-size: clamp(1.7rem, 3.2vw, 2.3rem);
-  letter-spacing: -0.02em;
-  line-height: 1.05;
+/* ── Device frames ── */
+.iphone {
+  --w: 280px; width: var(--w); aspect-ratio: 0.4816; position: relative; flex: 0 0 auto;
+  border-radius: calc(var(--w) * 0.17);
+  padding: calc(var(--w) * 0.026);
+  background: linear-gradient(150deg, #e3e4e6 0%, #9a9da2 22%, #5a5d62 50%, #8f9297 78%, #d7d8db 100%);
+  box-shadow: 0 1px 0 rgb(255 255 255 / 0.5) inset, 0 0 0 1px rgb(0 0 0 / 0.35), 0 40px 70px -24px rgb(0 0 0 / 0.55);
 }
-/* The name links to the project's website; underline on hover says so. */
-.st-name a { color: inherit; text-decoration: none; }
-.st-name a[href]:hover {
-  text-decoration: underline;
-  text-decoration-color: var(--st-cta);
-  text-decoration-thickness: 3px;
-  text-underline-offset: 6px;
-}
-.st-tag {
-  font-family: var(--font-d);
-  font-weight: 700;
-  font-size: 1.08rem;
-  line-height: 1.3;
-  margin-top: 0.5rem;
-  color: var(--st-mut);
-}
-.st-desc {
-  font-size: 0.95rem;
-  line-height: 1.65;
-  color: var(--st-mut);
-  margin-top: 0.85rem;
-  max-width: 40ch;
-}
-.st-cta {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.45rem;
-  text-decoration: none;
-  font-weight: 800;
-  font-size: 0.92rem;
-  background: var(--st-cta);
-  color: var(--st-cta-ink);
-  padding: 0.62rem 1.5rem;
-  border-radius: var(--r-pill);
-  margin-top: 1.4rem;
-  transition: filter 0.2s, transform 0.2s, gap 0.2s;
-}
-.st-cta:hover { filter: brightness(1.08); transform: translateY(-1px); gap: 0.62rem; }
-/* ChoreBlock: no link yet — the pill goes quiet */
-.st-cta:not([href]) {
-  background: transparent;
-  border: 2px solid var(--st-cta);
-  color: var(--st-cta);
-  cursor: default;
-}
-.st-cta:not([href]):hover { filter: none; transform: none; gap: 0.45rem; }
+.iphone-screen { position: absolute; inset: calc(var(--w) * 0.026); border-radius: calc(var(--w) * 0.145); background: #050507; padding: calc(var(--w) * 0.02); overflow: hidden; }
+.iphone-screen .scr { width: 100%; height: 100%; border-radius: calc(var(--w) * 0.125); overflow: hidden; background: #0b0b0e; position: relative; }
+.iphone-screen img { width: 100%; height: 100%; object-fit: cover; object-position: top; display: block; }
+.iphone-island { position: absolute; top: calc(var(--w) * 0.055); left: 50%; transform: translateX(-50%); width: calc(var(--w) * 0.31); height: calc(var(--w) * 0.088); border-radius: 999px; background: #000; z-index: 3; }
+.iphone-btn { position: absolute; width: calc(var(--w) * 0.012); background: linear-gradient(90deg, #4c4f54, #a3a6ab); border-radius: 2px; }
+.ib-action { left: calc(var(--w) * -0.011); top: 17%; height: 4%; }
+.ib-vol1 { left: calc(var(--w) * -0.011); top: 24.5%; height: 7.5%; }
+.ib-vol2 { left: calc(var(--w) * -0.011); top: 33.5%; height: 7.5%; }
+.ib-power { right: calc(var(--w) * -0.011); top: 27%; height: 12.5%; background: linear-gradient(90deg, #a3a6ab, #4c4f54); }
 
-/* Adaptive media well: one frame per project, crossfaded */
-.st-media {
-  position: relative;
-  display: grid;
-  place-items: center;
-  min-height: clamp(300px, 42vh, 420px);
-}
-.mframe {
-  position: absolute;
-  inset: 0;
-  display: grid;
-  place-items: center;
-  opacity: 0;
-  transform: scale(0.95);
-  transition: opacity 0.45s ease, transform 0.45s cubic-bezier(0.22, 1, 0.36, 1);
-  pointer-events: none;
-}
-.mframe.on { opacity: 1; transform: none; pointer-events: auto; }
-/* Screenshots/preview link to the project's website; lift on hover. */
-.media-link {
-  display: block;
-  text-decoration: none;
-  color: inherit;
-  transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1);
-}
-.media-link:hover { transform: translateY(-4px); }
-/* No overflow clipping in the stage: the two phones always fit, and a scroll
-   container slices their drop shadows into a hard-edged grey rectangle on the
-   light panels. */
-.stage-panel .shots { gap: 1.05rem; overflow: visible; padding: 0; }
-.stage-panel .phone { width: clamp(104px, 10vw, 126px); }
+.laptop { --w: 560px; width: var(--w); flex: 0 0 auto; position: relative; }
+.laptop-lid { aspect-ratio: 16 / 10.2; background: #17181b; padding: calc(var(--w) * 0.016) calc(var(--w) * 0.016) calc(var(--w) * 0.03); border-radius: calc(var(--w) * 0.022) calc(var(--w) * 0.022) 0 0; box-shadow: 0 0 0 1px rgb(255 255 255 / 0.08) inset, 0 40px 70px -24px rgb(0 0 0 / 0.55); position: relative; }
+.laptop-cam { position: absolute; top: calc(var(--w) * 0.006); left: 50%; transform: translateX(-50%); width: calc(var(--w) * 0.012); height: calc(var(--w) * 0.012); border-radius: 50%; background: #2a2c31; box-shadow: 0 0 0 2px #0e0f11; }
+.laptop-screen { height: 100%; border-radius: calc(var(--w) * 0.008); overflow: hidden; background: #000; }
+.laptop-screen img { width: 100%; height: 100%; object-fit: cover; object-position: top; display: block; }
+.laptop-base { height: calc(var(--w) * 0.028); margin: 0 calc(var(--w) * -0.06); background: linear-gradient(#d8d9dc, #a5a8ad 60%, #7c7f85); border-radius: 0 0 calc(var(--w) * 0.03) calc(var(--w) * 0.03); position: relative; box-shadow: 0 10px 30px -10px rgb(0 0 0 / 0.5); }
+.laptop-base::after { content: ""; position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 16%; height: 35%; background: #8d9095; border-radius: 0 0 8px 8px; }
 
-/* Browser window frame — the web-game "species" */
-.webwin {
-  width: min(400px, 100%);
-  border-radius: 14px;
-  overflow: hidden;
-  border: 1.5px solid var(--st-line);
-  background: #FFFFFF;
-  box-shadow: 0 22px 40px oklch(0 0 0 / 0.18);
-}
-.webwin-bar {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  padding: 0.55rem 0.8rem;
-  background: #E9EEF6;
-}
-.webwin-bar i { width: 9px; height: 9px; border-radius: 50%; }
-.webwin-bar i:nth-child(1) { background: #E8756B; }
-.webwin-bar i:nth-child(2) { background: #E5C465; }
-.webwin-bar i:nth-child(3) { background: #7CC58B; }
-.webwin-url {
-  flex: 1;
-  margin-left: 0.4rem;
-  background: #FFFFFF;
-  border-radius: var(--r-pill);
-  font-size: 0.66rem;
-  font-weight: 600;
-  color: #5B6B85;
-  padding: 0.16rem 0.85rem;
-  letter-spacing: 0.02em;
-}
-.webwin-body { padding: 1.05rem 1.2rem 1.35rem; display: grid; gap: 0.62rem; }
-.race-row { display: flex; justify-content: space-between; align-items: baseline; gap: 0.8rem; }
-.race-title {
-  font-family: var(--font-d);
-  font-weight: 800;
-  font-size: 0.98rem;
-  color: #14213A;
-}
-.race-timer {
-  font-family: 'Rajdhani', var(--font-d);
-  font-weight: 700;
-  font-size: 1.02rem;
-  font-variant-numeric: tabular-nums;
-  color: #3366CC;
-}
-.wl { height: 9px; border-radius: 5px; background: #E2E8F2; }
-.wl.link { background: #BBD0F2; }
-
-/* App Store-style screenshot strip */
-.shots {
-  display: flex;
-  justify-content: center;
-  gap: 1.1rem;
-  overflow-x: auto;
-  padding: 0.2rem 0.1rem 0.4rem;
-  scroll-snap-type: x mandatory;
-  -webkit-overflow-scrolling: touch;
-}
-.shots::-webkit-scrollbar { height: 0; }
-.phone {
-  flex: 0 0 auto;
-  width: 168px;
-  aspect-ratio: 9 / 19.5;
-  background: #0a0a0c;
-  border-radius: 26px;
-  padding: 5px;
-  box-shadow: 0 2px 6px oklch(0 0 0 / 0.10), 0 14px 30px oklch(0 0 0 / 0.14);
-  scroll-snap-align: center;
-}
-.phone .screen {
-  position: relative;
-  width: 100%; height: 100%;
-  border-radius: 21px;
-  overflow: hidden;
-  background: var(--surface-2);
-  display: flex; flex-direction: column;
-  align-items: center; justify-content: center;
-  transition: background-color 0.5s ease;
-}
-.phone .screen img {
-  position: absolute; inset: 0;
-  width: 100%; height: 100%;
-  object-fit: cover; display: block;
-  z-index: 1;
-}
-.phone .notch {
-  position: absolute; top: 7px; left: 50%;
-  transform: translateX(-50%);
-  width: 34%; height: 6px;
-  border-radius: var(--r-pill);
-  background: oklch(1 0 0 / 0.16);
-  z-index: 2;
-}
-.shot-ph {
-  display: flex; flex-direction: column;
-  align-items: center; gap: 0.45rem;
-  color: var(--faint);
-}
-.shot-emoji { font-size: 1.7rem; opacity: 0.6; }
-.shot-ph span:last-child {
-  font-size: 0.72rem; font-weight: 800;
-  letter-spacing: 0.03em;
-}
+/* ── Stacked fallback: phones, tablets, reduced motion ── */
+.show-stack { display: none; }
+.stack-item { display: grid; gap: 1.6rem; padding: clamp(3rem, 8vw, 5rem) clamp(1.2rem, 5vw, 4rem); color: var(--ink-a); background: var(--bg-a); }
+.stack-item .iphone { --w: min(260px, 64vw); margin: 0 auto; }
+.stack-item .laptop { --w: min(520px, 86vw); margin: 0 auto; }
+.stack-item h3 { font-family: var(--font-d); font-weight: 800; font-size: 2.2rem; letter-spacing: -0.03em; line-height: 1; margin: 0; }
+.stack-item .tag { font-family: var(--font-d); font-weight: 700; font-size: 1.2rem; margin: 0.4rem 0 0; }
+.stack-item .desc { opacity: 0.85; margin: 0.7rem 0 0; max-width: 44ch; line-height: 1.6; }
+.stack-item .acts { display: flex; align-items: center; gap: 1.2rem; margin-top: 1.1rem; flex-wrap: wrap; }
+.stack-item .meta { display: flex; align-items: center; gap: 0.7rem; margin-bottom: 0.8rem; }
+html.is-stacked .products { display: none; }
+html.is-stacked .show-stack { display: block; }
 
 /* ================================================
    FOOTER
@@ -945,16 +714,6 @@ html.is-zzz .zzz { opacity: 1; visibility: visible; transition-delay: 0s; }
   line-height: 1.75;
 }
 .about-body p + p { margin-top: 1.1rem; }
-.about-pullquote {
-  margin-top: 2.1rem;
-  padding-left: 1.15rem;
-  border-left: 3px solid var(--accent);
-  font-family: 'Bricolage Grotesque', var(--font-d);
-  font-weight: 700;
-  font-size: 1.3rem;
-  line-height: 1.3;
-  color: var(--primary);
-}
 
 /* ================================================
    CONTACT SECTION
@@ -1001,39 +760,14 @@ html.is-zzz .zzz { opacity: 1; visibility: visible; transition-delay: 0s; }
 /* ================================================
    RESPONSIVE
    ================================================ */
-/* The shelf folds: rail moves above the stage as a horizontal strip,
-   then the stage itself stacks copy over media. */
-@media (max-width: 900px) {
-  .shelf { grid-template-columns: 1fr; gap: 1.6rem; align-items: start; }
-  .shelf-left .products-lead { max-width: 44ch; }
-  .rail {
-    flex-direction: row;
-    overflow-x: auto;
-    gap: 0.5rem;
-    margin-top: 1.2rem;
-    padding-bottom: 0.4rem;
-    -webkit-overflow-scrolling: touch;
-    scrollbar-width: none;
-  }
-  .rail::-webkit-scrollbar { display: none; }
-  .rail-item { grid-template-columns: 38px 1fr; min-width: 168px; flex: 0 0 auto; }
-  .rail-item:hover { transform: none; }
-  .rail-ico { width: 38px; height: 38px; border-radius: 10px; }
-}
 @media (max-width: 680px) {
   .nav { padding: 0.85rem 1.25rem; }
-  .products { padding: 3.5rem 1.3rem 7rem; }
-  .stage-panel { grid-template-columns: 1fr; min-height: 0; gap: 1.3rem; padding: 1.6rem 1.4rem; }
-  .st-media { min-height: 250px; }
-  .stage-panel .phone { width: 96px; }
-  .webwin { width: min(330px, 100%); }
   footer { flex-direction: column; text-align: center; gap: 0.6rem; }
   .footer-right { text-align: center; }
   .hero-doodle { transform: translateX(calc(-50% - 64px)); }
   .contact-callout { justify-content: center; padding-bottom: 4.5rem; }
   .contact-inner { margin-right: 0; }
   .about-section { padding: 6.5rem 1.3rem 8rem; }
-  .about-pullquote { font-size: 1.15rem; }
   .contact-section { padding: 5.5rem 1.3rem 7rem; }
 }
 @media (max-width: 600px) {
@@ -1126,94 +860,26 @@ html.is-zzz .zzz { opacity: 1; visibility: visible; transition-delay: 0s; }
       <p>We think software should earn its place. Every app we ship has to solve something genuine and look great doing it. The problems are different; the bar is the same.</p>
       <p>Our mascot is Baraka — a scarab beetle who takes the work seriously but not himself. He loves affection and interacting with site visitors...</p>
     </div>
-    <p class="about-pullquote">If it&rsquo;s not useful and beautiful, it&rsquo;s not done.</p>
   </article>
 </section>
 
 <!-- ============================
      PRODUCTS
      ============================ -->
-<section class="products" id="products" aria-label="Products">
-
-  <div class="products-inner">
-    <div class="shelf">
-
-      <div class="shelf-left">
-        <h2 class="products-title">Our apps</h2>
-        <p class="products-lead">Different problems, different shapes — one studio's standard.</p>
-
-        <div class="rail" id="shelfRail" role="tablist" aria-label="ScaraByte projects" aria-orientation="vertical">
-          <button class="rail-item on" data-app="sr" role="tab" aria-selected="true" id="railTab-sr" aria-controls="shelfStage">
-            <img class="rail-ico" src="assets/icon-screenreps.png" alt="">
-            <span><span class="rail-name">ScreenReps</span><span class="rail-type">iOS app</span></span>
-          </button>
-          <button class="rail-item" data-app="pf" role="tab" aria-selected="false" id="railTab-pf" aria-controls="shelfStage" tabindex="-1">
-            <img class="rail-ico" src="assets/icon-petfuel.png" alt="">
-            <span><span class="rail-name">PetFuel</span><span class="rail-type">iOS app</span></span>
-          </button>
-          <button class="rail-item" data-app="wr" role="tab" aria-selected="false" id="railTab-wr" aria-controls="shelfStage" tabindex="-1">
-            <img class="rail-ico" src="assets/icon-wikirush.png" alt="" style="background:#F5F7FB; object-fit:contain; padding:4px;">
-            <span><span class="rail-name">WikiRush</span><span class="rail-type">Web game</span></span>
-          </button>
-          <button class="rail-item" data-app="cl" role="tab" aria-selected="false" id="railTab-cl" aria-controls="shelfStage" tabindex="-1">
-            <img class="rail-ico" src="assets/icon-chorelock.png" alt="">
-            <span><span class="rail-name">ChoreBlock</span><span class="rail-type">Hatching soon</span></span>
-          </button>
-        </div>
+<section class="products" id="products" aria-label="Our apps">
+  <div class="show-bgs" id="showBgs"></div>
+  <header class="show-head"><h2>Our apps</h2><span class="show-count" id="showCount">1 / 4</span></header>
+  <div class="show-grid">
+    <div class="show-copy" id="showCopy" aria-live="polite"></div>
+    <div class="show-stage">
+      <div class="show-device" id="showDevice">
+        <div id="showPhone"></div>
+        <div class="show-laptop" id="showLaptop"></div>
       </div>
-
-      <div class="stage-panel" id="shelfStage" data-app="sr" role="tabpanel" aria-labelledby="railTab-sr">
-        <div class="st-copy" aria-live="polite">
-          <h3 class="st-name"><a id="stNameLink" href="https://screenreps.app" target="_blank" rel="noopener">ScreenReps</a></h3>
-          <p class="st-tag" id="stTag">Earn screen time by moving</p>
-          <p class="st-desc" id="stDesc">Block the apps that scroll-trap you, then unlock minutes with real exercise your camera actually counts.</p>
-          <a class="st-cta" id="stCta" href="https://apps.apple.com/app/screenreps/id6763800109" target="_blank" rel="noopener">Get the app <span aria-hidden="true">↗</span></a>
-        </div>
-
-        <div class="st-media">
-          <div class="mframe on" data-m="sr">
-            <a class="media-link" href="https://screenreps.app" target="_blank" rel="noopener" aria-label="Visit screenreps.app">
-              <div class="shots" aria-label="ScreenReps screenshots">
-                <div class="phone"><div class="screen"><img src="assets/shot-screenreps-pushups.jpg" alt="ScreenReps — counting push-up reps with the camera" loading="lazy"></div></div>
-                <div class="phone"><div class="screen"><img src="assets/shot-screenreps-2.png" alt="ScreenReps — out of screen time" loading="lazy"></div></div>
-              </div>
-            </a>
-          </div>
-          <div class="mframe" data-m="pf">
-            <a class="media-link" href="https://petfuel.app" target="_blank" rel="noopener" aria-label="Visit petfuel.app">
-              <div class="shots" aria-label="PetFuel screenshots">
-                <div class="phone"><div class="screen"><img src="assets/shot-petfuel-1.png" alt="PetFuel — building a dog's meal from whole foods, with a live balance score" loading="lazy"></div></div>
-                <div class="phone"><div class="screen"><img src="assets/shot-petfuel-2.png" alt="PetFuel — a month of daily nutrition scores as paw stamps" loading="lazy"></div></div>
-              </div>
-            </a>
-          </div>
-          <div class="mframe" data-m="wr">
-            <a class="media-link" href="https://wikirush.org" target="_blank" rel="noopener" aria-label="Play WikiRush at wikirush.org">
-              <div class="webwin" aria-label="WikiRush in the browser">
-                <div class="webwin-bar"><i></i><i></i><i></i><span class="webwin-url">wikirush.org</span></div>
-                <div class="webwin-body">
-                  <div class="race-row"><span class="race-title">Napoleon → Cheese</span><span class="race-timer" id="wrTimer">00:00</span></div>
-                  <div class="wl" style="width:92%"></div>
-                  <div class="wl link" style="width:55%"></div>
-                  <div class="wl" style="width:84%"></div>
-                  <div class="wl link" style="width:38%"></div>
-                  <div class="wl" style="width:66%"></div>
-                </div>
-              </div>
-            </a>
-          </div>
-          <div class="mframe" data-m="cl">
-            <div class="shots" aria-label="ChoreBlock screenshots">
-              <div class="phone"><div class="screen"><img src="assets/shot-choreblock-1.jpg" alt="ChoreBlock — apps locked until the chore is done" loading="lazy"></div></div>
-              <div class="phone"><div class="screen"><img src="assets/shot-choreblock-2.jpg" alt="ChoreBlock — home screen asking you to do a chore to unlock" loading="lazy"></div></div>
-            </div>
-          </div>
-        </div>
-      </div>
-
     </div>
   </div>
 </section>
+<div class="show-stack" id="showStack" aria-label="Our apps"></div>
 
 <!-- ============================
      CONTACT
@@ -1265,6 +931,12 @@ html.is-zzz .zzz { opacity: 1; visibility: visible; transition-delay: 0s; }
     <span class="dock-ico"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="4" width="7" height="7" rx="2"/><rect x="13" y="4" width="7" height="7" rx="2"/><rect x="4" y="13" width="7" height="7" rx="2"/><rect x="13" y="13" width="7" height="7" rx="2"/></svg></span>
     <span class="dock-label">Apps</span>
   </a>
+  <div class="dock-apps" id="dockApps">
+    <button class="dock-item dock-app" data-app="sr" type="button" aria-label="ScreenReps"><img class="dock-app-ico" src="assets/icon-screenreps.png" alt=""><span class="dock-label">ScreenReps</span></button>
+    <button class="dock-item dock-app" data-app="pf" type="button" aria-label="PetFuel"><img class="dock-app-ico" src="assets/icon-petfuel.png" alt=""><span class="dock-label">PetFuel</span></button>
+    <button class="dock-item dock-app" data-app="wr" type="button" aria-label="WikiRush"><img class="dock-app-ico" src="assets/icon-wikirush.png" alt=""><span class="dock-label">WikiRush</span></button>
+    <button class="dock-item dock-app" data-app="cl" type="button" aria-label="ChoreBlock"><img class="dock-app-ico" src="assets/icon-chorelock.png" alt=""><span class="dock-label">ChoreBlock</span></button>
+  </div>
   <a class="dock-item" data-dock="contact" href="#contact" aria-label="Contact">
     <span class="dock-ico"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="6" width="17" height="12" rx="2.2"/><path d="M4.5 7.5 L12 13 L19.5 7.5"/></svg></span>
     <span class="dock-label">Contact</span>
@@ -1278,6 +950,8 @@ html.is-zzz .zzz { opacity: 1; visibility: visible; transition-delay: 0s; }
   </button>
 </nav>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
 <script src="dock.js"></script>
 <script>
 /* Nav logo follows the dark-mode toggle. */
@@ -1312,138 +986,164 @@ function setSleep(dark, instant = false) {
 }
 setSleep(document.documentElement.classList.contains('theme-dark'), true);
 
-/* ── APP CARD-SWAP STACK ────────────────────────────
-   A skewed 3D pile of app cards anchored to the section's bottom-right
-   corner (modeled on ReactBits' CardSwap). Slots run up-right-and-back
-   along a perspective axis; advancing drops the front card down in
-   front of the pile, then sweeps it up into the back slot while the
-   others glide forward. It deals itself on a timer while on screen,
-   pauses on hover/focus, and clicks flip it early. Reduced motion:
-   no autoplay, instant swaps on click. */
 const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-/* ── STUDIO SHELF ───────────────────────────────────
-   A project rail on the left drives the stage on the right: the stage
-   re-lights to the selected project's palette (CSS handles the colour
-   transition via data-app) and crossfades to the media frame that fits
-   it — phone frames for iOS apps, a browser window for web games. */
-/* Each project carries two destinations: `site` (its website — the name
-   and the screenshots link there) and `ctaHref` (where the action button
-   goes — the App Store for published iOS apps, the site otherwise). */
-const SHELF = {
-  sr: { name: 'ScreenReps',
-        tag:  'Earn screen time by moving',
-        desc: 'Block the apps that scroll-trap you, then unlock minutes with real exercise your camera actually counts.',
-        cta:  'Get the app',
-        site: 'https://screenreps.app',
-        ctaHref: 'https://apps.apple.com/app/screenreps/id6763800109' },
-  pf: { name: 'PetFuel',
-        tag:  'AI nutrition tracking for your pets',
-        desc: 'Your vet says “balanced diet.” PetFuel shows you what that actually means — meal by meal, day by day.',
-        cta:  'Get the app',
-        site: 'https://petfuel.app',
-        ctaHref: 'https://petfuel.app' },
-  wr: { name: 'WikiRush',
-        tag:  'Race through Wikipedia, link by link',
-        desc: 'Napoleon to Cheese in five clicks? Prove it. A racing game built on the world’s encyclopedia — no install, just a browser.',
-        cta:  'Play in browser',
-        site: 'https://wikirush.org',
-        ctaHref: 'https://wikirush.org' },
-  cl: { name: 'ChoreBlock',
-        tag:  'Unlock apps by actually tidying up',
-        desc: 'ScreenReps for chores: apps stay locked until your camera confirms the room is actually tidy.',
-        cta:  'Hatching soon',
-        site: null,
-        ctaHref: null }
-};
+/* ── THE SHOWROOM ──────────────────────────────────────
+   One data source drives the pinned room, its stacked fallback
+   and the dock's app icons. */
+const APPS = [
+  { id: 'sr', name: 'ScreenReps', kind: 'iOS app',
+    tag: 'Earn screen time by moving',
+    desc: 'Block the apps that scroll-trap you, then unlock minutes with real exercise your camera actually counts.',
+    cta: 'Get the app', href: 'https://apps.apple.com/app/screenreps/id6763800109', site: 'https://screenreps.app', siteLabel: 'screenreps.app',
+    icon: 'assets/icon-screenreps.png', shot: 'assets/shot-screenreps-pushups.jpg', alt: 'Counting push-up reps with the camera',
+    c: '#FF5C35', cInk: '#16181C', bg: '#16181C', ink: '#F4F4F5' },
+  { id: 'pf', name: 'PetFuel', kind: 'iOS app',
+    tag: 'AI nutrition tracking for your pets',
+    desc: 'Your vet says "balanced diet." PetFuel shows you what that actually means, meal by meal, day by day.',
+    cta: 'Get the app', href: 'https://petfuel.app', site: 'https://petfuel.app', siteLabel: 'petfuel.app',
+    icon: 'assets/icon-petfuel.png', shot: 'assets/shot-petfuel-1.png', alt: 'Building a dog\'s meal from whole foods, with a live balance score',
+    c: '#0E7C72', cInk: '#FFFFFF', bg: '#E4EFEC', ink: '#0F1D1B' },
+  { id: 'wr', name: 'WikiRush', kind: 'Web game', web: true,
+    tag: 'Race through Wikipedia, link by link',
+    desc: 'Napoleon to Cheese in five clicks? Prove it. A racing game built on the world\'s encyclopedia. No install, just a browser.',
+    cta: 'Play in browser', href: 'https://wikirush.org', site: 'https://wikirush.org', siteLabel: 'wikirush.org',
+    icon: 'assets/icon-wikirush.png', shot: 'assets/shot-wikirush.jpg', alt: 'Today\'s daily challenge, start article to target article',
+    c: '#3B7BFF', cInk: '#FFFFFF', bg: '#0A1020', ink: '#F2F5FB' },
+  { id: 'cl', name: 'ChoreBlock', kind: 'iOS app, hatching soon',
+    tag: 'Unlock apps by actually tidying up',
+    desc: 'ScreenReps for chores: apps stay locked until your camera confirms the room is actually tidy.',
+    cta: 'Hatching soon', href: null, site: null,
+    icon: 'assets/icon-chorelock.png', shot: 'assets/shot-choreblock-2.jpg', alt: 'Home screen asking you to do a chore to unlock',
+    c: '#8B7FE8', cInk: '#1A1826', bg: '#1A1826', ink: '#EDEBF5' },
+];
 
-const shelfStage = document.getElementById('shelfStage');
-const railItems  = Array.from(document.querySelectorAll('.rail-item'));
-const mframes    = Array.from(shelfStage.querySelectorAll('.mframe'));
-
-/* WikiRush's little race timer ticks while its frame is on stage. */
-const wrTimerEl = document.getElementById('wrTimer');
-let wrTick = null, wrSec = 0;
-function wrTimerStop() { clearInterval(wrTick); wrTick = null; }
-function wrTimerStart() {
-  wrTimerStop();
-  if (reduceMotion) { wrTimerEl.textContent = '00:42'; return; }
-  wrSec = 0;
-  wrTimerEl.textContent = '00:00';
-  wrTick = setInterval(() => {
-    wrSec = (wrSec + 1) % 6000;
-    wrTimerEl.textContent =
-      String(Math.floor(wrSec / 60)).padStart(2, '0') + ':' + String(wrSec % 60).padStart(2, '0');
-  }, 1000);
+function iphoneHtml(inner) {
+  return `<div class="iphone"><i class="iphone-btn ib-action"></i><i class="iphone-btn ib-vol1"></i><i class="iphone-btn ib-vol2"></i><i class="iphone-btn ib-power"></i><div class="iphone-screen"><div class="scr">${inner}</div><div class="iphone-island"></div></div></div>`;
 }
-document.addEventListener('visibilitychange', () => {
-  if (document.hidden) wrTimerStop();
-  else if (shelfStage.dataset.app === 'wr') wrTimerStart();
-});
+function laptopHtml(inner) {
+  return `<div class="laptop"><div class="laptop-lid"><div class="laptop-cam"></div><div class="laptop-screen">${inner}</div></div><div class="laptop-base"></div></div>`;
+}
+function shotImg(a) { return `<img src="${a.shot}" alt="${a.name}: ${a.alt}" loading="lazy" decoding="async">`; }
+function ctaHtml(a) {
+  return a.href
+    ? `<a class="app-cta" href="${a.href}" target="_blank" rel="noopener">${a.cta} <span aria-hidden="true">↗</span></a>`
+    : `<span class="app-cta is-soon">${a.cta}</span>`;
+}
+function siteHtml(a) { return a.site ? `<a class="app-site" href="${a.site}" target="_blank" rel="noopener">${a.siteLabel}</a>` : ''; }
+function copyHtml(a, cls) {
+  return `<div class="meta"><img class="app-icon" src="${a.icon}" alt=""><span class="app-kind">${a.kind}</span></div>
+    <h3>${a.name}</h3><p class="tag">${a.tag}</p><p class="desc">${a.desc}</p>
+    <div class="acts">${ctaHtml(a)}${siteHtml(a)}</div>`;
+}
 
-function selectProject(key) {
-  const p = SHELF[key];
-  if (!p) return;
-
-  railItems.forEach(it => {
-    const on = it.dataset.app === key;
-    it.classList.toggle('on', on);
-    it.setAttribute('aria-selected', String(on));
-    if (on) { it.removeAttribute('tabindex'); shelfStage.setAttribute('aria-labelledby', it.id); }
-    else it.setAttribute('tabindex', '-1');
+(function buildShowroom() {
+  const bgs = document.getElementById('showBgs');
+  const copy = document.getElementById('showCopy');
+  APPS.forEach((a) => {
+    bgs.insertAdjacentHTML('beforeend', `<div class="show-bg" style="background:${a.bg}; --c:${a.c}"></div>`);
+    copy.insertAdjacentHTML('beforeend', `<article class="show-item" style="--c:${a.c}; --c-ink:${a.cInk}">${copyHtml(a)}</article>`);
   });
+  // The phone holds every iOS app's screen stacked vertically; the track slides between them.
+  const phoneApps = APPS.filter(a => !a.web);
+  document.getElementById('showPhone').innerHTML = iphoneHtml(`<div class="screen-track" id="screenTrack">${phoneApps.map(shotImg).join('')}</div>`);
+  const wr = APPS.find(a => a.web);
+  document.getElementById('showLaptop').innerHTML = laptopHtml(shotImg(wr));
+  document.getElementById('showStack').innerHTML = APPS.map(a => `
+    <section class="stack-item" style="--bg-a:${a.bg}; --ink-a:${a.ink}; --c:${a.c}; --c-ink:${a.cInk}">
+      ${a.web ? laptopHtml(shotImg(a)) : iphoneHtml(shotImg(a))}
+      <div>${copyHtml(a)}</div>
+    </section>`).join('');
+}());
 
-  shelfStage.dataset.app = key;
-  document.getElementById('stTag').textContent  = p.tag;
-  document.getElementById('stDesc').textContent = p.desc;
+/* Scroll choreography (desktop, motion allowed). Exposes window.sbShowroom.goTo(i)
+   for the dock's app icons, and tells the dock when the room is on screen. */
+window.sbShowroom = { goTo: null };
+(function () {
+  gsap.registerPlugin(ScrollTrigger);
+  const mm = gsap.matchMedia();
+  mm.add({ wide: '(min-width: 900px)', okMotion: '(prefers-reduced-motion: no-preference)' }, (ctx) => {
+    const { wide, okMotion } = ctx.conditions;
+    if (!wide || !okMotion) {
+      document.documentElement.classList.add('is-stacked');
+      window.sbShowroom.goTo = null;
+      return () => document.documentElement.classList.remove('is-stacked');
+    }
+    const section = document.getElementById('products');
+    const items = gsap.utils.toArray('.show-item');
+    const bgEls = gsap.utils.toArray('.show-bg');
+    const track = document.getElementById('screenTrack');
+    const phone = document.getElementById('showPhone');
+    const lap = document.getElementById('showLaptop');
+    const count = document.getElementById('showCount');
+    const n = APPS.length;
+    let current = -1;
 
-  // The name is a link to the project's website (plain text when none yet).
-  const nameLink = document.getElementById('stNameLink');
-  nameLink.textContent = p.name;
-  if (p.site) {
-    nameLink.setAttribute('href', p.site);
-    nameLink.setAttribute('target', '_blank');
-    nameLink.setAttribute('rel', 'noopener');
-  } else {
-    nameLink.removeAttribute('href');
-    nameLink.removeAttribute('target');
-    nameLink.removeAttribute('rel');
-  }
+    gsap.set(section, { '--on': APPS[0].ink });
 
-  const cta = document.getElementById('stCta');
-  cta.innerHTML = '';
-  cta.append(p.cta + (p.ctaHref ? ' ' : ''));
-  if (p.ctaHref) {
-    const arr = document.createElement('span');
-    arr.setAttribute('aria-hidden', 'true');
-    arr.textContent = '↗';
-    cta.append(arr);
-    cta.setAttribute('href', p.ctaHref);
-    cta.setAttribute('target', '_blank');
-    cta.setAttribute('rel', 'noopener');
-  } else {
-    cta.removeAttribute('href');
-    cta.removeAttribute('target');
-    cta.removeAttribute('rel');
-  }
+    const tl = gsap.timeline({
+      defaults: { ease: 'power2.inOut' },
+      scrollTrigger: {
+        trigger: section, start: 'top top', end: () => '+=' + (n - 1) * 90 + '%',
+        pin: true, scrub: 0.7,
+        snap: { snapTo: 1 / (n - 1), duration: { min: 0.2, max: 0.6 }, ease: 'power2.inOut', delay: 0.05, inertia: false },
+        onUpdate: (self) => {
+          const i = Math.round(self.progress * (n - 1));
+          if (i === current) return;
+          current = i;
+          count.textContent = `${i + 1} / ${n}`;
+          if (window.sbDock) window.sbDock.setActiveApp(APPS[i].id);
+        }
+      }
+    });
 
-  mframes.forEach(f => f.classList.toggle('on', f.dataset.m === key));
-  if (key === 'wr') wrTimerStart(); else wrTimerStop();
-}
+    let phoneIndex = 0;
+    for (let i = 1; i < n; i++) {
+      const at = i - 1, prev = APPS[i - 1], cur = APPS[i];
+      tl.to(items[i - 1], { autoAlpha: 0, y: -36, duration: 0.45 }, at)
+        .fromTo(items[i], { autoAlpha: 0, y: 36 }, { autoAlpha: 1, y: 0, duration: 0.5 }, at + 0.4)
+        .to(bgEls[i], { autoAlpha: 1, duration: 1, ease: 'none' }, at)
+        .to(section, { '--on': cur.ink, duration: 0.6, ease: 'none' }, at + 0.2);
+      if (cur.web) {
+        tl.to(phone, { autoAlpha: 0, scale: 0.86, rotationY: -18, duration: 0.5 }, at)
+          .fromTo(lap, { autoAlpha: 0, scale: 0.9, y: 30 }, { autoAlpha: 1, scale: 1, y: 0, duration: 0.6 }, at + 0.35);
+      } else if (prev.web) {
+        tl.to(lap, { autoAlpha: 0, scale: 0.9, y: 30, duration: 0.45 }, at)
+          .to(phone, { autoAlpha: 1, scale: 1, rotationY: 0, duration: 0.6 }, at + 0.3);
+        phoneIndex++;
+        tl.set(track, { yPercent: -100 * phoneIndex }, at);
+      } else {
+        phoneIndex++;
+        tl.to(track, { yPercent: -100 * phoneIndex, duration: 0.8, ease: 'power3.inOut' }, at + 0.1);
+      }
+    }
 
-railItems.forEach(it => it.addEventListener('click', () => selectProject(it.dataset.app)));
+    window.sbShowroom.goTo = (id) => {
+      const i = APPS.findIndex(a => a.id === id);
+      const st = tl.scrollTrigger;
+      if (i < 0 || !st) return;
+      // Tween the scroll ourselves (steady easing, so the snap lands where we aim).
+      // +1px keeps the landing spot inside the pin, never on its exact edge.
+      const o = { y: window.scrollY };
+      const target = st.start + (st.end - st.start) * (i / (n - 1)) + 1;
+      gsap.to(o, { y: target, duration: 0.9, ease: 'power2.inOut', overwrite: true, onUpdate: () => window.scrollTo(0, o.y) });
+    };
 
-/* Arrow keys walk the shelf (standard tabs pattern). */
-document.getElementById('shelfRail').addEventListener('keydown', e => {
-  const keys = ['ArrowDown', 'ArrowUp', 'ArrowRight', 'ArrowLeft'];
-  if (keys.indexOf(e.key) === -1) return;
-  e.preventDefault();
-  const cur  = railItems.findIndex(it => it.classList.contains('on'));
-  const step = (e.key === 'ArrowDown' || e.key === 'ArrowRight') ? 1 : -1;
-  const next = railItems[(cur + step + railItems.length) % railItems.length];
-  selectProject(next.dataset.app);
-  next.focus();
-});
+    // Cursor parallax: the device leans toward the pointer.
+    const dev = document.getElementById('showDevice');
+    const rx = gsap.quickTo(dev, 'rotationX', { duration: 0.8, ease: 'power3' });
+    const ry = gsap.quickTo(dev, 'rotationY', { duration: 0.8, ease: 'power3' });
+    const onMove = (e) => {
+      const r = section.getBoundingClientRect();
+      ry(((e.clientX - r.left) / r.width - 0.5) * 16);
+      rx(-((e.clientY - r.top) / r.height - 0.5) * 10);
+    };
+    const onLeave = () => { rx(0); ry(0); };
+    section.addEventListener('mousemove', onMove);
+    section.addEventListener('mouseleave', onLeave);
+    return () => { section.removeEventListener('mousemove', onMove); section.removeEventListener('mouseleave', onLeave); if (window.sbDock) window.sbDock.setAppsOpen(false); };
+  });
+}());
 
 /* ── DARK-THEME TOGGLE (dock button) ─────────────────
    Flips html.theme-dark, persists the choice, and plays a

@@ -31,14 +31,62 @@
         if (!isHome) return; // let hrefs work on other pages
         if (role === 'home')         { e.preventDefault(); scrollToTop(); }
         else if (role === 'about')   { e.preventDefault(); scrollToSection('about'); }
-        else if (role === 'apps')    { e.preventDefault(); scrollToSection('products'); }
+        else if (role === 'apps')    {
+          e.preventDefault();
+          // In the showroom, "Apps" always means the first app, wherever you come from.
+          if (window.sbShowroom && window.sbShowroom.goTo) window.sbShowroom.goTo('sr');
+          else scrollToSection('products');
+        }
         else if (role === 'contact') { e.preventDefault(); scrollToSection('contact'); }
       });
     });
 
+    /* — App icons (expand while the apps showroom is on screen) — */
+    var appsWrap = dock.querySelector('.dock-apps');
+    var appBtns = appsWrap ? Array.prototype.slice.call(appsWrap.querySelectorAll('.dock-app')) : [];
+    var appsOpen = false;
+    var appsAnim = null;
+    var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    function setAppsOpen(open) {
+      if (!appsWrap || open === appsOpen) return;
+      appsOpen = open;
+      if (appsAnim) { appsAnim.cancel(); appsAnim = null; }
+      // Measure the folded and unfolded widths, then tween between them.
+      var from = appsWrap.getBoundingClientRect().width;
+      appsWrap.style.overflow = 'hidden';
+      dock.classList.toggle('apps-open', open);
+      appsWrap.style.width = 'auto';
+      var to = open ? appsWrap.getBoundingClientRect().width : 0;
+      appsWrap.style.width = from + 'px';
+      appsAnim = appsWrap.animate(
+        [{ width: from + 'px', marginLeft: appsOpen ? (from ? '0px' : '-0.6rem') : '0px' },
+         { width: to + 'px',   marginLeft: open ? '0px' : '-0.6rem' }],
+        { duration: reduceMotion ? 0 : 520, easing: 'cubic-bezier(0.22, 1, 0.36, 1)', fill: 'forwards' }
+      );
+      appsAnim.onfinish = function () {
+        if (appsAnim) appsAnim.cancel();
+        appsAnim = null;
+        appsWrap.style.width = open ? 'auto' : '';
+        appsWrap.style.marginLeft = '';
+        appsWrap.style.overflow = open ? 'visible' : '';
+        if (!open) appBtns.forEach(function (b) { b.classList.remove('is-active'); });
+      };
+    }
+    function setActiveApp(id) {
+      appBtns.forEach(function (b) { b.classList.toggle('is-active', b.getAttribute('data-app') === id); });
+    }
+    appBtns.forEach(function (b) {
+      b.addEventListener('click', function () {
+        if (window.sbShowroom && window.sbShowroom.goTo) window.sbShowroom.goTo(b.getAttribute('data-app'));
+      });
+    });
+    window.sbDock = { setAppsOpen: setAppsOpen, setActiveApp: setActiveApp };
+
     /* — Active marker — */
     function setActive(role) {
       items.forEach(function (it) {
+        if (!it.hasAttribute('data-dock')) return; // app icons keep their own marker
         it.classList.toggle('is-active', it.getAttribute('data-dock') === role);
       });
     }
@@ -56,6 +104,8 @@
         if (products && products.getBoundingClientRect().top <= threshold) role = 'apps';
         if (contact  && contact.getBoundingClientRect().top  <= threshold) role = 'contact';
         setActive(role);
+        // The app icons live in the dock only while the showroom owns the screen.
+        setAppsOpen(role === 'apps' && !!(window.sbShowroom && window.sbShowroom.goTo));
       }
       window.addEventListener('scroll', function () {
         if (!ticking) { ticking = true; requestAnimationFrame(updateActive); }

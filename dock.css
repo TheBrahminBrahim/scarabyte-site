@@ -130,9 +130,42 @@
   background: color-mix(in oklab, var(--primary, #04295F) 26%, transparent);
 }
 
+/* ── App icons: a group that grows out of the dock while the
+   apps showroom is on screen, and folds away when you leave it.
+   JS animates the group's width (so nothing jumps); the icons
+   themselves pop in with a short stagger. ── */
+.dock-apps {
+  display: flex;
+  align-items: flex-end;
+  gap: 0.6rem;
+  width: 0;
+  margin-left: -0.6rem;          /* cancels the dock gap while folded */
+  overflow: hidden;
+}
+.dock.apps-open .dock-apps { width: auto; margin-left: 0; overflow: visible; }
+.dock-app {
+  padding: 0;
+  overflow: hidden;
+  opacity: 0;
+  transform: scale(0.5);
+  pointer-events: none;
+  transition: width 0.12s ease-out, height 0.12s ease-out,
+              opacity 0.25s ease, transform 0.45s cubic-bezier(0.22, 1, 0.36, 1),
+              box-shadow 0.25s ease;
+}
+.dock.apps-open .dock-app { opacity: 1; transform: none; pointer-events: auto; }
+.dock.apps-open .dock-app:nth-child(2) { transition-delay: 0.05s; }
+.dock.apps-open .dock-app:nth-child(3) { transition-delay: 0.1s; }
+.dock.apps-open .dock-app:nth-child(4) { transition-delay: 0.15s; }
+.dock-app .dock-label { overflow: visible; }
+.dock-app-ico { width: 100%; height: 100%; object-fit: cover; display: block; border-radius: 50%; pointer-events: none; }
+.dock-app.is-active { box-shadow: 0 0 0 2.5px var(--accent, #E0A82E); }
+.dock-app:hover { background: transparent; }
+
 /* ── Touch / no-hover: simple tap bar, labels always shown, no magnify ── */
 @media (hover: none), (pointer: coarse) {
   .dock { gap: 0.25rem; padding: 0.4rem 0.55rem; bottom: 0.7rem; }
+  .dock-apps { display: none; }   /* the tap bar stays five-wide; the apps list is stacked on touch */
   .dock-item {
     width: auto !important;
     height: auto !important;
