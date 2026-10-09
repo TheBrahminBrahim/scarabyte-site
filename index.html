@@ -482,8 +482,70 @@ body.home .nav { display: none; }
 .show-device .iphone { --w: clamp(240px, 22vw, 320px); }
 .screen-track { height: 100%; will-change: transform; }
 .screen-track img { height: 100%; }
-.show-laptop { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); opacity: 0; visibility: hidden; }
-.show-laptop .laptop { --w: clamp(420px, 40vw, 600px); }
+/* Centred with auto margins, not a transform: GSAP writes the transform while
+   swapping it in, and a translate() here would be lost (dropping it half a
+   height too low). Sits a little above true centre to clear the dock. */
+.show-laptop { position: absolute; inset: 0; margin: auto auto clamp(4rem, 14vh, 9rem); height: fit-content; opacity: 0; visibility: hidden; width: min(700px, 100%); }
+
+/* ── WikiRush live embed (wre-) ── */
+/* No panel: the pieces sit directly on the room, which is already WikiRush's midnight blue. */
+.wre { --wre-blue: #4e9bff; width: 100%; box-sizing: border-box; text-align: left; color: #f0f5fc; font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", system-ui, sans-serif; }
+.wre *, .wre *::before, .wre *::after { box-sizing: border-box; }
+.stack-item .wre { width: min(640px, 100%); margin: 0 auto; }
+.wre-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px 20px; flex-wrap: wrap; margin-bottom: clamp(18px, 2.2vw, 26px); }
+.wre-head { flex: 1 1 240px; min-width: 0; }
+.wre-h { margin: 0; font-weight: 800; font-size: clamp(30px, 3.4vw, 46px); letter-spacing: -1.5px; line-height: 1; color: #f0f5fc; }
+.wre-h span { color: #4e9bff; }
+.wre-sub { margin: 10px 0 0; font-size: 15px; line-height: 1.4; color: #8ba0bd; }
+.wre-sub strong { color: #f0f5fc; }
+.wre-count { flex: 0 0 auto; border: 1px solid #4e9bff; border-radius: 14px; padding: 12px 16px; background: radial-gradient(120% 100% at 0% 0%, rgba(78,155,255,0.09) 0%, transparent 70%), #0f1f3a; box-shadow: 0 20px 50px -20px rgba(78,155,255,0.32); }
+.wre-count-label { display: flex; align-items: center; gap: 7px; font: 700 10px/1 "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace; letter-spacing: 1.5px; color: #4e9bff; margin-bottom: 8px; }
+.wre-dot { width: 7px; height: 7px; border-radius: 50%; background: #4e9bff; animation: wre-pulse 1.8s ease-in-out infinite; }
+@keyframes wre-pulse { 0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(78,155,255,0.55); } 50% { opacity: 0.55; box-shadow: 0 0 0 5px rgba(78,155,255,0); } }
+.wre-clock { display: flex; align-items: flex-start; gap: 6px; font-family: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace; font-variant-numeric: tabular-nums; }
+.wre-unit { display: flex; flex-direction: column; align-items: center; gap: 3px; }
+.wre-num { font-size: 28px; font-weight: 700; line-height: 1; color: #f0f5fc; }
+.wre-unit small { font-size: 9px; font-weight: 700; letter-spacing: 1.5px; color: #8ba0bd; }
+.wre-colon { font-size: 28px; font-weight: 700; line-height: 1; color: #4a5e81; }
+.wre-duel { display: grid; grid-template-columns: 1fr 56px 1fr; align-items: center; margin-bottom: clamp(18px, 2.2vw, 26px); }
+.wre-card { display: block; min-width: 0; background: #fff; border-radius: 6px; border: 1px solid #A2A9B1; overflow: hidden; font-family: 'Helvetica Neue', Arial, sans-serif; color: #202122; text-decoration: none; transition: transform 0.25s cubic-bezier(0.22, 1, 0.36, 1); }
+.wre-card.is-start { transform: rotate(-1.5deg); box-shadow: 0 30px 60px -20px rgba(0,0,0,0.55), 0 0 0 1px rgba(78,155,255,0.32); }
+.wre-card.is-target { transform: rotate(1.5deg); box-shadow: 0 30px 60px -20px rgba(0,0,0,0.65), 0 0 0 2px #4e9bff; }
+.wre-card.is-start:hover { transform: rotate(-1.5deg) translateY(-3px); }
+.wre-card.is-target:hover { transform: rotate(1.5deg) translateY(-3px); }
+.wre-bar { display: flex; align-items: center; gap: 5px; padding: 7px 10px; border-bottom: 1px solid #EAECF0; background: #F8F9FA; }
+.wre-bar i { flex: 0 0 auto; width: 7px; height: 7px; border-radius: 50%; }
+.wre-url { flex: 1; min-width: 0; margin: 0 3px; background: #fff; border: 1px solid #EAECF0; border-radius: 4px; padding: 2px 6px; font: 9.5px/1.4 "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace; color: #54595D; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.wre-url span { color: #202122; }
+.wre-badge { flex: 0 0 auto; font: 700 9.5px/1 "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace; letter-spacing: 1.5px; padding: 3px 6px; border-radius: 3px; }
+.wre-badge.b-start { background: #4e9bff; color: #fff; }
+.wre-badge.b-target { background: #0F1F3A; color: #4e9bff; border: 1px solid #4e9bff; }
+.wre-body { padding: 14px 16px 16px; }
+.wre-body h4 { margin: 0 0 4px; font: 400 19px/1.15 'Linux Libertine', Georgia, 'Times New Roman', serif; color: #202122; overflow-wrap: anywhere; }
+.wre-from { font-size: 10px; font-style: italic; color: #54595D; margin-bottom: 8px; }
+.wre-rule { height: 1px; background: #EAECF0; margin-bottom: 9px; }
+.wre-body p { margin: 0 0 9px; font-size: 11.5px; line-height: 1.55; color: #202122; overflow-wrap: anywhere; }
+.wre-lines { -webkit-mask-image: linear-gradient(180deg, #000 20%, transparent); mask-image: linear-gradient(180deg, #000 20%, transparent); }
+.wre-lines i { display: block; height: 7px; border-radius: 3px; background: #E4E7EB; margin-bottom: 6px; }
+.wre-lines i:nth-child(1) { width: 94%; }
+.wre-lines i:nth-child(2) { width: 82%; }
+.wre-arrow { display: block; width: 56px; height: 24px; margin: 0 auto; overflow: visible; filter: drop-shadow(0 0 6px rgba(78,155,255,0.6)); }
+.wre-go { display: inline-flex; align-items: center; gap: 10px; background: linear-gradient(180deg, #6db0ff 0%, #4e9bff 100%); color: #fff; border-radius: 14px; padding: 14px 22px; font-weight: 800; font-size: 15px; text-decoration: none; transition: transform 0.2s, filter 0.2s, box-shadow 0.2s; }
+.wre-go span { font-family: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace; }
+.wre-go:hover { filter: brightness(1.08); transform: translateY(-1px); box-shadow: 0 12px 32px -8px rgba(78,155,255,0.32), 0 0 0 1px rgba(255,255,255,0.12) inset; }
+.wre-go:active { transform: translateY(0) scale(0.98); }
+@media (max-width: 559px) {
+  .wre-count { flex: 1 1 100%; }
+  .wre-duel { grid-template-columns: 1fr; grid-template-rows: auto 40px auto; }
+  .wre-arrow { transform: rotate(90deg); width: 40px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .wre-dot { animation: none; }
+  .wre-card, .wre-go { transition: none; }
+  .wre-card.is-start:hover { transform: rotate(-1.5deg); }
+  .wre-card.is-target:hover { transform: rotate(1.5deg); }
+  .wre-go:hover { transform: none; }
+}
 
 /* App copy bits shared by the room and the stacked fallback */
 .app-cta { display: inline-flex; align-items: center; gap: 0.45rem; text-decoration: none; font-weight: 800; font-size: 0.95rem; padding: 0.7rem 1.4rem; border-radius: var(--r-pill); background: var(--c); color: var(--c-ink, #fff); transition: transform 0.25s cubic-bezier(0.22, 1, 0.36, 1), filter 0.25s; }
@@ -514,20 +576,12 @@ body.home .nav { display: none; }
 .ib-vol2 { left: calc(var(--w) * -0.011); top: 33.5%; height: 7.5%; }
 .ib-power { right: calc(var(--w) * -0.011); top: 27%; height: 12.5%; background: linear-gradient(90deg, #a3a6ab, #4c4f54); }
 
-.laptop { --w: 560px; width: var(--w); flex: 0 0 auto; position: relative; }
-.laptop-lid { aspect-ratio: 16 / 10.2; background: #17181b; padding: calc(var(--w) * 0.016) calc(var(--w) * 0.016) calc(var(--w) * 0.03); border-radius: calc(var(--w) * 0.022) calc(var(--w) * 0.022) 0 0; box-shadow: 0 0 0 1px rgb(255 255 255 / 0.08) inset, 0 40px 70px -24px rgb(0 0 0 / 0.55); position: relative; }
-.laptop-cam { position: absolute; top: calc(var(--w) * 0.006); left: 50%; transform: translateX(-50%); width: calc(var(--w) * 0.012); height: calc(var(--w) * 0.012); border-radius: 50%; background: #2a2c31; box-shadow: 0 0 0 2px #0e0f11; }
-.laptop-screen { height: 100%; border-radius: calc(var(--w) * 0.008); overflow: hidden; background: #000; }
-.laptop-screen img { width: 100%; height: 100%; object-fit: cover; object-position: top; display: block; }
-.laptop-base { height: calc(var(--w) * 0.028); margin: 0 calc(var(--w) * -0.06); background: linear-gradient(#d8d9dc, #a5a8ad 60%, #7c7f85); border-radius: 0 0 calc(var(--w) * 0.03) calc(var(--w) * 0.03); position: relative; box-shadow: 0 10px 30px -10px rgb(0 0 0 / 0.5); }
-.laptop-base::after { content: ""; position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 16%; height: 35%; background: #8d9095; border-radius: 0 0 8px 8px; }
 
 /* ── Stacked fallback: phones, tablets, reduced motion ── */
 .show-stack { display: none; }
 .stack-item { display: grid; gap: 1.6rem; padding: clamp(3rem, 8vw, 5rem) clamp(1.2rem, 5vw, 4rem); color: var(--ink-a); background: var(--bg-a); }
 .stack-item .iphone { --w: min(260px, 64vw); margin: 0 auto; }
-.stack-item .laptop { --w: min(520px, 86vw); margin: 0 auto; }
-.stack-item h3 { font-family: var(--font-d); font-weight: 800; font-size: 2.2rem; letter-spacing: -0.03em; line-height: 1; margin: 0; }
+.stack-item .stack-item h3 { font-family: var(--font-d); font-weight: 800; font-size: 2.2rem; letter-spacing: -0.03em; line-height: 1; margin: 0; }
 .stack-item .tag { font-family: var(--font-d); font-weight: 700; font-size: 1.2rem; margin: 0.4rem 0 0; }
 .stack-item .desc { opacity: 0.85; margin: 0.7rem 0 0; max-width: 44ch; line-height: 1.6; }
 .stack-item .acts { display: flex; align-items: center; gap: 1.2rem; margin-top: 1.1rem; flex-wrap: wrap; }
@@ -874,8 +928,8 @@ html.is-zzz .zzz { opacity: 1; visibility: visible; transition-delay: 0s; }
     <div class="show-stage">
       <div class="show-device" id="showDevice">
         <div id="showPhone"></div>
-        <div class="show-laptop" id="showLaptop"></div>
       </div>
+      <div class="show-laptop" id="showLaptop"></div>
     </div>
   </div>
 </section>
@@ -934,8 +988,8 @@ html.is-zzz .zzz { opacity: 1; visibility: visible; transition-delay: 0s; }
   <div class="dock-apps" id="dockApps">
     <button class="dock-item dock-app" data-app="sr" type="button" aria-label="ScreenReps"><img class="dock-app-ico" src="assets/icon-screenreps.png" alt=""><span class="dock-label">ScreenReps</span></button>
     <button class="dock-item dock-app" data-app="pf" type="button" aria-label="PetFuel"><img class="dock-app-ico" src="assets/icon-petfuel.png" alt=""><span class="dock-label">PetFuel</span></button>
-    <button class="dock-item dock-app" data-app="wr" type="button" aria-label="WikiRush"><img class="dock-app-ico" src="assets/icon-wikirush.png" alt=""><span class="dock-label">WikiRush</span></button>
     <button class="dock-item dock-app" data-app="cl" type="button" aria-label="ChoreBlock"><img class="dock-app-ico" src="assets/icon-chorelock.png" alt=""><span class="dock-label">ChoreBlock</span></button>
+    <button class="dock-item dock-app" data-app="wr" type="button" aria-label="WikiRush"><img class="dock-app-ico" src="assets/icon-wikirush.png" alt=""><span class="dock-label">WikiRush</span></button>
   </div>
   <a class="dock-item" data-dock="contact" href="#contact" aria-label="Contact">
     <span class="dock-ico"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="6" width="17" height="12" rx="2.2"/><path d="M4.5 7.5 L12 13 L19.5 7.5"/></svg></span>
@@ -1004,25 +1058,80 @@ const APPS = [
     cta: 'Get the app', href: 'https://petfuel.app', site: 'https://petfuel.app', siteLabel: 'petfuel.app',
     icon: 'assets/icon-petfuel.png', shot: 'assets/shot-petfuel-1.png', alt: 'Building a dog\'s meal from whole foods, with a live balance score',
     c: '#0E7C72', cInk: '#FFFFFF', bg: '#E4EFEC', ink: '#0F1D1B' },
-  { id: 'wr', name: 'WikiRush', kind: 'Web game', web: true,
-    tag: 'Race through Wikipedia, link by link',
-    desc: 'Napoleon to Cheese in five clicks? Prove it. A racing game built on the world\'s encyclopedia. No install, just a browser.',
-    cta: 'Play in browser', href: 'https://wikirush.org', site: 'https://wikirush.org', siteLabel: 'wikirush.org',
-    icon: 'assets/icon-wikirush.png', shot: 'assets/shot-wikirush.jpg', alt: 'Today\'s daily challenge, start article to target article',
-    c: '#3B7BFF', cInk: '#FFFFFF', bg: '#0A1020', ink: '#F2F5FB' },
   { id: 'cl', name: 'ChoreBlock', kind: 'iOS app, hatching soon',
     tag: 'Unlock apps by actually tidying up',
     desc: 'ScreenReps for chores: apps stay locked until your camera confirms the room is actually tidy.',
     cta: 'Hatching soon', href: null, site: null,
     icon: 'assets/icon-chorelock.png', shot: 'assets/shot-choreblock-2.jpg', alt: 'Home screen asking you to do a chore to unlock',
     c: '#8B7FE8', cInk: '#1A1826', bg: '#1A1826', ink: '#EDEBF5' },
+  { id: 'wr', name: 'WikiRush', kind: 'Web game', web: true,
+    tag: 'Race through Wikipedia, link by link',
+    desc: 'Napoleon to Cheese in five clicks? Prove it. A racing game built on the world\'s encyclopedia. No install, just a browser.',
+    cta: 'Play in browser', href: 'https://wikirush.org', site: 'https://wikirush.org', siteLabel: 'wikirush.org',
+    icon: 'assets/icon-wikirush.png', alt: 'Today\'s daily challenge, start article to target article',
+    c: '#3B7BFF', cInk: '#FFFFFF', bg: '#0A1020', ink: '#F2F5FB' },
 ];
 
 function iphoneHtml(inner) {
   return `<div class="iphone"><i class="iphone-btn ib-action"></i><i class="iphone-btn ib-vol1"></i><i class="iphone-btn ib-vol2"></i><i class="iphone-btn ib-power"></i><div class="iphone-screen"><div class="scr">${inner}</div><div class="iphone-island"></div></div></div>`;
 }
-function laptopHtml(inner) {
-  return `<div class="laptop"><div class="laptop-lid"><div class="laptop-cam"></div><div class="laptop-screen">${inner}</div></div><div class="laptop-base"></div></div>`;
+const WRE_URL = 'https://wikirush.org/daily';
+const WRE_API = 'https://wikirush.org/api/public/daily';
+function escapeHtml(t) {
+  return String(t).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+}
+function wikiRushEmbedHtml(sfx) {
+  const bar = (badge) => `<div class="wre-bar"><i style="background:#E5484D"></i><i style="background:#FBBF24"></i><i style="background:#34D399"></i><div class="wre-url">en.wikipedia.org / wiki / <span data-wre="slug-${badge}">…</span></div><span class="wre-badge b-${badge}">${badge === 'start' ? 'START' : '◆ TARGET'}</span></div>`;
+  const lines = '<div class="wre-lines"><i></i><i></i></div>';
+  const mid = `wreArrow${sfx}`;
+  return `<div class="wre">
+    <div class="wre-top">
+      <div class="wre-head"><h3 class="wre-h">Today's <span>Daily Challenge.</span></h3><p class="wre-sub" data-wre="sub">A new race every day at midnight UTC.</p></div>
+      <div class="wre-count"><div class="wre-count-label"><i class="wre-dot"></i>NEXT RACE IN</div>
+        <div class="wre-clock" aria-label="Time until the next race"><div class="wre-unit"><b class="wre-num" data-wre="h">00</b><small>HRS</small></div><span class="wre-colon">:</span><div class="wre-unit"><b class="wre-num" data-wre="m">00</b><small>MIN</small></div><span class="wre-colon">:</span><div class="wre-unit"><b class="wre-num" data-wre="s">00</b><small>SEC</small></div></div></div>
+    </div>
+    <div class="wre-duel">
+      <a class="wre-card is-start" href="${WRE_URL}" target="_blank" rel="noopener">${bar('start')}<div class="wre-body"><h4 data-wre="start">Today's start</h4><div class="wre-from">From Wikipedia, the free encyclopedia</div><div class="wre-rule"></div><p data-wre="start-p">Revealed when you start your run.</p>${lines}</div></a>
+      <svg class="wre-arrow" viewBox="0 0 56 24" aria-hidden="true"><defs><marker id="${mid}" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M1 1 L9 5 L1 9 Z" fill="#4e9bff"/></marker></defs><line x1="4" y1="12" x2="48" y2="12" stroke="#4e9bff" stroke-width="2.5" stroke-dasharray="5 4" stroke-linecap="round" marker-end="url(#${mid})"/></svg>
+      <a class="wre-card is-target" href="${WRE_URL}" target="_blank" rel="noopener">${bar('target')}<div class="wre-body"><h4 data-wre="target">Today's target</h4><div class="wre-from">From Wikipedia, the free encyclopedia</div><div class="wre-rule"></div><p data-wre="target-p">Revealed when you start your run.</p>${lines}</div></a>
+    </div>
+    <a class="wre-go" href="${WRE_URL}" target="_blank" rel="noopener">Start your run <span aria-hidden="true">→</span></a>
+  </div>`;
+}
+const wreSet = (root, key, html) => { const el = root.querySelector(`[data-wre="${key}"]`); if (el) el.innerHTML = html; };
+function wikiRushFill(d) {
+  document.querySelectorAll('.wre').forEach((root) => {
+    if (!d || !d.start || !d.target) return;
+    const st = escapeHtml(d.start), tg = escapeHtml(d.target);
+    wreSet(root, 'start', st); wreSet(root, 'target', tg);
+    wreSet(root, 'slug-start', escapeHtml(String(d.start).replace(/ /g, '_')));
+    wreSet(root, 'slug-target', escapeHtml(String(d.target).replace(/ /g, '_')));
+    wreSet(root, 'start-p', `<strong>${st}</strong> is today's starting article. Click your way to the target using only links found on the page.`);
+    wreSet(root, 'target-p', `<strong>${tg}</strong> is today's target article. Reach it in as few clicks as possible.`);
+    const n = d.bestClicks;
+    wreSet(root, 'sub', (n === null || n === undefined) ? "No one has finished today's challenge yet" : `Best today is <strong>${escapeHtml(n)} ${n === 1 ? 'click' : 'clicks'}</strong>`);
+  });
+}
+function wikiRushLoad() {
+  fetch(WRE_API, { credentials: 'omit', mode: 'cors' })
+    .then((r) => (r.ok ? r.json() : Promise.reject(r.status)))
+    .then(wikiRushFill)
+    .catch(() => {});
+}
+function wikiRushStart() {
+  const DAY = 86400000;
+  let next = Math.ceil((Date.now() + 1) / DAY) * DAY;
+  const pad = (n) => String(n).padStart(2, '0');
+  const tick = () => {
+    let left = next - Date.now();
+    if (left <= 0) { next = Math.ceil((Date.now() + 1) / DAY) * DAY; left = next - Date.now(); wikiRushLoad(); }
+    const t = Math.floor(left / 1000);
+    const v = { h: pad(Math.floor(t / 3600)), m: pad(Math.floor(t % 3600 / 60)), s: pad(t % 60) };
+    document.querySelectorAll('.wre').forEach((root) => { for (const k in v) wreSet(root, k, v[k]); });
+  };
+  tick();
+  setInterval(tick, 1000);
+  wikiRushLoad();
 }
 function shotImg(a) { return `<img src="${a.shot}" alt="${a.name}: ${a.alt}" loading="lazy" decoding="async">`; }
 function ctaHtml(a) {
@@ -1047,13 +1156,13 @@ function copyHtml(a, cls) {
   // The phone holds every iOS app's screen stacked vertically; the track slides between them.
   const phoneApps = APPS.filter(a => !a.web);
   document.getElementById('showPhone').innerHTML = iphoneHtml(`<div class="screen-track" id="screenTrack">${phoneApps.map(shotImg).join('')}</div>`);
-  const wr = APPS.find(a => a.web);
-  document.getElementById('showLaptop').innerHTML = laptopHtml(shotImg(wr));
+  document.getElementById('showLaptop').innerHTML = wikiRushEmbedHtml('Room');
   document.getElementById('showStack').innerHTML = APPS.map(a => `
     <section class="stack-item" style="--bg-a:${a.bg}; --ink-a:${a.ink}; --c:${a.c}; --c-ink:${a.cInk}">
-      ${a.web ? laptopHtml(shotImg(a)) : iphoneHtml(shotImg(a))}
+      ${a.web ? wikiRushEmbedHtml('Stack') : iphoneHtml(shotImg(a))}
       <div>${copyHtml(a)}</div>
     </section>`).join('');
+  wikiRushStart();
 }());
 
 /* Scroll choreography (desktop, motion allowed). Exposes window.sbShowroom.goTo(i)
